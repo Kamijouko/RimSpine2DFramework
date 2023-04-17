@@ -13,16 +13,9 @@ namespace DynamicObject
 {
     public class DynamicObjectInstance : MonoBehaviour
     {
-        public string Ver { get; set; } = "3.5";
-
         void Start()
         {
-            if (Ver == "3.5")
-            {
-                TextAsset atlasTxt = TextAsset.
-                Spine35.Unity.AtlasAsset runtimeAtlasAsset = AtlasAsset.CreateRuntimeInstance(atlasTxt, textures, materialPropertySource, true);
-                Spine35.Unity.SkeletonDataAsset runtimeSkeletonDataAsset = SkeletonDataAsset.CreateRuntimeInstance(skeletonJson, runtimeAtlasAsset, true);
-            }
+            
             
         }
 

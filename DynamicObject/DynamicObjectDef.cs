@@ -10,6 +10,16 @@ namespace DynamicObject
 {
     public class DynamicObjectDef : Def
     {
-        public string 
+        public SpineSet spine;
+
+        public class SpineSet 
+        {
+            public string ver = "3.5";
+
+            public string skeletonPath = "";
+
+            public string atlasPath = "";
+        }
+
     }
 }
