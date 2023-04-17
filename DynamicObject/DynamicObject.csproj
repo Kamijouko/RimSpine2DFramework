@@ -1,0 +1,655 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{446FB846-83B9-44C1-9A69-51A3149F2705}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DynamicObject</RootNamespace>
+    <AssemblyName>DynamicObject</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HugsLib">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\HugsLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AccessibilityModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AndroidJNIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ARModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ClothModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ClusterInputModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ClusterRendererModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.CrashReportingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.DirectorModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.DSPGraphModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.DSPGraphModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.GameCenterModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.GridModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.HotReloadModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.InputModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.LocalizationModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.LocalizationModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PerformanceReportingModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.PerformanceReportingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ProfilerModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ProfilerModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.ScreenCaptureModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.SharedInternalsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteMaskModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.SpriteMaskModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteShapeModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.SpriteShapeModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.StreamingModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.StreamingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SubstanceModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.SubstanceModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SubsystemsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.SubsystemsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TerrainModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TilemapModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TilemapModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TLSModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.TLSModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UmbraModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UmbraModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UNETModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UNETModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityAnalyticsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityConnectModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityConnectModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityTestProtocolModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityTestProtocolModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VehiclesModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.VehiclesModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VFXModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.VFXModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.VideoModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.VRModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.WindModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\CodeEnvironment\Managed\UnityEngine.XRModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DynamicObjectDef.cs" />
+    <Compile Include="DynamicObjectInstance.cs" />
+    <Compile Include="ModDynamicObjectManager.cs" />
+    <Compile Include="ModStaticMethod.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Animation.cs" />
+    <Compile Include="Spine3.5\spine-csharp\AnimationState.cs" />
+    <Compile Include="Spine3.5\spine-csharp\AnimationStateData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Atlas.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\AtlasAttachmentLoader.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\Attachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\AttachmentLoader.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\AttachmentType.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\BoundingBoxAttachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\MeshAttachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\PathAttachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\RegionAttachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Attachments\VertexAttachment.cs" />
+    <Compile Include="Spine3.5\spine-csharp\BlendMode.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Bone.cs" />
+    <Compile Include="Spine3.5\spine-csharp\BoneData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Event.cs" />
+    <Compile Include="Spine3.5\spine-csharp\EventData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\ExposedList.cs" />
+    <Compile Include="Spine3.5\spine-csharp\IConstraint.cs" />
+    <Compile Include="Spine3.5\spine-csharp\IkConstraint.cs" />
+    <Compile Include="Spine3.5\spine-csharp\IkConstraintData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\IUpdatable.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Json.cs" />
+    <Compile Include="Spine3.5\spine-csharp\MathUtils.cs" />
+    <Compile Include="Spine3.5\spine-csharp\PathConstraint.cs" />
+    <Compile Include="Spine3.5\spine-csharp\PathConstraintData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Skeleton.cs" />
+    <Compile Include="Spine3.5\spine-csharp\SkeletonBinary.cs" />
+    <Compile Include="Spine3.5\spine-csharp\SkeletonBounds.cs" />
+    <Compile Include="Spine3.5\spine-csharp\SkeletonData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\SkeletonJson.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Skin.cs" />
+    <Compile Include="Spine3.5\spine-csharp\Slot.cs" />
+    <Compile Include="Spine3.5\spine-csharp\SlotData.cs" />
+    <Compile Include="Spine3.5\spine-csharp\TransformConstraint.cs" />
+    <Compile Include="Spine3.5\spine-csharp\TransformConstraintData.cs" />
+    <Compile Include="Spine3.5\spine-unity\Asset Types\AtlasAsset.cs" />
+    <Compile Include="Spine3.5\spine-unity\Asset Types\SkeletonDataAsset.cs" />
+    <Compile Include="Spine3.5\spine-unity\BoneFollower.cs" />
+    <Compile Include="Spine3.5\spine-unity\ISkeletonAnimation.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\Arrays\ArraysMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\Arrays\ArraysSimpleMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\Arrays\ArraysSubmeshedMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\Arrays\ArraysSubmeshSetMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\DoubleBuffered.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\DoubleBufferedMesh.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\ISimpleMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\ISubmeshedMeshGenerator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Mesh Generation\SpineMesh.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\AttachmentTools\AtlasRegionAttacher.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\AttachmentTools\AttachmentTools.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\AttachmentTools\SpriteAttacher.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\BoundingBoxFollower\BoundingBoxFollower.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\CustomMaterials\SkeletonRendererCustomMaterials.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\CustomSkin\CustomSkin.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\Ghost\SkeletonGhost.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\Ghost\SkeletonGhostRenderer.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\Ragdoll\SkeletonRagdoll.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\Ragdoll\SkeletonRagdoll2D.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonGraphic\SkeletonGraphic.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonRenderSeparator\SkeletonPartsRenderer.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonRenderSeparator\SkeletonRenderSeparator.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonUtility Modules\SkeletonUtilityEyeConstraint.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonUtility Modules\SkeletonUtilityGroundConstraint.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SkeletonUtility Modules\SkeletonUtilityKinematicShadow.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\SlotBlendModes\SlotBlendModes.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\TK2D\SpriteCollectionAttachmentLoader.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\YieldInstructions\WaitForSpineAnimationComplete.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\YieldInstructions\WaitForSpineEvent.cs" />
+    <Compile Include="Spine3.5\spine-unity\Modules\YieldInstructions\WaitForSpineTrackEntryEnd.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonAnimation.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonAnimator.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonExtensions.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonRenderer.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonUtility\SkeletonUtility.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonUtility\SkeletonUtilityBone.cs" />
+    <Compile Include="Spine3.5\spine-unity\SkeletonUtility\SkeletonUtilityConstraint.cs" />
+    <Compile Include="Spine3.5\spine-unity\SpineAttributes.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SkeletonAnimationPlayableHandle.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SkeletonGraphicPlayableHandle.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SpinePlayableHandleBase.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateBehaviour.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateClip.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateGraphicTrack.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateMixerBehaviour.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateTrack.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipBehaviour.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipClip.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipMixerBehaviour.cs" />
+    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipTrack.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Animation.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\AnimationState.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\AnimationStateData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Atlas.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\AtlasAttachmentLoader.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\Attachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\AttachmentLoader.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\AttachmentType.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\BoundingBoxAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\ClippingAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\MeshAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\PathAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\PointAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\RegionAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Attachments\VertexAttachment.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\BlendMode.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Bone.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\BoneData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Collections\OrderedDictionary.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\ConstraintData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Event.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\EventData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\ExposedList.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\IkConstraint.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\IkConstraintData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\IUpdatable.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Json.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\MathUtils.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\PathConstraint.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\PathConstraintData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Skeleton.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SkeletonBinary.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SkeletonBounds.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SkeletonClipping.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SkeletonData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SkeletonJson.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Skin.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Slot.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\SlotData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\TransformConstraint.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\TransformConstraintData.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-csharp\Triangulator.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\AnimationReferenceAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\AtlasAssetBase.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\BlendModeMaterials.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\EventDataReferenceAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\RegionlessAttachmentLoader.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\SkeletonDataAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\SkeletonDataCompatibility.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\SkeletonDataModifierAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\SpineAtlasAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Asset Types\SpineSpriteAtlasAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\Following\BoneFollower.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\Following\BoneFollowerGraphic.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\Following\BoundingBoxFollower.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\Following\BoundingBoxFollowerGraphic.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\Following\PointFollower.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\RootMotion\SkeletonMecanimRootMotion.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\RootMotion\SkeletonRootMotion.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\RootMotion\SkeletonRootMotionBase.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonAnimation.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonGraphic.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonMecanim.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonRenderer.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonRendererCustomMaterials\SkeletonGraphicCustomMaterials.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonRendererCustomMaterials\SkeletonRendererCustomMaterials.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonRenderSeparator\SkeletonPartsRenderer.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonRenderSeparator\SkeletonRenderSeparator.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\ActivateBasedOnFlipDirection.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\FollowLocationRigidbody.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\FollowLocationRigidbody2D.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\FollowSkeletonUtilityRootRotation.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\SkeletonUtility.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\SkeletonUtilityBone.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Components\SkeletonUtility\SkeletonUtilityConstraint.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Deprecated\SlotBlendModes\SlotBlendModes.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\ISkeletonAnimation.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Mesh Generation\DoubleBuffered.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Mesh Generation\MeshGenerator.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Mesh Generation\MeshRendererBuffers.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Mesh Generation\SkeletonRendererInstruction.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Mesh Generation\SpineMesh.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Modules\TK2D\SpriteCollectionAttachmentLoader.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\SkeletonDataModifierAssets\BlendModeMaterials\BlendModeMaterialsAsset.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\SpineAttributes.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\AtlasUtilities.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\AttachmentCloneExtensions.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\AttachmentRegionExtensions.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\MaterialChecks.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\SkeletonExtensions.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\SkinUtilities.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\TimelineExtensions.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineAnimation.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineAnimationComplete.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineAnimationEnd.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineEvent.cs" />
+    <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineTrackEntryEnd.cs" />
+    <Compile Include="ThisModBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Spine3.5\spine-unity\Modules\CustomMaterials\SkeletonRendererCustomMaterials.txt" />
+    <Content Include="Spine3.5\spine-unity\Modules\SkeletonRenderSeparator\SkeletonRenderSeparator.txt" />
+    <Content Include="Spine3.5\spine-unity\version.txt" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Common-ShadowCasterPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-DepthOnlyPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Input-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Input-Outline-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Input-Sprite-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Outline-Pass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Skeleton-ForwardPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-SkeletonLit-ForwardPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-SkeletonLit-ShadowCasterPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Sprite-Common-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Sprite-DepthOnlyPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Sprite-ForwardPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\Spine-Sprite-ShadowCasterPass-LW.hlsl" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor.atlas.txt" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor.png" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman-emission.png" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman-normals.png" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman.atlas.txt" />
+    <Content Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman.png" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\2D\Include\Spine-Sprite-NormalsPass-URP-2D.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\2D\Include\Spine-Sprite-StandardPass-URP-2D.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Common-ShadowCasterPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-DepthOnlyPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Input-Outline-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Input-Sprite-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Input-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Outline-Pass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Skeleton-ForwardPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-SkeletonLit-ForwardPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-SkeletonLit-ShadowCasterPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Sprite-Common-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Sprite-DepthOnlyPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Sprite-ForwardPass-URP.hlsl" />
+    <Content Include="Spine3.8\Modules\URP\Shaders\Include\Spine-Sprite-ShadowCasterPass-URP.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Spine3.5\spine-unity\Modules\Ghost\Shaders\SkeletonGhost.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\SkeletonTint.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CameraDepthNormalsTexture.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CameraDepthTexture.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CameraNormalsTexture.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\ShaderMaths.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\ShaderShared.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteLighting.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpritePixelLighting.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteShadows.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteSpecular.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteUnlit.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteVertexLighting.cginc" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\README.md" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\SpritesPixelLit.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\SpritesUnlit.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\Shaders\Sprite\SpritesVertexLit.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\SkeletonGraphic\Shaders\SkeletonGraphic.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\SkeletonGraphic\Shaders\SkeletonGraphicDefault.mat" />
+    <None Include="Spine3.5\spine-unity\Modules\SlotBlendModes\SkeletonPMAMultiply.mat" />
+    <None Include="Spine3.5\spine-unity\Modules\SlotBlendModes\SkeletonPMAScreen.mat" />
+    <None Include="Spine3.5\spine-unity\Modules\SlotBlendModes\Spine-Skeleton-PMA-Multiply.shader" />
+    <None Include="Spine3.5\spine-unity\Modules\SlotBlendModes\Spine-Skeleton-PMA-Screen.shader" />
+    <None Include="Spine3.5\spine-unity\Shaders\Bones.shader" />
+    <None Include="Spine3.5\spine-unity\Shaders\HiddenPass.mat" />
+    <None Include="Spine3.5\spine-unity\Shaders\HiddenPass.shader" />
+    <None Include="Spine3.5\spine-unity\Shaders\Skeleton.shader" />
+    <None Include="Spine3.5\spine-unity\Shaders\SkeletonLit.shader" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\SpineCoreShaders\ShaderShared.cginc" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\SpineCoreShaders\Spine-Outline-Common.cginc" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\CGIncludes\SpineCoreShaders\SpriteLighting.cginc" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\Outline\Spine-Skeleton-OutlineOnly-LW.shader" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\Spine-Skeleton-LW.shader" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\Spine-SkeletonLit-LW.shader" />
+    <None Include="Spine3.8\Modules\LWRP\Shaders\Spine-Sprite-LW.shader" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor-pro.json" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor-pro_SkeletonData.asset" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor_Atlas.asset" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\RaptorLWRP\raptor_Material.mat" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman.json" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_Atlas.asset" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_Material.mat" />
+    <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_SkeletonData.asset" />
+    <None Include="Spine3.8\Modules\Timeline\Runtime\spine-timeline.asmdef" />
+    <None Include="Spine3.8\Modules\URP\Shaders\2D\Spine-SkeletonLit-URP-2D.shader" />
+    <None Include="Spine3.8\Modules\URP\Shaders\2D\Spine-Sprite-URP-2D.shader" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Include\SpineCoreShaders\ShaderShared.cginc" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Include\SpineCoreShaders\Spine-Outline-Common.cginc" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Include\SpineCoreShaders\SpriteLighting.cginc" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Outline\Spine-Skeleton-OutlineOnly-URP.shader" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Spine-Skeleton-URP.shader" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Spine-SkeletonLit-URP.shader" />
+    <None Include="Spine3.8\Modules\URP\Shaders\Spine-Sprite-URP.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity.asmdef" />
+    <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicDefault.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicDefaultOutline.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicTintBlack.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicTintBlackOutline.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\BlendModes\Spine-Skeleton-PMA-Additive.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\BlendModes\Spine-Skeleton-PMA-Multiply.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\BlendModes\Spine-Skeleton-PMA-Screen.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\CGIncludes\Spine-DepthOnlyPass.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\CGIncludes\Spine-Outline-Common.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\CGIncludes\Spine-Skeleton-Lit-Common-Shadow.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\CGIncludes\Spine-Skeleton-Lit-Common.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\CGIncludes\Spine-Skeleton-Tint-Common.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\BlendModes\Spine-Skeleton-PMA-Additive-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\BlendModes\Spine-Skeleton-PMA-Multiply-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\BlendModes\Spine-Skeleton-PMA-Screen-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\CGIncludes\Spine-Outline-Pass.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\SkeletonGraphic\Spine-SkeletonGraphic-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\SkeletonGraphic\Spine-SkeletonGraphic-TintBlack-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-Fill-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-Lit-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-Lit-ZWrite-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-OutlineOnly-ZWrite.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-Tint-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Skeleton-TintBlack-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Spine-Special-Skeleton-Grayscale-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Sprite\SpritesPixelLit-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Sprite\SpritesUnlit-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Outline\Sprite\SpritesVertexLit-Outline.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\SkeletonGraphic\Spine-SkeletonGraphic-TintBlack.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\SkeletonGraphic\Spine-SkeletonGraphic.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton-Fill.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton-Lit-ZWrite.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton-Lit.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton-Tint.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton-TintBlack.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Skeleton.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Spine-Special-Skeleton-Grayscale.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CameraDepthNormalsTexture.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CameraDepthTexture.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CameraNormalsTexture.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\ShaderMaths.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\ShaderShared.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpriteLighting.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpritePixelLighting.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpriteShadows.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpriteSpecular.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpriteUnlit.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\CGIncludes\SpriteVertexLighting.cginc" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\README.md" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\SpriteDepthNormalsTexture.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\SpritesPixelLit.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\SpritesUnlit.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Sprite\SpritesVertexLit.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Utility\Hidden-Spine-Bones.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Utility\HiddenPass.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\Shaders\Utility\HiddenPass.shader" />
+    <None Include="Spine3.8\Runtime\spine-unity\SkeletonDataModifierAssets\BlendModeMaterials\Default BlendModeMaterials.asset" />
+    <None Include="Spine3.8\Runtime\spine-unity\SkeletonDataModifierAssets\BlendModeMaterials\SkeletonPMAAdditive.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\SkeletonDataModifierAssets\BlendModeMaterials\SkeletonPMAMultiply.mat" />
+    <None Include="Spine3.8\Runtime\spine-unity\SkeletonDataModifierAssets\BlendModeMaterials\SkeletonPMAScreen.mat" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
