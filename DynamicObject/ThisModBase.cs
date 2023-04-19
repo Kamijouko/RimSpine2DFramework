@@ -20,6 +20,7 @@ namespace DynamicObject
             base.DefsLoaded();
             ModStaticMethod.ThisMod = this;
             LoadAndResolveAllDynamicDefs();
+            ResolveAllStoryTellerCameras();
             ModStaticMethod.AllLevelsLoaded = true;
         }
 
@@ -85,13 +86,13 @@ namespace DynamicObject
                 {
                     Spine35.Unity.AtlasAsset runtimeAtlasAsset = Spine35.Unity.AtlasAsset.CreateRuntimeInstance(atlasTxt, materialPropertySource, true);
                     Spine35.Unity.SkeletonDataAsset runtimeSkeletonDataAsset = Spine35.Unity.SkeletonDataAsset.CreateRuntimeInstance(skeletonByte, runtimeAtlasAsset, true);
-                    ModDynamicObjectManager.spine35Database.Add(def.defName, Spine35.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(runtimeSkeletonDataAsset));
+                    ModDynamicObjectManager.spine35Database.Add(def.defName, runtimeSkeletonDataAsset);
                 }
                 if (def.spine.ver == "3.8" && !ModDynamicObjectManager.spine38Database.ContainsKey(def.defName))
                 {
                     Spine38.Unity.SpineAtlasAsset runtimeAtlasAsset = Spine38.Unity.SpineAtlasAsset.CreateRuntimeInstance(atlasTxt, materialPropertySource, true);
                     Spine38.Unity.SkeletonDataAsset runtimeSkeletonDataAsset = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(skeletonByte, runtimeAtlasAsset, true);
-                    ModDynamicObjectManager.spine38Database.Add(def.defName, Spine38.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(runtimeSkeletonDataAsset));
+                    ModDynamicObjectManager.spine38Database.Add(def.defName, runtimeSkeletonDataAsset);
                 }
                 if (!bundles.NullOrEmpty())
                 {
@@ -103,6 +104,61 @@ namespace DynamicObject
                 }
             }
             
+        }
+
+        public void ResolveAllStoryTellerCameras()
+        {
+            List<DynamicStoryTellerDef> list = DefDatabase<DynamicStoryTellerDef>.AllDefsListForReading;
+            if (list.NullOrEmpty())
+                return;
+
+            foreach (DynamicStoryTellerDef def in list)
+            {
+                if (def.dynamicObject == null || ModDynamicObjectManager.DynamicStoryTellerDatabase.ContainsKey(def.defName))
+                    continue;
+                GameObject obj = new GameObject(def.defName);
+                DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
+                Camera cam = obj.AddComponent<Camera>();
+                cam.fieldOfView = 40;
+                cam.clearFlags = CameraClearFlags.Color;
+                cam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+                cam.useOcclusionCulling = false;
+                cam.renderingPath = RenderingPath.Forward;
+                cam.nearClipPlane = 0.3f;
+                cam.farClipPlane = 10f;
+                cam.depth = Current.Camera.depth - 1;
+                cam.targetTexture = new RenderTexture(580, 620, 24, RenderTextureFormat.ARGB32, 0);
+
+                if (def.dynamicObject.spine.ver == "3.5" )
+                {
+                    if (!ModDynamicObjectManager.spine35Database.ContainsKey(def.dynamicObject.defName))
+                        continue;
+                    instance.ver = "3.5";
+                    instance.spine35skeleton = Spine35.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(ModDynamicObjectManager.spine35Database[def.dynamicObject.defName]);
+                    instance.spine35skeleton.transform.parent = instance.gameObject.transform;
+                    instance.spine35skeleton.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    instance.spine35skeleton.transform.position = new Vector3(0f, -1.6f, 5f);
+                    instance.spine35skeleton.skeleton.SetSkin(def.skin);
+                    instance.spine35skeleton.AnimationState.SetAnimation(0, def.animationName, def.loop);
+                    instance.spine35skeleton.Initialize(false);
+                }
+                else
+                {
+                    if (!ModDynamicObjectManager.spine38Database.ContainsKey(def.dynamicObject.defName))
+                        continue;
+                    instance.ver = "3.8";
+                    instance.spine38skeleton = Spine38.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(ModDynamicObjectManager.spine38Database[def.dynamicObject.defName]);
+                    instance.spine38skeleton.transform.parent = instance.gameObject.transform;
+                    instance.spine38skeleton.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                    instance.spine38skeleton.transform.position = new Vector3(0f, -1.6f, 5f);
+                    instance.spine38skeleton.skeleton.SetSkin(def.skin);
+                    instance.spine38skeleton.AnimationState.SetAnimation(0, def.animationName, def.loop);
+                    instance.spine38skeleton.Initialize(false);
+                }
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                obj.SetActive(false);
+                ModDynamicObjectManager.DynamicStoryTellerDatabase.Add(def.defName, obj);
+            }
         }
     }
 }

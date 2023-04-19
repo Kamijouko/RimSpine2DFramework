@@ -305,6 +305,8 @@
     <Compile Include="DynamicGraphicData.cs" />
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
+    <Compile Include="DynamicStoryTellerDef.cs" />
+    <Compile Include="HarmonyMain.cs" />
     <Compile Include="ImportMode.cs" />
     <Compile Include="ModDynamicObjectManager.cs" />
     <Compile Include="ModStaticMethod.cs" />

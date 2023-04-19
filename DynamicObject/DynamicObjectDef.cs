@@ -15,7 +15,7 @@ namespace DynamicObject
 
         public class SpineSet 
         {
-            public string ver = "3.5";
+            public string ver = "3.8";
 
             public string assetBundleName = "";
 

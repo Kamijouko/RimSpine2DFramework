@@ -6,18 +6,16 @@ using System.Threading.Tasks;
 using Verse;
 using RimWorld;
 using UnityEngine;
-using Spine35;
-using Spine35.Unity;
 
 namespace DynamicObject
 {
     public class DynamicObjectInstance : MonoBehaviour
     {
-        void Start()
-        {
-            
-            
-        }
+        public Spine35.Unity.SkeletonAnimation spine35skeleton;
+
+        public Spine38.Unity.SkeletonAnimation spine38skeleton;
+
+        public string ver = "3.8";
 
     }
 }
