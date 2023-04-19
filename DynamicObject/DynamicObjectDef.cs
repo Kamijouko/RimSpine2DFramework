@@ -10,15 +10,23 @@ namespace DynamicObject
 {
     public class DynamicObjectDef : Def
     {
+        public ImportMode importMode = ImportMode.File;
         public SpineSet spine;
 
         public class SpineSet 
         {
             public string ver = "3.5";
 
-            public string skeletonPath = "";
+            public string assetBundleName = "";
 
             public string atlasPath = "";
+
+            public string skeletonPath = "";
+
+            //这里的GraphicClass填Graphic_single
+            public List<DynamicGraphicData> textures = new List<DynamicGraphicData>();
+
+            public List<string> materialNames = new List<string>();
         }
 
     }

@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>L:\SteamLibrary\steamapps\common\RimWorld\Mods\DynamicObject\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -300,8 +300,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssetBundlesDef.cs" />
+    <Compile Include="AssetBundlesDefOf.cs" />
+    <Compile Include="DynamicGraphicData.cs" />
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
+    <Compile Include="ImportMode.cs" />
     <Compile Include="ModDynamicObjectManager.cs" />
     <Compile Include="ModStaticMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -384,18 +388,6 @@
     <Compile Include="Spine3.5\spine-unity\SkeletonUtility\SkeletonUtilityBone.cs" />
     <Compile Include="Spine3.5\spine-unity\SkeletonUtility\SkeletonUtilityConstraint.cs" />
     <Compile Include="Spine3.5\spine-unity\SpineAttributes.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SkeletonAnimationPlayableHandle.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SkeletonGraphicPlayableHandle.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\PlayableHandle Component\SpinePlayableHandleBase.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateBehaviour.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateClip.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateGraphicTrack.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateMixerBehaviour.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineAnimationState\SpineAnimationStateTrack.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipBehaviour.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipClip.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipMixerBehaviour.cs" />
-    <Compile Include="Spine3.8\Modules\Timeline\Runtime\SpineSkeletonFlip\SpineSkeletonFlipTrack.cs" />
     <Compile Include="Spine3.8\Runtime\spine-csharp\Animation.cs" />
     <Compile Include="Spine3.8\Runtime\spine-csharp\AnimationState.cs" />
     <Compile Include="Spine3.8\Runtime\spine-csharp\AnimationStateData.cs" />
@@ -578,7 +570,6 @@
     <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_Atlas.asset" />
     <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_Material.mat" />
     <None Include="Spine3.8\Modules\LWRP\Spine Skeletons\StretchymanLWRP\stretchyman_SkeletonData.asset" />
-    <None Include="Spine3.8\Modules\Timeline\Runtime\spine-timeline.asmdef" />
     <None Include="Spine3.8\Modules\URP\Shaders\2D\Spine-SkeletonLit-URP-2D.shader" />
     <None Include="Spine3.8\Modules\URP\Shaders\2D\Spine-Sprite-URP-2D.shader" />
     <None Include="Spine3.8\Modules\URP\Shaders\Include\SpineCoreShaders\ShaderShared.cginc" />
@@ -588,7 +579,6 @@
     <None Include="Spine3.8\Modules\URP\Shaders\Spine-Skeleton-URP.shader" />
     <None Include="Spine3.8\Modules\URP\Shaders\Spine-SkeletonLit-URP.shader" />
     <None Include="Spine3.8\Modules\URP\Shaders\Spine-Sprite-URP.shader" />
-    <None Include="Spine3.8\Runtime\spine-unity.asmdef" />
     <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicDefault.mat" />
     <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicDefaultOutline.mat" />
     <None Include="Spine3.8\Runtime\spine-unity\Materials\SkeletonGraphicTintBlack.mat" />
