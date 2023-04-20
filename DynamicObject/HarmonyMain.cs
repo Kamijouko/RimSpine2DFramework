@@ -9,8 +9,6 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 using System.Reflection;
-using System.Threading;
-using HugsLib.Utils;
 
 namespace DynamicObject
 {
