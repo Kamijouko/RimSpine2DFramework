@@ -19,5 +19,11 @@ namespace DynamicObject
         public string skin = "default";
 
         public bool loop = true;
+
+        public override void ResolveReferences()
+        {
+            base.ResolveReferences();
+
+        }
     }
 }

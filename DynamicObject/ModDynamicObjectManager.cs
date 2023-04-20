@@ -16,8 +16,10 @@ namespace DynamicObject
     public static class ModDynamicObjectManager
     {
         public static Dictionary<string, Shader> spineShaderDatabase = new Dictionary<string, Shader>();
-        public static Dictionary<string, Spine35.Unity.SkeletonDataAsset> spine35Database = new Dictionary<string, Spine35.Unity.SkeletonDataAsset>();
-        public static Dictionary<string, Spine38.Unity.SkeletonDataAsset> spine38Database = new Dictionary<string, Spine38.Unity.SkeletonDataAsset>();
+        public static Dictionary<string, SpineTextAssetData> spine35Database = new Dictionary<string, SpineTextAssetData>();
+        public static Dictionary<string, SpineTextAssetData> spine38Database = new Dictionary<string, SpineTextAssetData>();
+
+        public static Dictionary<string, AssetBundle> bundles = new Dictionary<string, AssetBundle>();
 
         public static Dictionary<string, GameObject> DynamicStoryTellerDatabase = new Dictionary<string, GameObject>();
     }

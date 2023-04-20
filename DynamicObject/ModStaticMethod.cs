@@ -11,6 +11,8 @@ namespace DynamicObject
     {
         public static bool AllLevelsLoaded { get; set; } = false;
 
+        public static string message = "not load";
+
         public static string RootDir
         {
             get

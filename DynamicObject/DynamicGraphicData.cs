@@ -13,26 +13,25 @@ namespace DynamicObject
     public class DynamicGraphicData : GraphicData
     {
 		public string shaderName = "Spine/Skeleton";
+		public Graphic tempGraph = null;
 
 		public Graphic DynamicGraphic
         {
             get
             {
-				Traverse data = Traverse.Create(this).Field("cachedGraphic");
-				if ((Graphic)data.GetValue() == null)
+				if (tempGraph == null)
 				{
 					this.SpecialInit();
 				}
-				return (Graphic)data.GetValue();
+				return tempGraph;
 			}
         }
 
         public void SpecialInit()
         {
-			Traverse data = Traverse.Create(this).Field("cachedGraphic");
-			if (this.graphicClass == null || !ModStaticMethod.AllLevelsLoaded)
+			if (this.graphicClass == null)
 			{
-				data.SetValue(null);
+				tempGraph = null;
 				return;
 			}
 			ShaderTypeDef cutout = this.shaderType;
@@ -41,14 +40,14 @@ namespace DynamicObject
 				cutout = ShaderTypeDefOf.Cutout;
 			}
 			Shader shader = ModDynamicObjectManager.spineShaderDatabase.ContainsKey(shaderName) ? ModDynamicObjectManager.spineShaderDatabase[shaderName] : cutout.Shader;
-			data.SetValue(GraphicDatabase.Get(this.graphicClass, this.texPath, shader, this.drawSize, this.color, this.colorTwo, this, this.shaderParameters, this.maskPath));
+			tempGraph = GraphicDatabase.Get(this.graphicClass, this.texPath, shader, this.drawSize, this.color, this.colorTwo, this, this.shaderParameters, this.maskPath);
 			if (this.onGroundRandomRotateAngle > 0.01f)
 			{
-				data.SetValue(new Graphic_RandomRotated((Graphic)data.GetValue(), this.onGroundRandomRotateAngle));
+				tempGraph = new Graphic_RandomRotated(tempGraph, this.onGroundRandomRotateAngle);
 			}
 			if (this.Linked)
 			{
-				data.SetValue(GraphicUtility.WrapLinked((Graphic)data.GetValue(), this.linkType));
+				tempGraph = GraphicUtility.WrapLinked(tempGraph, this.linkType);
 			}
 		}
     }

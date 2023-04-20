@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 using RimWorld;
+using UnityEngine;
+using System.IO;
 
 namespace DynamicObject
 {
@@ -12,6 +14,8 @@ namespace DynamicObject
     {
         public ImportMode importMode = ImportMode.File;
         public SpineSet spine;
+
+        public Material[] materials = new Material[] { };
 
         public class SpineSet 
         {
@@ -23,10 +27,17 @@ namespace DynamicObject
 
             public string skeletonPath = "";
 
+            public string shaderName = "Spine-Skeleton.shader";
+
             //这里的GraphicClass填Graphic_single
-            public List<DynamicGraphicData> textures = new List<DynamicGraphicData>();
+            public List<TexturePath> textures = new List<TexturePath>();
 
             public List<string> materialNames = new List<string>();
+        }
+
+        public override void ResolveReferences()
+        {
+            base.ResolveReferences();
         }
 
     }

@@ -300,8 +300,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssetBundlesDef.cs" />
-    <Compile Include="AssetBundlesDefOf.cs" />
     <Compile Include="DynamicGraphicData.cs" />
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
@@ -487,6 +485,8 @@
     <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineAnimationEnd.cs" />
     <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineEvent.cs" />
     <Compile Include="Spine3.8\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineTrackEntryEnd.cs" />
+    <Compile Include="SpineTextAssetData.cs" />
+    <Compile Include="TexturePath.cs" />
     <Compile Include="ThisModBase.cs" />
   </ItemGroup>
   <ItemGroup>
