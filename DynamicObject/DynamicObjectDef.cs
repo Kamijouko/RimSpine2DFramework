@@ -27,7 +27,6 @@ namespace DynamicObject
 
             public string shaderName = "Spine-Skeleton.shader";
 
-            //这里的GraphicClass填Graphic_single
             public List<TexturePath> textures = new List<TexturePath>();
 
             public List<string> materialNames = new List<string>();
