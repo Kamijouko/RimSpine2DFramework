@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 using RimWorld;
+using UnityEngine;
 
 namespace DynamicObject
 {
@@ -14,16 +15,26 @@ namespace DynamicObject
 
         public DynamicObjectDef dynamicObject;
 
-        public string animationName;
+        public string idleAnimationName;
+
+        public string specialAnimationName;
+
+        public string interactAnimationName;
+
+        public int specialAnimationLoopForIdleAnimationTimes;
 
         public string skin = "default";
 
         public bool loop = true;
 
-        public override void ResolveReferences()
-        {
-            base.ResolveReferences();
+        public Vector2 windowScale = new Vector2(580, 620);
 
-        }
+        public Vector2 scale = new Vector2(1f, 1f);
+
+        public float cameraDistance = 1f;
+
+        public Vector2 offset = Vector2.zero;
+
+        public Vector3 rotation = Vector3.zero;
     }
 }

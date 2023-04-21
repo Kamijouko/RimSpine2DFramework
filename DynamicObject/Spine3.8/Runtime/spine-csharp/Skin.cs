@@ -34,7 +34,7 @@ using Spine38.Collections;
 
 namespace Spine38 {
 	/// <summary>Stores attachments by slot index and attachment name.
-	/// <para>See SkeletonData <see cref="Spine.SkeletonData.DefaultSkin"/>, Skeleton <see cref="Spine.Skeleton.Skin"/>, and
+	/// <para>See SkeletonData <see cref="Spine41.SkeletonData.DefaultSkin"/>, Skeleton <see cref="Spine41.Skeleton.Skin"/>, and
 	/// <a href="http://esotericsoftware.com/spine-runtime-skins">Runtime skins</a> in the Spine38 Runtimes Guide.</para>
 	/// </summary>
 	public class Skin {
@@ -112,7 +112,7 @@ namespace Spine38 {
 		}
 
 		/// <summary>Returns all attachments in this skin for the specified slot index.</summary>
-		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine.Skeleton.FindSlotIndex"/> or <see cref="Spine.SkeletonData.FindSlotIndex"/>
+		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine41.Skeleton.FindSlotIndex"/> or <see cref="Spine41.SkeletonData.FindSlotIndex"/>
 		public void GetAttachments (int slotIndex, List<SkinEntry> attachments) {
 			foreach (SkinEntry entry in this.attachments.Keys)
 				if (entry.SlotIndex == slotIndex) attachments.Add(entry);

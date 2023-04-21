@@ -33,7 +33,7 @@ using System.Collections.Generic;
 
 namespace Spine35 {
 	/// <summary>Stores attachments by slot index and attachment name.
-	/// <para>See SkeletonData <see cref="Spine.SkeletonData.DefaultSkin"/>, Skeleton <see cref="Spine.Skeleton.Skin"/>, and 
+	/// <para>See SkeletonData <see cref="Spine41.SkeletonData.DefaultSkin"/>, Skeleton <see cref="Spine41.Skeleton.Skin"/>, and 
 	/// <a href="http://esotericsoftware.com/spine-runtime-skins">Runtime skins</a> in the Spine35 Runtimes Guide.</para>
 	/// </summary>
 	public class Skin {
@@ -62,7 +62,7 @@ namespace Spine35 {
 		}
 
 		/// <summary>Finds the skin keys for a given slot. The results are added to the passed List(names).</summary>
-		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine.Skeleton.FindSlotIndex"/> or <see cref="Spine.SkeletonData.FindSlotIndex"/>
+		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine41.Skeleton.FindSlotIndex"/> or <see cref="Spine41.SkeletonData.FindSlotIndex"/>
 		/// <param name="names">Found skin key names will be added to this list.</param>
 		public void FindNamesForSlot (int slotIndex, List<string> names) {
 			if (names == null) throw new ArgumentNullException("names", "names cannot be null.");
@@ -71,7 +71,7 @@ namespace Spine35 {
 		}
 
 		/// <summary>Finds the attachments for a given slot. The results are added to the passed List(Attachment).</summary>
-		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine.Skeleton.FindSlotIndex"/> or <see cref="Spine.SkeletonData.FindSlotIndex"/>
+		/// <param name="slotIndex">The target slotIndex. To find the slot index, use <see cref="Spine41.Skeleton.FindSlotIndex"/> or <see cref="Spine41.SkeletonData.FindSlotIndex"/>
 		/// <param name="attachments">Found Attachments will be added to this list.</param>
 		public void FindAttachmentsForSlot (int slotIndex, List<Attachment> attachments) {
 			if (attachments == null) throw new ArgumentNullException("attachments", "attachments cannot be null.");

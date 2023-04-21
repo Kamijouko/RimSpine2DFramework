@@ -403,13 +403,13 @@ namespace Spine35 {
 		#endregion
 
 		#region Skins
-		/// <summary><see cref="Spine.Skin.FindNamesForSlot(int,List)"/></summary>
+		/// <summary><see cref="Spine41.Skin.FindNamesForSlot(int,List)"/></summary>
 		public static void FindNamesForSlot (this Skin skin, string slotName, SkeletonData skeletonData, List<string> results) {
 			int slotIndex = skeletonData.FindSlotIndex(slotName);
 			skin.FindNamesForSlot(slotIndex, results);
 		}
 
-		/// <summary><see cref="Spine.Skin.FindAttachmentsForSlot(int,List)"/></summary>
+		/// <summary><see cref="Spine41.Skin.FindAttachmentsForSlot(int,List)"/></summary>
 		public static void FindAttachmentsForSlot (this Skin skin, string slotName, SkeletonData skeletonData, List<Attachment> results) {
 			int slotIndex = skeletonData.FindSlotIndex(slotName);
 			skin.FindAttachmentsForSlot(slotIndex, results);

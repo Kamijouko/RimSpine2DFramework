@@ -15,8 +15,6 @@ namespace DynamicObject
         public ImportMode importMode = ImportMode.File;
         public SpineSet spine;
 
-        public Material[] materials = new Material[] { };
-
         public class SpineSet 
         {
             public string ver = "3.8";
@@ -34,11 +32,5 @@ namespace DynamicObject
 
             public List<string> materialNames = new List<string>();
         }
-
-        public override void ResolveReferences()
-        {
-            base.ResolveReferences();
-        }
-
     }
 }

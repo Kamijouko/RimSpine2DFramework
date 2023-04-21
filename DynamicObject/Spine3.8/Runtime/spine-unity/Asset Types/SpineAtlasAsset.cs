@@ -63,7 +63,7 @@ namespace Spine38.Unity {
 		}
 
 		/// <summary>
-		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine.Unity.SpineAtlasAsset.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
+		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine41.Unity.SpineAtlasAsset.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
 		public static SpineAtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Material materialPropertySource, bool initialize) {
 			// Get atlas page names.
 			string atlasString = atlasText.text;
@@ -102,7 +102,7 @@ namespace Spine38.Unity {
 		}
 
 		/// <summary>
-		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine.Unity.AtlasAssetBase.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
+		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine41.Unity.AtlasAssetBase.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
 		public static SpineAtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Shader shader, bool initialize) {
 			if (shader == null)
 				shader = Shader.Find("Spine/Skeleton");

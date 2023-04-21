@@ -47,14 +47,14 @@ namespace DynamicObject
 				{
 					if (def.spine == null)
 						continue;
-					TextAsset atlasTxt = new TextAsset("0");
-					TextAsset skeletonByte = new TextAsset("0");
-					SpineTextAssetData data;
-					Material[] materialPropertySource = null;
+					if (def.spine.ver == null)
+						def.spine.ver = "3.8";
+					TextAsset atlasAsset;
+					TextAsset skeletonAsset;
+					Material[] materials = null;
 					Texture2D[] textures = null;
 					Shader shader = ShaderTypeDefOf.Cutout.Shader;
 					AssetBundle ab;
-
 
 					if (def.importMode == ImportMode.AssetBundle)
 					{
@@ -64,12 +64,15 @@ namespace DynamicObject
 						}
 						else
 							ab = ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles.First(x => x.name == def.spine.assetBundleName);
-						atlasTxt = ab.LoadAsset<TextAsset>(def.spine.atlasPath);
-						skeletonByte = ab.LoadAsset<TextAsset>(def.spine.skeletonPath);
 
-						materialPropertySource = ab.LoadAllAssets<Material>();
-						materialPropertySource = materialPropertySource.Where(x => def.spine.materialNames.Contains(x.name)).ToArray();
-						Log.Warning(materialPropertySource.Length.ToString());
+						atlasAsset = ab.LoadAsset<TextAsset>(def.spine.atlasPath);
+						skeletonAsset = ab.LoadAsset<TextAsset>(def.spine.skeletonPath);
+
+						materials = ab.LoadAllAssets<Material>();
+						if (!materials.NullOrEmpty())
+							materials = materials.Where(x => def.spine.materialNames.Contains(x.name)).ToArray();
+						Log.Warning(materials.Length.ToString());
+
 
 					}
 					else
@@ -77,10 +80,10 @@ namespace DynamicObject
 						string txt = File.ReadAllText(Path.Combine(ModStaticMethod.RootDir, def.spine.atlasPath));
 						string json = File.ReadAllText(Path.Combine(ModStaticMethod.RootDir, def.spine.skeletonPath));
 
-						atlasTxt = new TextAsset(txt);
-						skeletonByte = new TextAsset(json);
-						atlasTxt.name = Path.GetFileName(def.spine.atlasPath);
-						skeletonByte.name = Path.GetFileName(def.spine.skeletonPath);
+						atlasAsset = new TextAsset(txt);
+						skeletonAsset = new TextAsset(json);
+						atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
+						skeletonAsset.name = Path.GetFileName(def.spine.skeletonPath);
 						foreach (AssetBundle bund in ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles)
                         {
 							Shader shade = bund.LoadAsset<Shader>(def.spine.shaderName);
@@ -99,15 +102,18 @@ namespace DynamicObject
 						Log.Warning(textures.Length.ToString());
 					}
 
+					SpineTextAssetData data = new SpineTextAssetData(atlasAsset, skeletonAsset, materials, textures, shader);
 					if (def.spine.ver == "3.5" && !ModDynamicObjectManager.spine35Database.ContainsKey(def.defName))
 					{
-						data = new SpineTextAssetData(atlasTxt, skeletonByte, materialPropertySource, textures, shader);
 						ModDynamicObjectManager.spine35Database.Add(def.defName, data);
 					}
-					if (def.spine.ver == "3.8" && !ModDynamicObjectManager.spine38Database.ContainsKey(def.defName))
+					else if (def.spine.ver == "3.8" && !ModDynamicObjectManager.spine38Database.ContainsKey(def.defName))
 					{
-						data = new SpineTextAssetData(atlasTxt, skeletonByte, materialPropertySource, textures, shader);
 						ModDynamicObjectManager.spine38Database.Add(def.defName, data);
+					}
+					else if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
+					{
+						ModDynamicObjectManager.spine41Database.Add(def.defName, data);
 					}
 				}
 			}
@@ -124,6 +130,26 @@ namespace DynamicObject
 						continue;
 					GameObject obj = new GameObject(def.defName);
 					DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
+					if (def.dynamicObject.spine.ver == "3.5")
+					{
+						if (!ModDynamicObjectManager.spine35Database.ContainsKey(def.dynamicObject.defName))
+							continue;
+						instance.ver = "3.5";
+					}
+					else if(def.dynamicObject.spine.ver == "3.8")
+					{
+						if (!ModDynamicObjectManager.spine38Database.ContainsKey(def.dynamicObject.defName))
+							continue;
+						instance.ver = "3.8";
+					}
+                    else
+                    {
+						if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.dynamicObject.defName))
+							continue;
+						instance.ver = "4.1";
+					}
+					instance.key = def.dynamicObject;
+					instance.def = def;
 					Camera cam = obj.AddComponent<Camera>();
 					cam.fieldOfView = 40;
 					cam.clearFlags = CameraClearFlags.Color;
@@ -133,22 +159,7 @@ namespace DynamicObject
 					cam.nearClipPlane = 0.3f;
 					cam.farClipPlane = 10f;
 					cam.depth = Current.Camera.depth - 1;
-					cam.targetTexture = new RenderTexture(580, 620, 24, RenderTextureFormat.ARGB32, 0);
-
-					if (def.dynamicObject.spine.ver == "3.5")
-					{
-						if (!ModDynamicObjectManager.spine35Database.ContainsKey(def.dynamicObject.defName))
-							continue;
-						instance.ver = "3.5";
-					}
-					else
-					{
-						if (!ModDynamicObjectManager.spine38Database.ContainsKey(def.dynamicObject.defName))
-							continue;
-						instance.ver = "3.8";
-					}
-					instance.key = def.dynamicObject;
-					instance.def = def;
+					cam.targetTexture = new RenderTexture((int)def.windowScale.x, (int)def.windowScale.y, 24, RenderTextureFormat.ARGB32, 0);
 					UnityEngine.Object.DontDestroyOnLoad(obj);
 					obj.SetActive(false);
 					ModDynamicObjectManager.DynamicStoryTellerDatabase.Add(def.defName, obj);
@@ -205,11 +216,11 @@ namespace DynamicObject
 				float num = 300f;
 				if (chosenStoryteller != null && chosenStoryteller.listVisible)
 				{
+
+
+
+
 					Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
-
-
-
-
 					foreach (string name in ModDynamicObjectManager.DynamicStoryTellerDatabase.Keys)
                     {
 						if (name != def.defName && ModDynamicObjectManager.DynamicStoryTellerDatabase[name].activeSelf)
@@ -221,12 +232,50 @@ namespace DynamicObject
 					ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
 
 					GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
-					
+
+					//点击互动逻辑
+					if (Widgets.ButtonText(position, "", false) && instance.canInteract)
+					{
+						instance.canInteract = false;
+						if (instance.ver == "3.8")
+                        {
+							Spine38.TrackEntry track = instance.spine38skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+							track.Complete += delegate (Spine38.TrackEntry t)
+							{
+								if (track.Animation.Name == def.interactAnimationName)
+									instance.canInteract = true;
+							};
+							instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+						}
+						else if (instance.ver == "3.5")
+                        {
+							Spine35.TrackEntry track = instance.spine35skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+							track.Complete += delegate (Spine35.TrackEntry t)
+							{
+								if (track.Animation.Name == def.interactAnimationName)
+									instance.canInteract = true;
+							};
+							instance.spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+						}
+                        else
+                        {
+							Spine41.TrackEntry track = instance.spine41skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+							track.Complete += delegate (Spine41.TrackEntry t)
+							{
+								if (track.Animation.Name == def.interactAnimationName)
+									instance.canInteract = true;
+							};
+							instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+						}
+					}
 
 
 
 
-					
+
+
+
+
 					Text.Anchor = TextAnchor.UpperLeft;
 					infoListing.Begin(rect3);
 					Text.Font = GameFont.Medium;

@@ -126,7 +126,7 @@ namespace Spine38 {
 			SetToSetupPose();
 		}
 
-		/// <summary>Same as <see cref="UpdateWorldTransform"/>. This method exists for Bone to implement <see cref="Spine.IUpdatable"/>.</summary>
+		/// <summary>Same as <see cref="UpdateWorldTransform"/>. This method exists for Bone to implement <see cref="Spine41.IUpdatable"/>.</summary>
 		public void Update () {
 			UpdateWorldTransform(x, y, rotation, scaleX, scaleY, shearX, shearY);
 		}

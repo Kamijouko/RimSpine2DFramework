@@ -38,7 +38,7 @@ using System.Collections.Generic;
 namespace Spine35 {
 	public static class Json {
 		public static object Deserialize (TextReader text) {
-			var parser = new SharpJson.JsonDecoder();
+			var parser = new SharpJson38.JsonDecoder();
 			parser.parseNumbersAsFloat = true;
 			return parser.Decode(text.ReadToEnd());
 		}

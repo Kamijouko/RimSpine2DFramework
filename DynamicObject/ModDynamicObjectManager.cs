@@ -18,6 +18,7 @@ namespace DynamicObject
         public static Dictionary<string, Shader> spineShaderDatabase = new Dictionary<string, Shader>();
         public static Dictionary<string, SpineTextAssetData> spine35Database = new Dictionary<string, SpineTextAssetData>();
         public static Dictionary<string, SpineTextAssetData> spine38Database = new Dictionary<string, SpineTextAssetData>();
+        public static Dictionary<string, SpineTextAssetData> spine41Database = new Dictionary<string, SpineTextAssetData>();
 
         public static Dictionary<string, AssetBundle> bundles = new Dictionary<string, AssetBundle>();
 
