@@ -21,7 +21,7 @@ namespace DynamicObject
 
         public string interactAnimationName;
 
-        public int specialAnimationLoopForIdleAnimationTimes;
+        public int specialAnimationLoopForIdleAnimationTimes = 3;
 
         public string skin = "default";
 

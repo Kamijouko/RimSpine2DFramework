@@ -217,9 +217,7 @@ namespace DynamicObject
 				if (chosenStoryteller != null && chosenStoryteller.listVisible)
 				{
 
-
-
-
+					//绘制叙述者	
 					Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
 					foreach (string name in ModDynamicObjectManager.DynamicStoryTellerDatabase.Keys)
                     {
@@ -230,7 +228,6 @@ namespace DynamicObject
 					if (instance.IsNull)
 						instance.CreateSpineAnimation();
 					ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
-
 					GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
 
 					//点击互动逻辑
@@ -245,7 +242,12 @@ namespace DynamicObject
 								if (track.Animation.Name == def.interactAnimationName)
 									instance.canInteract = true;
 							};
-							instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+							Spine38.TrackEntry track2 = instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+							track2.Complete += delegate (Spine38.TrackEntry t)
+							{
+								if (instance.canInteract == true && track2.Animation.Name == def.idleAnimationName)
+									instance.IdleTimes++;
+							};
 						}
 						else if (instance.ver == "3.5")
                         {

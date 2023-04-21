@@ -40,6 +40,63 @@ namespace DynamicObject
                 return spine35skeleton == null && spine41skeleton == null && spine41skeleton == null;
             }
         }
+
+        public void Update()
+        {
+            //特殊动作循环
+            if (canInteract == true && IdleTimes >= def.specialAnimationLoopForIdleAnimationTimes)
+            {
+                IdleTimes = 0;
+                canInteract = false;
+                if (ver == "3.8")
+                {
+                    Spine38.TrackEntry track = spine38skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
+                    track.Complete += delegate (Spine38.TrackEntry t)
+                    {
+                        if (track.Animation.Name == def.specialAnimationName)
+                            canInteract = true;
+                    };
+                    Spine38.TrackEntry track2 = spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                    track2.Complete += delegate (Spine38.TrackEntry t)
+                    {
+                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
+                            IdleTimes++;
+                    };
+                }
+                else if (ver == "3.5")
+                {
+                    Spine35.TrackEntry track = spine35skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
+                    track.Complete += delegate (Spine35.TrackEntry t)
+                    {
+                        if (track.Animation.Name == def.specialAnimationName)
+                            canInteract = true;
+                    };
+                    Spine35.TrackEntry track2 = spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                    track2.Complete += delegate (Spine35.TrackEntry t)
+                    {
+                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
+                            IdleTimes++;
+                    };
+                }
+                else
+                {
+                    Spine41.TrackEntry track = spine41skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
+                    track.Complete += delegate (Spine41.TrackEntry t)
+                    {
+                        if (track.Animation.Name == def.specialAnimationName)
+                            canInteract = true;
+                    };
+                    Spine41.TrackEntry track2 = spine41skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                    track2.Complete += delegate (Spine41.TrackEntry t)
+                    {
+                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
+                            IdleTimes++;
+                    };
+                } 
+                
+            }
+        }
+
         public void CreateSpineAnimation()
         {
             if (!gameObject.activeInHierarchy)
@@ -68,7 +125,12 @@ namespace DynamicObject
                 spine38skeleton.transform.rotation = Quaternion.Euler(def.rotation);
                 spine38skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
                 spine38skeleton.skeleton.SetSkin(def.skin);
-                spine38skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                Spine38.TrackEntry track = spine38skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                track.Complete += delegate (Spine38.TrackEntry t)
+                {
+                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
+                        IdleTimes++;
+                };
                 spine38skeleton.Initialize(false);
             }
             else if (ver == "3.5")
