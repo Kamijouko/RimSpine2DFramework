@@ -24,7 +24,7 @@ namespace DynamicObject
 		[HarmonyPatch("DoMainMenu")]
 		public class LoadAllPlayDatasPatch
 		{
-			static bool Prefix(Root __instance)
+			static bool Prefix(UIRoot_Entry __instance)
 			{
 				if (!ModStaticMethod.AllLevelsLoaded)
                 {
