@@ -43,7 +43,9 @@ namespace DynamicObject
 
         public void Update()
         {
-            //特殊动作循环
+            //特殊动作循环，
+            //根据IdleTimes（当前循环次数）和def里设置的特殊动画间隔次数来判断是否执行特殊动画，
+            //执行特殊动画逻辑与HarmonyMain中注释的点击动画逻辑一致
             if (canInteract == true && IdleTimes >= def.specialAnimationLoopForIdleAnimationTimes)
             {
                 IdleTimes = 0;
@@ -125,6 +127,7 @@ namespace DynamicObject
                 spine38skeleton.transform.rotation = Quaternion.Euler(def.rotation);
                 spine38skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
                 spine38skeleton.skeleton.SetSkin(def.skin);
+                //设置为循环Idle动画，并且添加在单次循环完成后属性IdleTimes加1的事件（记录循环次数）
                 Spine38.TrackEntry track = spine38skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
                 track.Complete += delegate (Spine38.TrackEntry t)
                 {

@@ -230,8 +230,11 @@ namespace DynamicObject
 					ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
 					GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
 
-					//点击互动逻辑
-					if (Widgets.ButtonText(position, "", false) && instance.canInteract)
+					//点击互动逻辑，
+					//点击后DynamicObjectInstance的属性canInteract设为false（不可点击），
+					//然后在当前动画执行完毕后开始执行点击动画，添加动画完成后canInteract设为true的事件，
+					//并且执行完后再次循环Idle动画，添加每次单次循环完成后DynamicObjectInstance的属性IdleTimes加1的事件（记录循环次数）
+					if (Widgets.ButtonText(position, "", false, false) && instance.canInteract)
 					{
 						instance.canInteract = false;
 						if (instance.ver == "3.8")
