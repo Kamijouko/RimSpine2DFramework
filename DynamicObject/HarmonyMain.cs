@@ -210,77 +210,74 @@ namespace DynamicObject
 				Rect outRect2 = new Rect(outRect.xMax + 8f, 0f, rect.width - outRect.width - 8f, rect.height);
 				___explanationInnerRect.width = outRect2.width - 16f;
 				Widgets.BeginScrollView(outRect2, ref ___explanationScrollPosition, ___explanationInnerRect, true);
-				Text.Font = GameFont.Small;
-				Widgets.Label(new Rect(0f, 0f, 300f, 999f), "HowStorytellersWork".Translate());
-				Rect rect3 = new Rect(0f, 120f, 290f, 9999f);
-				float num = 300f;
-				if (chosenStoryteller != null && chosenStoryteller.listVisible)
+                Text.Font = GameFont.Small;
+                Rect rect3 = new Rect(0f, 120f, 290f, 9999f);
+                float num = 300f;
+
+                Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
+                if (chosenStoryteller != null && chosenStoryteller.listVisible)
 				{
-
-					//绘制叙述者	
-					Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
-					foreach (string name in ModDynamicObjectManager.DynamicStoryTellerDatabase.Keys)
+                    //绘制叙述者	
+                    foreach (string name in ModDynamicObjectManager.DynamicStoryTellerDatabase.Keys)
                     {
-						if (name != def.defName && ModDynamicObjectManager.DynamicStoryTellerDatabase[name].activeSelf)
-							ModDynamicObjectManager.DynamicStoryTellerDatabase[name].SetActive(false);
-					}
-					DynamicObjectInstance instance = ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<DynamicObjectInstance>();
-					if (instance.IsNull)
-						instance.CreateSpineAnimation();
-					ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
-					GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
+                        if (name != def.defName && ModDynamicObjectManager.DynamicStoryTellerDatabase[name].activeSelf)
+                            ModDynamicObjectManager.DynamicStoryTellerDatabase[name].SetActive(false);
+                    }
+                    DynamicObjectInstance instance = ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<DynamicObjectInstance>();
+                    if (instance.IsNull)
+                        instance.CreateSpineAnimation();
+                    ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
+                    GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
 
-					//点击互动逻辑，
-					//点击后DynamicObjectInstance的属性canInteract设为false（不可点击），
-					//然后在当前动画执行完毕后开始执行点击动画，添加动画完成后canInteract设为true的事件，
-					//并且执行完后再次循环Idle动画，添加每次单次循环完成后DynamicObjectInstance的属性IdleTimes加1的事件（记录循环次数）
-					if (Widgets.ButtonText(position, "", false, false) && instance.canInteract)
-					{
-						instance.canInteract = false;
-						if (instance.ver == "3.8")
+                    //点击互动逻辑，
+                    //点击后DynamicObjectInstance的属性canInteract设为false（不可点击），
+                    //然后在当前动画执行完毕后开始执行点击动画，添加动画完成后canInteract设为true的事件，
+                    //并且执行完后再次循环Idle动画，添加每次单次循环完成后DynamicObjectInstance的属性IdleTimes加1的事件（记录循环次数）
+                    if (Widgets.ButtonText(position, "", false, false) && instance.canInteract)
+                    {
+                        instance.canInteract = false;
+                        if (instance.ver == "3.8")
                         {
-							Spine38.TrackEntry track = instance.spine38skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-							track.Complete += delegate (Spine38.TrackEntry t)
-							{
-								if (track.Animation.Name == def.interactAnimationName)
-									instance.canInteract = true;
-							};
-							Spine38.TrackEntry track2 = instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-							track2.Complete += delegate (Spine38.TrackEntry t)
-							{
-								if (instance.canInteract == true && track2.Animation.Name == def.idleAnimationName)
-									instance.IdleTimes++;
-							};
-						}
-						else if (instance.ver == "3.5")
+                            Spine38.TrackEntry track = instance.spine38skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+                            track.Complete += delegate (Spine38.TrackEntry t)
+                            {
+                                if (track.Animation.Name == def.interactAnimationName)
+                                    instance.canInteract = true;
+                            };
+                            Spine38.TrackEntry track2 = instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                            track2.Complete += delegate (Spine38.TrackEntry t)
+                            {
+                                if (instance.canInteract == true && track2.Animation.Name == def.idleAnimationName)
+                                    instance.IdleTimes++;
+                            };
+                        }
+                        else if (instance.ver == "3.5")
                         {
-							Spine35.TrackEntry track = instance.spine35skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-							track.Complete += delegate (Spine35.TrackEntry t)
-							{
-								if (track.Animation.Name == def.interactAnimationName)
-									instance.canInteract = true;
-							};
-							instance.spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-						}
+                            Spine35.TrackEntry track = instance.spine35skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+                            track.Complete += delegate (Spine35.TrackEntry t)
+                            {
+                                if (track.Animation.Name == def.interactAnimationName)
+                                    instance.canInteract = true;
+                            };
+                            instance.spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                        }
                         else
                         {
-							Spine41.TrackEntry track = instance.spine41skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-							track.Complete += delegate (Spine41.TrackEntry t)
-							{
-								if (track.Animation.Name == def.interactAnimationName)
-									instance.canInteract = true;
-							};
-							instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-						}
-					}
+                            Spine41.TrackEntry track = instance.spine41skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
+                            track.Complete += delegate (Spine41.TrackEntry t)
+                            {
+                                if (track.Animation.Name == def.interactAnimationName)
+                                    instance.canInteract = true;
+                            };
+                            instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
+                        }
+                    }
+                }
 
-
-
-
-
-
-
-
+                Widgets.Label(new Rect(0f, 0f, 300f, 999f), "HowStorytellersWork".Translate());
+                
+                if (chosenStoryteller != null && chosenStoryteller.listVisible)
+				{
 					Text.Anchor = TextAnchor.UpperLeft;
 					infoListing.Begin(rect3);
 					Text.Font = GameFont.Medium;
@@ -560,5 +557,25 @@ namespace DynamicObject
 				DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightAdaptation);
 			}
 		}
-    }
+
+		[HarmonyPatch(typeof(PawnGraphicSet))]
+		[HarmonyPatch("ResolveAllGraphics")]
+		public class TestPatch
+        {
+			static void Postfix()
+            {
+				Log.Warning("1");
+            }
+        }
+		[HarmonyPatch(typeof(PawnGraphicSet))]
+		[HarmonyPatch("ResolveApparelGraphics")]
+		public class TestPatch2
+		{
+			static void Postfix()
+			{
+				Log.Warning("2");
+			}
+		}
+
+	}
 }
