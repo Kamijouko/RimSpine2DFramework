@@ -9,6 +9,7 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 using System.Reflection;
+using Verse.Noise;
 
 namespace DynamicObject
 {
@@ -43,7 +44,12 @@ namespace DynamicObject
 				if (list.NullOrEmpty())
 					return;
 
-				foreach (DynamicObjectDef def in list)
+                List<ModContentPack> mods = LoadedModManager.RunningModsListForReading;
+                string[] folderAbsDir = mods.Select(x => Path.Combine(x.RootDir, "Spines")).Where(x => Directory.Exists(x)).ToArray();
+				List<AssetBundle> loadedAllAssetBundle = mods.SelectMany(x => x.assetBundles.loadedAssetBundles).ToList();
+				string[] assetBundleAbsDir = mods.Select(x => Path.Combine(x.RootDir, "AssetBundles")).Where(x => Directory.Exists(x)).ToArray();
+
+                foreach (DynamicObjectDef def in list)
 				{
 					if (def.spine == null)
 						continue;
@@ -58,12 +64,15 @@ namespace DynamicObject
 
 					if (def.importMode == ImportMode.AssetBundle)
 					{
-						if (!ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles.Exists(x => x.name == def.spine.assetBundleName))
+						if (!loadedAllAssetBundle.Exists(x => x.name == def.spine.assetBundleName))
 						{
-							ab = AssetBundle.LoadFromFile(Path.Combine(ModStaticMethod.RootDir, "AssetBundles", def.spine.assetBundleName));
+							string abPath = assetBundleAbsDir.FirstOrDefault(x => File.Exists(Path.Combine(x, def.spine.assetBundleName)));
+							if (abPath == null)
+								continue;
+                            ab = AssetBundle.LoadFromFile(Path.Combine(abPath, def.spine.assetBundleName));
 						}
 						else
-							ab = ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles.First(x => x.name == def.spine.assetBundleName);
+							ab = loadedAllAssetBundle.First(x => x.name == def.spine.assetBundleName);
 
 						atlasAsset = ab.LoadAsset<TextAsset>(def.spine.atlasPath);
 						skeletonAsset = ab.LoadAsset<TextAsset>(def.spine.skeletonPath);
@@ -77,8 +86,13 @@ namespace DynamicObject
 					}
 					else
 					{
-						string txt = File.ReadAllText(Path.Combine(ModStaticMethod.RootDir, def.spine.atlasPath));
-						string json = File.ReadAllText(Path.Combine(ModStaticMethod.RootDir, def.spine.skeletonPath));
+						string txtPath = folderAbsDir.FirstOrDefault(x => File.Exists(Path.Combine(x, def.spine.atlasPath)));
+						string jsonPath = folderAbsDir.FirstOrDefault(x => File.Exists(Path.Combine(x, def.spine.skeletonPath)));
+						if (txtPath == null || jsonPath == null)
+							continue;
+
+                        string txt = File.ReadAllText(Path.Combine(txtPath, def.spine.atlasPath));
+						string json = File.ReadAllText(Path.Combine(jsonPath, def.spine.skeletonPath));
 
 						atlasAsset = new TextAsset(txt);
 						skeletonAsset = new TextAsset(json);
