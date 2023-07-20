@@ -572,7 +572,7 @@ namespace DynamicObject
 			}
 		}
 
-		[HarmonyPatch(typeof(PawnGraphicSet))]
+		/*[HarmonyPatch(typeof(PawnGraphicSet))]
 		[HarmonyPatch("ResolveAllGraphics")]
 		public class TestPatch
         {
@@ -580,8 +580,8 @@ namespace DynamicObject
             {
 				Log.Warning("1");
             }
-        }
-		[HarmonyPatch(typeof(PawnGraphicSet))]
+        }*/
+		/*[HarmonyPatch(typeof(PawnGraphicSet))]
 		[HarmonyPatch("ResolveApparelGraphics")]
 		public class TestPatch2
 		{
@@ -589,7 +589,7 @@ namespace DynamicObject
 			{
 				Log.Warning("2");
 			}
-		}
+		}*/
 
 	}
 }
