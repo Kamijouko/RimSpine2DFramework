@@ -19,6 +19,8 @@ namespace DynamicObject
 
         public Spine41.Unity.SkeletonAnimation spine41skeleton;
 
+        public GameObject gObject;
+
         public string ver = "3.8";
 
         public DynamicObjectDef key;
@@ -37,7 +39,7 @@ namespace DynamicObject
         {
             get
             {
-                return spine35skeleton == null && spine41skeleton == null && spine41skeleton == null;
+                return spine35skeleton == null && spine38skeleton == null && spine41skeleton == null && gObject == null;
             }
         }
 
@@ -121,6 +123,20 @@ namespace DynamicObject
                     atlas = Spine38.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
                     skeleton = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
                 }
+
+                /*AssetBundle ab = ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles.FirstOrDefault(x => x.name == "pazonka");
+                Log.Warning("ab == null: "+(ab == null).ToStringSafe());
+                if (ab != null)
+                {
+                    gObject = ab.LoadAsset<GameObject>("pazion");
+                    Log.Warning("gObject == null: " + (gObject == null).ToStringSafe());
+                    gObject = Instantiate(gObject);
+                    gObject.transform.parent = transform;
+                    gObject.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
+                    gObject.transform.rotation = Quaternion.Euler(def.rotation);
+                    gObject.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
+                }*/
+
                 spine38skeleton = Spine38.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
                 spine38skeleton.transform.parent = gameObject.transform;
                 spine38skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
@@ -135,6 +151,7 @@ namespace DynamicObject
                         IdleTimes++;
                 };
                 spine38skeleton.Initialize(false);
+
             }
             else if (ver == "3.5")
             {
