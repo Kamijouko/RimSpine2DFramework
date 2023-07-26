@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>L:\SteamLibrary\steamapps\common\RimWorld\Mods\DynamicObject\Assemblies\</OutputPath>
+    <OutputPath>L:\SteamLibrary\steamapps\common\RimWorld\Mods\RimSpine2DFramework\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
