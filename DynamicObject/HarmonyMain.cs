@@ -98,7 +98,7 @@ namespace DynamicObject
 						skeletonAsset = new TextAsset(json);
 						atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
 						skeletonAsset.name = Path.GetFileName(def.spine.skeletonPath);
-						if (def.spine.shaderName == "Spine40-Skeleton.shader")
+						if (def.spine.shaderName == "Spine-Skeleton.shader")
 						{
 							string spineAB;
 							switch(def.spine.ver)
