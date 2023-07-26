@@ -33,7 +33,7 @@ namespace RimSpine2DFramework
 					ResolveAllStoryTellerCameras();
 					ModStaticMethod.message = "loaded";
 					ModStaticMethod.AllLevelsLoaded = true;
-					Log.Warning(ModStaticMethod.message);
+					//Log.Warning(ModStaticMethod.message);
 				}
 				return true;
 			}
@@ -125,7 +125,7 @@ namespace RimSpine2DFramework
                                 break;
                             }
                         }
-						Log.Warning(shader.name);
+						//Log.Warning(shader.name);
 						textures = new Texture2D[def.spine.textures.Count];
 						for (int i = 0; i < def.spine.textures.Count; i++)
 						{

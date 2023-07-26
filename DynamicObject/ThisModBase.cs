@@ -22,7 +22,7 @@ namespace RimSpine2DFramework
         {
             base.DefsLoaded();
             ModStaticMethod.ThisMod = this;
-            Logger.Message("已读取"+ModContentPack.assetBundles.loadedAssetBundles.Count.ToString()+"个AB包");    
+            //Logger.Message("已读取"+ModContentPack.assetBundles.loadedAssetBundles.Count.ToString()+"个AB包");    
         }
     }
 }
