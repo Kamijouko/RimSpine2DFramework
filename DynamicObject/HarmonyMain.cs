@@ -80,7 +80,7 @@ namespace DynamicObject
 						materials = ab.LoadAllAssets<Material>();
 						if (!materials.NullOrEmpty())
 							materials = materials.Where(x => def.spine.materialNames.Contains(x.name)).ToArray();
-						Log.Warning(materials.Length.ToString());
+						//Log.Warning(materials.Length.ToString());
 
 
 					}
@@ -98,22 +98,40 @@ namespace DynamicObject
 						skeletonAsset = new TextAsset(json);
 						atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
 						skeletonAsset.name = Path.GetFileName(def.spine.skeletonPath);
-						foreach (AssetBundle bund in ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles)
-                        {
-							Shader shade = bund.LoadAsset<Shader>(def.spine.shaderName);
-							if (shade == null)
-								continue;
-							shader = shade;
-							break;
-						}
-						Log.Warning(shader.name);
+						if (def.spine.shaderName == "Spine-Skeleton.shader")
+						{
+							string spineAB;
+							switch(def.spine.ver)
+							{
+								case "3.5": spineAB = "spine35"; break;
+								case "3.8": spineAB = "spine38"; break;
+								case "4.1": spineAB = "spine41"; break;
+                                default: spineAB = "spine38"; break;
+                            }
+							AssetBundle bund = loadedAllAssetBundle.FirstOrDefault(x => x.name == spineAB);
+                            Shader shade = bund.LoadAsset<Shader>(def.spine.shaderName);
+                            if (shade != null)
+                                shader = shade;
+                        }
+						else
+						{
+                            foreach (AssetBundle bund in loadedAllAssetBundle)
+                            {
+                                Shader shade = bund.LoadAsset<Shader>(def.spine.shaderName);
+                                if (shade == null)
+                                    continue;
+                                shader = shade;
+                                break;
+                            }
+                        }
+						//Log.Warning(shader.name);
 						textures = new Texture2D[def.spine.textures.Count];
 						for (int i = 0; i < def.spine.textures.Count; i++)
 						{
 							Texture2D texture = ContentFinder<Texture2D>.Get(def.spine.textures[i].texPath);
 							textures[i] = texture;
 						}
-						Log.Warning(textures.Length.ToString());
+						//Log.Warning(textures.Length.ToString());
 					}
 
 					SpineTextAssetData data = new SpineTextAssetData(atlasAsset, skeletonAsset, materials, textures, shader);
