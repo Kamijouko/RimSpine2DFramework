@@ -32,7 +32,7 @@
 using UnityEngine;
 
 namespace Spine41.Unity {
-	[CreateAssetMenu(menuName = "Spine/EventData Reference Asset", order = 100)]
+	[CreateAssetMenu(menuName = "Spine40/EventData Reference Asset", order = 100)]
 	public class EventDataReferenceAsset : ScriptableObject {
 		const bool QuietSkeletonData = true;
 

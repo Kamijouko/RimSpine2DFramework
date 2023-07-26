@@ -76,7 +76,7 @@ namespace Spine38.Unity {
 					compatibleVersionString += string.Format("{0}{1}.{2}", optionalOr, version[0], version[1]);
 					optionalOr = " or ";
 				}
-				return string.Format("Skeleton data could not be loaded. Data version: {0}. Required version: {1}.\nPlease re-export skeleton data with Spine {1} or change runtime to version {2}.{3}.",
+				return string.Format("Skeleton data could not be loaded. Data version: {0}. Required version: {1}.\nPlease re-export skeleton data with Spine40 {1} or change runtime to version {2}.{3}.",
 					actualVersion.rawVersion, compatibleVersionString, actualVersion.version[0], actualVersion.version[1]);
 			}
 		}

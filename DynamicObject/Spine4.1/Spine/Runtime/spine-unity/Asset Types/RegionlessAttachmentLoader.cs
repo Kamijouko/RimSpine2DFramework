@@ -42,7 +42,7 @@ namespace Spine41.Unity {
 						name = "Empty AtlasRegion",
 						page = new AtlasPage {
 							name = "Empty AtlasPage",
-							rendererObject = new Material(Shader.Find("Spine/Special/HiddenPass")) { name = "NoRender Material" }
+							rendererObject = new Material(Shader.Find("Spine40/Special/HiddenPass")) { name = "NoRender Material" }
 						}
 					};
 				}

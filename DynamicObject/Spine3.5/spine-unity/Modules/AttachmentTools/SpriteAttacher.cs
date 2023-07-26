@@ -36,7 +36,7 @@ using Spine35.Unity.Modules.AttachmentTools;
 
 namespace Spine35.Unity.Modules {
 	public class SpriteAttacher : MonoBehaviour {
-		public const string DefaultPMAShader = "Spine/Skeleton";
+		public const string DefaultPMAShader = "Spine40/Skeleton";
 		public const string DefaultStraightAlphaShader = "Sprites/Default";
 
 		#region Inspector

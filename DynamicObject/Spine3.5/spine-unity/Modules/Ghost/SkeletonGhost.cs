@@ -39,7 +39,7 @@ namespace Spine35.Unity.Modules {
 	public class SkeletonGhost : MonoBehaviour {
 		// Internal Settings
 		const HideFlags GhostHideFlags = HideFlags.HideInHierarchy;
-		const string GhostingShaderName = "Spine/Special/SkeletonGhost";
+		const string GhostingShaderName = "Spine40/Special/SkeletonGhost";
 
 		public bool ghostingEnabled = true;
 		public float spawnRate = 0.05f;

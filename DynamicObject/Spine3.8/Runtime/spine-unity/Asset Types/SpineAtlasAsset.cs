@@ -35,7 +35,7 @@ using Spine38;
 
 namespace Spine38.Unity {
 	/// <summary>Loads and stores a Spine38 atlas and list of materials.</summary>
-	[CreateAssetMenu(fileName = "New Spine Atlas Asset", menuName = "Spine/Spine Atlas Asset")]
+	[CreateAssetMenu(fileName = "New Spine40 Atlas Asset", menuName = "Spine40/Spine40 Atlas Asset")]
 	public class SpineAtlasAsset : AtlasAssetBase {
 		public TextAsset atlasFile;
 		public Material[] materials;
@@ -105,7 +105,7 @@ namespace Spine38.Unity {
 		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine41.Unity.AtlasAssetBase.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
 		public static SpineAtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Shader shader, bool initialize) {
 			if (shader == null)
-				shader = Shader.Find("Spine/Skeleton");
+				shader = Shader.Find("Spine40/Skeleton");
 
 			Material materialProperySource = new Material(shader);
 			var oa = CreateRuntimeInstance(atlasText, textures, materialProperySource, initialize);

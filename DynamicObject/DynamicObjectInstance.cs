@@ -17,6 +17,8 @@ namespace DynamicObject
 
         public Spine38.Unity.SkeletonAnimation spine38skeleton;
 
+        public Spine40.Unity.SkeletonAnimation spine40skeleton;
+
         public Spine41.Unity.SkeletonAnimation spine41skeleton;
 
         public GameObject gObject;
@@ -176,8 +178,46 @@ namespace DynamicObject
                 spine35skeleton.transform.rotation = Quaternion.Euler(def.rotation);
                 spine35skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
                 spine35skeleton.skeleton.SetSkin(def.skin);
-                spine35skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                //spine35skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                Spine35.TrackEntry track = spine35skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                track.Complete += delegate (Spine35.TrackEntry t)
+                {
+                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
+                        IdleTimes++;
+                };
                 spine35skeleton.Initialize(false);
+            }
+            else if (ver == "4.0")
+            {
+                if (spine40skeleton != null)
+                    return;
+                SpineTextAssetData data = ModDynamicObjectManager.spine40Database[key.defName];
+                Spine40.Unity.SpineAtlasAsset atlas;
+                Spine40.Unity.SkeletonDataAsset skeleton;
+                if (key.importMode == ImportMode.File)
+                {
+                    atlas = Spine40.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
+                    skeleton = Spine40.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
+                }
+                else
+                {
+                    atlas = Spine40.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
+                    skeleton = Spine40.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
+                }
+                spine40skeleton = Spine40.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
+                spine40skeleton.transform.parent = gameObject.transform;
+                spine40skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
+                spine40skeleton.transform.rotation = Quaternion.Euler(def.rotation);
+                spine40skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
+                spine40skeleton.skeleton.SetSkin(def.skin);
+                //spine40skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                Spine40.TrackEntry track = spine40skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                track.Complete += delegate (Spine40.TrackEntry t)
+                {
+                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
+                        IdleTimes++;
+                };
+                spine40skeleton.Initialize(false);
             }
             else
             {
@@ -202,7 +242,13 @@ namespace DynamicObject
                 spine41skeleton.transform.rotation = Quaternion.Euler(def.rotation);
                 spine41skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
                 spine41skeleton.skeleton.SetSkin(def.skin);
-                spine41skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                //spine41skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                Spine41.TrackEntry track = spine41skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
+                track.Complete += delegate (Spine41.TrackEntry t)
+                {
+                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
+                        IdleTimes++;
+                };
                 spine41skeleton.Initialize(false);
             }
         }

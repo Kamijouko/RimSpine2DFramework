@@ -38,7 +38,7 @@ using Spine35;
 
 namespace Spine35.Unity {
 	[ExecuteInEditMode, RequireComponent(typeof(CanvasRenderer), typeof(RectTransform)), DisallowMultipleComponent]
-	[AddComponentMenu("Spine/SkeletonGraphic (Unity UI Canvas)")]
+	[AddComponentMenu("Spine40/SkeletonGraphic (Unity UI Canvas)")]
 	public class SkeletonGraphic : MaskableGraphic, ISkeletonComponent, IAnimationStateComponent, ISkeletonAnimation {
 
 		#region Inspector

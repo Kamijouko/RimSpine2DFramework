@@ -275,7 +275,7 @@ namespace Spine41.Unity.AttachmentTools {
 			int[] additionalTexturePropertyIDsToCopy = null, Texture2D[] additionalOutputTextures = null,
 			TextureFormat[] additionalTextureFormats = null, bool[] additionalTextureIsLinear = null) {
 
-			Shader shader = materialPropertySource == null ? Shader.Find("Spine/Skeleton") : materialPropertySource.shader;
+			Shader shader = materialPropertySource == null ? Shader.Find("Spine40/Skeleton") : materialPropertySource.shader;
 			GetRepackedAttachments(sourceAttachments, outputAttachments, shader, out outputMaterial, out outputTexture,
 				maxAtlasSize, padding, textureFormat, mipmaps, newAssetName,
 				materialPropertySource, clearCache, useOriginalNonrenderables,

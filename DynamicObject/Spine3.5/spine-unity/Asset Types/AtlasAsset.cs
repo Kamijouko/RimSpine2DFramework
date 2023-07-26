@@ -62,7 +62,7 @@ namespace Spine35.Unity {
 		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine41.Unity.AtlasAsset.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
 		public static AtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Shader shader, bool initialize) {
 			if (shader == null)
-				shader = Shader.Find("Spine/Skeleton");
+				shader = Shader.Find("Spine40/Skeleton");
 
 			// Get atlas page names.
 			string atlasString = atlasText.text;

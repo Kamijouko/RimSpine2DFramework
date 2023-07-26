@@ -89,7 +89,7 @@ namespace Spine35.Unity.Modules {
 			}
 
 			targetSkeletonComponent = GetComponent<SkeletonRenderer>() as ISkeletonAnimation;
-			if (targetSkeletonComponent == null) Debug.LogError("Attached Spine component does not implement ISkeletonAnimation. This script is not compatible.");
+			if (targetSkeletonComponent == null) Debug.LogError("Attached Spine40 component does not implement ISkeletonAnimation. This script is not compatible.");
 			skeleton = targetSkeletonComponent.Skeleton;
 
 			if (applyOnStart) {

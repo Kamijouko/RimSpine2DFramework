@@ -100,7 +100,7 @@ namespace Spine38 {
 				skeletonData.hash = (string)skeletonMap["hash"];
 				skeletonData.version = (string)skeletonMap["spine"];
 				if ("3.8.75" == skeletonData.version)
-					throw new Exception("Unsupported skeleton data, please export with a newer version of Spine.");
+					throw new Exception("Unsupported skeleton data, please export with a newer version of Spine40.");
 				skeletonData.x = GetFloat(skeletonMap, "x", 0);
 				skeletonData.y = GetFloat(skeletonMap, "y", 0);
 				skeletonData.width = GetFloat(skeletonMap, "width", 0);

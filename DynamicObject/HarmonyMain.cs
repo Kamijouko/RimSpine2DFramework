@@ -98,14 +98,15 @@ namespace DynamicObject
 						skeletonAsset = new TextAsset(json);
 						atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
 						skeletonAsset.name = Path.GetFileName(def.spine.skeletonPath);
-						if (def.spine.shaderName == "Spine-Skeleton.shader")
+						if (def.spine.shaderName == "Spine40-Skeleton.shader")
 						{
 							string spineAB;
 							switch(def.spine.ver)
 							{
 								case "3.5": spineAB = "spine35"; break;
 								case "3.8": spineAB = "spine38"; break;
-								case "4.1": spineAB = "spine41"; break;
+                                case "4.0": spineAB = "spine40"; break;
+                                case "4.1": spineAB = "spine41"; break;
                                 default: spineAB = "spine38"; break;
                             }
 							AssetBundle bund = loadedAllAssetBundle.FirstOrDefault(x => x.name == spineAB);
@@ -143,7 +144,11 @@ namespace DynamicObject
 					{
 						ModDynamicObjectManager.spine38Database.Add(def.defName, data);
 					}
-					else if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
+                    else if (def.spine.ver == "4.0" && !ModDynamicObjectManager.spine40Database.ContainsKey(def.defName))
+                    {
+                        ModDynamicObjectManager.spine40Database.Add(def.defName, data);
+                    }
+                    else if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
 					{
 						ModDynamicObjectManager.spine41Database.Add(def.defName, data);
 					}

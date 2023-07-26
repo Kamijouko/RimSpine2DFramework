@@ -46,7 +46,7 @@ namespace Spine41.Unity {
 	[ExecuteInEditMode]
 #endif
 	[RequireComponent(typeof(CanvasRenderer), typeof(RectTransform)), DisallowMultipleComponent]
-	[AddComponentMenu("Spine/SkeletonGraphic (Unity UI Canvas)")]
+	[AddComponentMenu("Spine40/SkeletonGraphic (Unity UI Canvas)")]
 	[HelpURL("http://esotericsoftware.com/spine-unity#SkeletonGraphic-Component")]
 	public class SkeletonGraphic : MaskableGraphic, ISkeletonComponent, IAnimationStateComponent, ISkeletonAnimation, IHasSkeletonDataAsset {
 
@@ -174,7 +174,7 @@ namespace Spine41.Unity {
 		/// <summary>Create a new GameObject with a SkeletonGraphic component.</summary>
 		/// <param name="material">Material for the canvas renderer to use. Usually, the default SkeletonGraphic material will work.</param>
 		public static SkeletonGraphic NewSkeletonGraphicGameObject (SkeletonDataAsset skeletonDataAsset, Transform parent, Material material) {
-			SkeletonGraphic sg = SkeletonGraphic.AddSkeletonGraphicComponent(new GameObject("New Spine GameObject"), skeletonDataAsset, material);
+			SkeletonGraphic sg = SkeletonGraphic.AddSkeletonGraphicComponent(new GameObject("New Spine40 GameObject"), skeletonDataAsset, material);
 			if (parent != null) sg.transform.SetParent(parent, false);
 			return sg;
 		}

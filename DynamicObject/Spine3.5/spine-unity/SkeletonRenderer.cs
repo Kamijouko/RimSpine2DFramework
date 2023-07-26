@@ -140,7 +140,7 @@ namespace Spine35.Unity {
 
 		#region Runtime Instantiation
 		public static T NewSpineGameObject<T> (SkeletonDataAsset skeletonDataAsset) where T : SkeletonRenderer {
-			return SkeletonRenderer.AddSpineComponent<T>(new GameObject("New Spine GameObject"), skeletonDataAsset);
+			return SkeletonRenderer.AddSpineComponent<T>(new GameObject("New Spine40 GameObject"), skeletonDataAsset);
 		}
 
 		/// <summary>Add and prepare a Spine35 component that derives from SkeletonRenderer to a GameObject at runtime.</summary>

@@ -45,7 +45,7 @@ using System.Reflection;
 
 namespace Spine38.Unity {
 	/// <summary>Loads and stores a Spine38 atlas and list of materials.</summary>
-	[CreateAssetMenu(fileName = "New Spine SpriteAtlas Asset", menuName = "Spine/Spine SpriteAtlas Asset")]
+	[CreateAssetMenu(fileName = "New Spine40 SpriteAtlas Asset", menuName = "Spine40/Spine40 SpriteAtlas Asset")]
 	public class SpineSpriteAtlasAsset : AtlasAssetBase {
 		public SpriteAtlas spriteAtlasFile;
 		public Material[] materials;

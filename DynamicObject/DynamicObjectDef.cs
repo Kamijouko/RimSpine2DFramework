@@ -25,7 +25,7 @@ namespace DynamicObject
 
             public string skeletonPath = "";
 
-            public string shaderName = "Spine-Skeleton.shader";
+            public string shaderName = "Spine40-Skeleton.shader";
 
             public List<TexturePath> textures = new List<TexturePath>();
 

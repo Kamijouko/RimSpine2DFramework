@@ -12,7 +12,7 @@ namespace DynamicObject
 {
     public class DynamicGraphicData : GraphicData
     {
-		public string shaderName = "Spine/Skeleton";
+		public string shaderName = "Spine40/Skeleton";
 		public Graphic tempGraph = null;
 
 		public Graphic DynamicGraphic

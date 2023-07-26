@@ -36,7 +36,7 @@ using Spine35;
 namespace Spine35.Unity {
 	/// <summary>Sets a GameObject's transform to match a bone on a Spine35 skeleton.</summary>
 	[ExecuteInEditMode]
-	[AddComponentMenu("Spine/SkeletonUtilityBone")]
+	[AddComponentMenu("Spine40/SkeletonUtilityBone")]
 	public class SkeletonUtilityBone : MonoBehaviour {
 		public enum Mode {
 			Follow,

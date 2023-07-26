@@ -52,7 +52,7 @@ namespace Spine35.Unity {
 		#region Constructors
 		void Subscribe (Spine35.AnimationState state, Spine35.EventData eventDataReference, bool unsubscribe) {
 			#if PREUNITY_5_3
-			Debug.LogWarning("Unity 5.3 or later is required for Spine Unity custom yield instructions to function correctly.");
+			Debug.LogWarning("Unity 5.3 or later is required for Spine40 Unity custom yield instructions to function correctly.");
 			#endif
 
 			if (state == null) {
@@ -75,7 +75,7 @@ namespace Spine35.Unity {
 
 		void SubscribeByName (Spine35.AnimationState state, string eventName, bool unsubscribe) {
 			#if PREUNITY_5_3
-			Debug.LogWarning("Unity 5.3 or later is required for Spine Unity custom yield instructions to function correctly.");
+			Debug.LogWarning("Unity 5.3 or later is required for Spine40 Unity custom yield instructions to function correctly.");
 			#endif
 
 			if (state == null) {

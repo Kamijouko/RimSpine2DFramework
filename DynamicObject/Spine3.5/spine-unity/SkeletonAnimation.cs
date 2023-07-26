@@ -34,7 +34,7 @@ using UnityEngine;
 namespace Spine35.Unity {
 	
 	[ExecuteInEditMode]
-	[AddComponentMenu("Spine/SkeletonAnimation")]
+	[AddComponentMenu("Spine40/SkeletonAnimation")]
 	[HelpURL("http://esotericsoftware.com/spine-unity-documentation#Controlling-Animation")]
 	public class SkeletonAnimation : SkeletonRenderer, ISkeletonAnimation, IAnimationStateComponent {
 

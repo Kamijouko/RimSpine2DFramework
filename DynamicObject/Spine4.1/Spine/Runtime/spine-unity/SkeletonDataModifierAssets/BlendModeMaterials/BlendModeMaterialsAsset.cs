@@ -35,7 +35,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Spine41.Unity {
-	[CreateAssetMenu(menuName = "Spine/SkeletonData Modifiers/Blend Mode Materials", order = 200)]
+	[CreateAssetMenu(menuName = "Spine40/SkeletonData Modifiers/Blend Mode Materials", order = 200)]
 	public class BlendModeMaterialsAsset : SkeletonDataModifierAsset {
 		public Material multiplyMaterialTemplate;
 		public Material screenMaterialTemplate;

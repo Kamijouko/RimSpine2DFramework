@@ -36,7 +36,7 @@ using Spine38;
 using Spine38.Unity;
 
 namespace Spine38.Unity {
-	[CreateAssetMenu(menuName = "Spine/SkeletonData Modifiers/Blend Mode Materials", order = 200)]
+	[CreateAssetMenu(menuName = "Spine40/SkeletonData Modifiers/Blend Mode Materials", order = 200)]
 	public class BlendModeMaterialsAsset : SkeletonDataModifierAsset {
 		public Material multiplyMaterialTemplate;
 		public Material screenMaterialTemplate;

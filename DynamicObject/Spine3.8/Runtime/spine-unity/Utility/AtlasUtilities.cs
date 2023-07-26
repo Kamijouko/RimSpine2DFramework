@@ -303,7 +303,7 @@ namespace Spine38.Unity.AttachmentTools {
 			var rects = newTexture.PackTextures(texturesToPack.ToArray(), padding, maxAtlasSize);
 
 			// Rehydrate the repacked textures as a Material, Spine38 atlas and Spine38.AtlasAttachments
-			Shader shader = materialPropertySource == null ? Shader.Find("Spine/Skeleton") : materialPropertySource.shader;
+			Shader shader = materialPropertySource == null ? Shader.Find("Spine40/Skeleton") : materialPropertySource.shader;
 			var newMaterial = new Material(shader);
 			if (materialPropertySource != null) {
 				newMaterial.CopyPropertiesFromMaterial(materialPropertySource);

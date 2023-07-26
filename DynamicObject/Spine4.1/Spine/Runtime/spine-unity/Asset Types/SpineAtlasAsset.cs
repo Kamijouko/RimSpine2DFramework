@@ -34,7 +34,7 @@ using UnityEngine;
 
 namespace Spine41.Unity {
 	/// <summary>Loads and stores a Spine atlas and list of materials.</summary>
-	[CreateAssetMenu(fileName = "New Spine Atlas Asset", menuName = "Spine/Spine Atlas Asset")]
+	[CreateAssetMenu(fileName = "New Spine40 Atlas Asset", menuName = "Spine40/Spine40 Atlas Asset")]
 	public class SpineAtlasAsset : AtlasAssetBase {
 		public TextAsset atlasFile;
 		public Material[] materials;
@@ -133,7 +133,7 @@ namespace Spine41.Unity {
 			Func<SpineAtlasAsset, TextureLoader> newCustomTextureLoader = null) {
 
 			if (shader == null)
-				shader = Shader.Find("Spine/Skeleton");
+				shader = Shader.Find("Spine40/Skeleton");
 
 			Material materialProperySource = new Material(shader);
 			return CreateRuntimeInstance(atlasText, textures, materialProperySource, initialize, newCustomTextureLoader);

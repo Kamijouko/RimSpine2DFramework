@@ -40,7 +40,7 @@ namespace Spine38.Unity {
 	#else
 	[ExecuteInEditMode]
 	#endif
-	[AddComponentMenu("Spine/SkeletonUtilityBone")]
+	[AddComponentMenu("Spine40/SkeletonUtilityBone")]
 	[HelpURL("http://esotericsoftware.com/spine-unity#SkeletonUtilityBone")]
 	public class SkeletonUtilityBone : MonoBehaviour {
 		public enum Mode {

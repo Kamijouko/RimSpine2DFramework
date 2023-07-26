@@ -32,7 +32,7 @@
 using UnityEngine;
 
 namespace Spine38.Unity {
-	[CreateAssetMenu(menuName = "Spine/Animation Reference Asset", order = 100)]
+	[CreateAssetMenu(menuName = "Spine40/Animation Reference Asset", order = 100)]
 	public class AnimationReferenceAsset : ScriptableObject, IHasSkeletonDataAsset {
 		const bool QuietSkeletonData = true;
 

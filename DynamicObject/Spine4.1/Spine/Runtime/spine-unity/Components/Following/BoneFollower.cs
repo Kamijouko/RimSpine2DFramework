@@ -42,7 +42,7 @@ namespace Spine41.Unity {
 #else
 	[ExecuteInEditMode]
 #endif
-	[AddComponentMenu("Spine/BoneFollower")]
+	[AddComponentMenu("Spine40/BoneFollower")]
 	[HelpURL("http://esotericsoftware.com/spine-unity#BoneFollower")]
 	public class BoneFollower : MonoBehaviour {
 

@@ -46,7 +46,7 @@ namespace Spine35.Unity {
 
 		public WaitForSpineTrackEntryEnd (Spine35.TrackEntry trackEntry) {
 			#if PREUNITY_5_3
-			Debug.LogWarning("Unity 5.3 or later is required for Spine Unity custom yield instructions to function correctly.");
+			Debug.LogWarning("Unity 5.3 or later is required for Spine40 Unity custom yield instructions to function correctly.");
 			#endif
 
 			SafeSubscribe(trackEntry);

@@ -40,7 +40,7 @@ namespace Spine38.Unity {
 	#else
 	[ExecuteInEditMode]
 	#endif
-	[AddComponentMenu("Spine/Point Follower")]
+	[AddComponentMenu("Spine40/Point Follower")]
 	[HelpURL("http://esotericsoftware.com/spine-unity#PointFollower")]
 	public class PointFollower : MonoBehaviour, IHasSkeletonRenderer, IHasSkeletonComponent {
 
