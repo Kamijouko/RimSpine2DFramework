@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public static class ModStaticMethod
     {
@@ -17,7 +17,7 @@ namespace DynamicObject
         {
             get
             {
-                return ThisMod == null ? ModLister.GetActiveModWithIdentifier("DynamicObject.NazunaRei.kamijouko").RootDir.ToString() : ThisMod.ModContentPack.RootDir;
+                return ThisMod == null ? ModLister.GetActiveModWithIdentifier("RimSpine2DFramework.NazunaRei.kamijouko").RootDir.ToString() : ThisMod.ModContentPack.RootDir;
             }
         }
 

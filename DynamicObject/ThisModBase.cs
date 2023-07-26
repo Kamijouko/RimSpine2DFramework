@@ -12,11 +12,11 @@ using System.Threading;
 using HarmonyLib;
 using System.Collections;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class ThisModBase : ModBase
     {
-        public override string ModIdentifier { get; } = "DynamicObject.NazunaRei.kamijouko";
+        public override string ModIdentifier { get; } = "RimSpine2DFramework.NazunaRei.kamijouko";
 
         public override void DefsLoaded()
         {

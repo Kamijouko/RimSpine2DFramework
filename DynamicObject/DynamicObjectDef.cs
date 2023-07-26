@@ -8,7 +8,7 @@ using RimWorld;
 using UnityEngine;
 using System.IO;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class DynamicObjectDef : Def
     {
@@ -25,7 +25,7 @@ namespace DynamicObject
 
             public string skeletonPath = "";
 
-            public string shaderName = "Spine40-Skeleton.shader";
+            public string shaderName = "Spine-Skeleton.shader";
 
             public List<TexturePath> textures = new List<TexturePath>();
 

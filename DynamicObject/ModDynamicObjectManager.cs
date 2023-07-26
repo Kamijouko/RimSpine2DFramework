@@ -11,7 +11,7 @@ using Spine35.Unity;
 using Spine38;
 using Spine38.Unity;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public static class ModDynamicObjectManager
     {

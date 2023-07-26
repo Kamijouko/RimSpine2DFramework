@@ -8,7 +8,7 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class DynamicGraphicData : GraphicData
     {

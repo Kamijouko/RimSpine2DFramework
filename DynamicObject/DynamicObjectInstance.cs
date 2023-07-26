@@ -9,7 +9,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class DynamicObjectInstance : MonoBehaviour
     {

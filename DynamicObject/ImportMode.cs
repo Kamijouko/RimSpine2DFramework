@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public enum ImportMode : byte
     {

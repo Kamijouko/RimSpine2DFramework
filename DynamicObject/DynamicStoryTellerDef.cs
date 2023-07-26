@@ -7,7 +7,7 @@ using Verse;
 using RimWorld;
 using UnityEngine;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class DynamicStoryTellerDef : Def
     {

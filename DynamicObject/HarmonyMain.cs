@@ -11,13 +11,13 @@ using HarmonyLib;
 using System.Reflection;
 using Verse.Noise;
 
-namespace DynamicObject
+namespace RimSpine2DFramework
 {
     public class HarmonyMain
     {
         public HarmonyMain()
         {
-            var harmonyInstance = new Harmony("DynamicObject.NazunaRei.kamijouko");
+            var harmonyInstance = new Harmony("RimSpine2DFramework.NazunaRei.kamijouko");
 			harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
@@ -125,7 +125,7 @@ namespace DynamicObject
                                 break;
                             }
                         }
-						//Log.Warning(shader.name);
+						Log.Warning(shader.name);
 						textures = new Texture2D[def.spine.textures.Count];
 						for (int i = 0; i < def.spine.textures.Count; i++)
 						{
