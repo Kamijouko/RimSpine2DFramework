@@ -1,4 +1,4 @@
-# RimDynamicObject
+# RimSpine2DFramework
 一个Rimworld的Spine2D动态框架  
 
 链接到[steam页面](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)  
