@@ -208,7 +208,12 @@ namespace RimSpine2DFramework
         [HarmonyPatch("DrawStorytellerSelectionInterface")]
         public class DynamicStoryTellerPatch
         {
-            static bool Prefix(Rect rect, ref StorytellerDef chosenStoryteller, ref DifficultyDef difficulty, ref Difficulty difficultyValues, Listing_Standard infoListing, ref Vector2 ___scrollPosition, ref Texture2D ___StorytellerHighlightTex, ref Vector2 ___explanationScrollPosition, ref AnimationCurve ___explanationScrollPositionAnimated, ref Rect ___explanationInnerRect, ref float ___sectionHeightThreats, ref float ___sectionHeightEconomy, ref float ___sectionHeightIdeology, ref float ___sectionHeightBiotech, ref float ___sectionHeightGeneral, ref float ___sectionHeightPlayerTools, ref float ___sectionHeightAdaptation)
+            static bool Prefix(Rect rect, ref StorytellerDef chosenStoryteller, ref DifficultyDef difficulty, 
+				ref Difficulty difficultyValues, Listing_Standard infoListing, ref Vector2 ___scrollPosition, 
+				ref Texture2D ___StorytellerHighlightTex, ref Vector2 ___explanationScrollPosition, ref AnimationCurve ___explanationScrollPositionAnimated, 
+				ref Rect ___explanationInnerRect, ref float ___sectionHeightThreats, ref float ___sectionHeightEconomy, 
+				ref float ___sectionHeightIdeology, ref float ___sectionHeightChildren, ref float ___sectionHeightGeneral, 
+				ref float ___sectionHeightPlayerTools, ref float ___sectionHeightAdaptation, ref float ___sectionHeightAnomaly)
             {
 				string defName = chosenStoryteller.defName;
 				List<DynamicStoryTellerDef> defs = DefDatabase<DynamicStoryTellerDef>.AllDefsListForReading;
@@ -400,7 +405,7 @@ namespace RimSpine2DFramework
 						}
 						float curHeight = listing_Standard.CurHeight;
 						float gapHeight = outRect2.height / 2f;
-						DrawCustomLeft(listing_Standard, difficultyValues, ref ___sectionHeightEconomy, ref ___sectionHeightThreats, ref ___sectionHeightIdeology, ref ___sectionHeightBiotech);
+						DrawCustomLeft(listing_Standard, difficultyValues, ref ___sectionHeightEconomy, ref ___sectionHeightThreats, ref ___sectionHeightIdeology, ref ___sectionHeightChildren, ref ___sectionHeightAnomaly);
 						listing_Standard.Gap(gapHeight);
 						listing_Standard.NewColumn();
 						listing_Standard.Gap(curHeight);
@@ -471,7 +476,32 @@ namespace RimSpine2DFramework
 				listing.Label(key.Translate(), -1f, (key2.Translate() + "\n\n" + disableReason.Colorize(ColoredText.WarningColor)).ToString());
 				GUI.color = color;
 			}
-
+            
+			private static void DrawCustomDifficultySlider(Listing_Standard listing, string label, string labelSuffix, string tooltip, ref float value, ToStringStyle style, ToStringNumberSense numberSense, float min, float max, float precision = 0.01f, bool reciprocate = false, float reciprocalCutoff = 1000f)
+            {
+                float num = value;
+                if (reciprocate)
+                {
+                    num = Reciprocal(num, reciprocalCutoff);
+                }
+                label = label.CapitalizeFirst() + ": " + num.ToStringByStyle(style, numberSense);
+                if (!labelSuffix.NullOrEmpty())
+                {
+                    label = label + " - " + labelSuffix;
+                }
+                listing.Label(label, -1f, tooltip.CapitalizeFirst());
+                float num2 = listing.Slider(num, min, max);
+                if (num2 != num)
+                {
+                    num = GenMath.RoundTo(num2, precision);
+                }
+                if (reciprocate)
+                {
+                    num = Reciprocal(num, reciprocalCutoff);
+                }
+                value = num;
+            }
+            
 			private static void DrawCustomDifficultySlider(Listing_Standard listing, string optionName, ref float value, ToStringStyle style, ToStringNumberSense numberSense, float min, float max, float precision = 0.01f, bool reciprocate = false, float reciprocalCutoff = 1000f)
             {
                 string str = reciprocate ? "_Inverted" : "";
@@ -497,6 +527,11 @@ namespace RimSpine2DFramework
                 value = num;
             }
 
+            private static void DrawCustomDifficultySlider(Listing_Standard listing, string label, string tooltip, ref float value, ToStringStyle style, ToStringNumberSense numberSense, float min, float max, float precision = 0.01f, bool reciprocate = false, float reciprocalCutoff = 1000f)
+            {
+                DrawCustomDifficultySlider(listing, label, null, tooltip, ref value, style, numberSense, min, max, precision, reciprocate, reciprocalCutoff);
+            }
+
             private static Listing_Standard DrawCustomSectionStart(Listing_Standard listing, float height, string label, string tooltip = null)
             {
                 listing.Gap(12f);
@@ -513,9 +548,9 @@ namespace RimSpine2DFramework
             }
 
 
-			private static void DrawCustomLeft(Listing_Standard listing, Difficulty difficulty, ref float sectionHeightEconomy, ref float sectionHeightThreats, ref float sectionHeightIdeology, ref float sectionHeightBiotech)
+			private static void DrawCustomLeft(Listing_Standard listing, Difficulty difficulty, ref float sectionHeightEconomy, ref float sectionHeightThreats, ref float sectionHeightIdeology, ref float sectionHeightChildren, ref float sectionHeightAnomaly)
 			{
-				Listing_Standard listing_Standard = DrawCustomSectionStart(listing, sectionHeightThreats, "DifficultyThreatSection".Translate(), null);
+                /*Listing_Standard listing_Standard = DrawCustomSectionStart(listing, sectionHeightThreats, "DifficultyThreatSection".Translate(), null);
 				DrawCustomDifficultySlider(listing_Standard, "threatScale", ref difficulty.threatScale, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
 				DrawCustomDifficultyCheckbox(listing_Standard, "allowBigThreats", ref difficulty.allowBigThreats, false, true);
 				DrawCustomDifficultyCheckbox(listing_Standard, "allowViolentQuests", ref difficulty.allowViolentQuests, false, true);
@@ -558,8 +593,82 @@ namespace RimSpine2DFramework
 					DrawCustomDifficultySlider(listing_Standard, "adultAgingRate", ref difficulty.adultAgingRate, ToStringStyle.Integer, ToStringNumberSense.Factor, 1f, 6f, 1f, false, 1000f);
 					DrawCustomDifficultySlider(listing_Standard, "wastepackInfestationChanceFactor", ref difficulty.wastepackInfestationChanceFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
 					DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightBiotech);
-				}
-			}
+				}*/
+
+                Listing_Standard listing_Standard = DrawCustomSectionStart(listing, sectionHeightThreats, "DifficultyThreatSection".Translate(), null);
+                DrawCustomDifficultySlider(listing_Standard, "threatScale", ref difficulty.threatScale, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultyCheckbox(listing_Standard, "allowBigThreats", ref difficulty.allowBigThreats, false, true);
+                DrawCustomDifficultyCheckbox(listing_Standard, "allowViolentQuests", ref difficulty.allowViolentQuests, false, true);
+                DrawCustomDifficultyCheckbox(listing_Standard, "allowIntroThreats", ref difficulty.allowIntroThreats, false, true);
+                DrawCustomDifficultyCheckbox(listing_Standard, "predatorsHuntHumanlikes", ref difficulty.predatorsHuntHumanlikes, false, true);
+                DrawCustomDifficultyCheckbox(listing_Standard, "allowExtremeWeatherIncidents", ref difficulty.allowExtremeWeatherIncidents, false, true);
+                if (ModsConfig.BiotechActive)
+                {
+                    DrawCustomDifficultySlider(listing_Standard, "wastepackInfestationChanceFactor", ref difficulty.wastepackInfestationChanceFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                }
+                DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightThreats);
+                listing_Standard = DrawCustomSectionStart(listing, sectionHeightEconomy, "DifficultyEconomySection".Translate(), null);
+                DrawCustomDifficultySlider(listing_Standard, "cropYieldFactor", ref difficulty.cropYieldFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "mineYieldFactor", ref difficulty.mineYieldFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "butcherYieldFactor", ref difficulty.butcherYieldFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "researchSpeedFactor", ref difficulty.researchSpeedFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "questRewardValueFactor", ref difficulty.questRewardValueFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "raidLootPointsFactor", ref difficulty.raidLootPointsFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "tradePriceFactorLoss", ref difficulty.tradePriceFactorLoss, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 0.5f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "maintenanceCostFactor", ref difficulty.maintenanceCostFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0.01f, 1f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "scariaRotChance", ref difficulty.scariaRotChance, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 1f, 0.01f, false, 1000f);
+                DrawCustomDifficultySlider(listing_Standard, "enemyDeathOnDownedChanceFactor", ref difficulty.enemyDeathOnDownedChanceFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 1f, 0.01f, false, 1000f);
+                DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightEconomy);
+                if (ModsConfig.IdeologyActive)
+                {
+                    listing_Standard = DrawCustomSectionStart(listing, sectionHeightIdeology, "DifficultyIdeologySection".Translate(), null);
+                    DrawCustomDifficultySlider(listing_Standard, "lowPopConversionBoost", ref difficulty.lowPopConversionBoost, ToStringStyle.Integer, ToStringNumberSense.Factor, 1f, 5f, 1f, false, 1000f);
+                    DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightIdeology);
+                }
+                if (ModsConfig.AnomalyActive && difficulty.AnomalyPlaystyleDef.enableAnomalyContent)
+                {
+                    listing_Standard = DrawCustomSectionStart(listing, sectionHeightAnomaly, "DifficultyAnomalySection".Translate(), null);
+                    if (difficulty.AnomalyPlaystyleDef.overrideThreatFraction)
+                    {
+                        float num = difficulty.overrideAnomalyThreatsFraction ?? 0.15f;
+                        DrawCustomDifficultySlider(listing_Standard, "Difficulty_AnomalyThreats_Label".Translate(), Dialog_AnomalySettings.GetFrequencyLabel(num), "Difficulty_AnomalyThreats_Info".Translate(), ref num, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 1f, 0.01f, false, 1000f);
+                        difficulty.overrideAnomalyThreatsFraction = new float?(num);
+                    }
+                    else
+                    {
+                        DrawCustomDifficultySlider(listing_Standard, "Difficulty_AnomalyThreatsInactive_Label".Translate(), Dialog_AnomalySettings.GetFrequencyLabel(difficulty.anomalyThreatsInactiveFraction), "Difficulty_AnomalyThreatsInactive_Info".Translate(), ref difficulty.anomalyThreatsInactiveFraction, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 1f, 0.01f, false, 1000f);
+                        float anomalyThreatsActiveFraction = difficulty.anomalyThreatsActiveFraction;
+                        DrawCustomDifficultySlider(listing_Standard, "Difficulty_AnomalyThreatsActive_Label".Translate(), Dialog_AnomalySettings.GetFrequencyLabel(anomalyThreatsActiveFraction), "Difficulty_AnomalyThreatsActive_Info".Translate(Mathf.Clamp01(anomalyThreatsActiveFraction).ToStringPercent(), Mathf.Clamp01(anomalyThreatsActiveFraction * 1.5f).ToStringPercent()), ref difficulty.anomalyThreatsActiveFraction, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0.1f, 1f, 0.01f, false, 1000f);
+                    }
+                    DrawCustomDifficultySlider(listing_Standard, "Difficulty_StudyEfficiency_Label".Translate(), "Difficulty_StudyEfficiency_Info".Translate(), ref difficulty.studyEfficiencyFactor, ToStringStyle.PercentZero, ToStringNumberSense.Absolute, 0f, 5f, 0.01f, false, 1000f);
+                    DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightAnomaly);
+                }
+                if (ModsConfig.BiotechActive)
+                {
+                    listing_Standard = DrawCustomSectionStart(listing, sectionHeightChildren, "DifficultyChildrenSection".Translate(), null);
+                    DrawCustomDifficultyCheckbox(listing_Standard, "noBabiesOrChildren", ref difficulty.noBabiesOrChildren, false, true);
+                    DrawCustomDifficultyCheckbox(listing_Standard, "babiesAreHealthy", ref difficulty.babiesAreHealthy, false, true);
+                    if (!difficulty.noBabiesOrChildren)
+                    {
+                        DrawCustomDifficultyCheckbox(listing_Standard, "childRaidersAllowed", ref difficulty.childRaidersAllowed, false, true);
+                        if (ModsConfig.AnomalyActive)
+                        {
+                            DrawCustomDifficultyCheckbox(listing_Standard, "childShamblersAllowed", ref difficulty.childShamblersAllowed, false, true);
+                        }
+                    }
+                    else
+                    {
+                        DrawDisabledCustomDifficultySetting(listing_Standard, "childRaidersAllowed", "BabiesAreHealthyDisableReason".Translate());
+                        if (ModsConfig.AnomalyActive)
+                        {
+                            DrawDisabledCustomDifficultySetting(listing_Standard, "childShamblersAllowed", "BabiesAreHealthyDisableReason".Translate());
+                        }
+                    }
+                    DrawCustomDifficultySlider(listing_Standard, "childAgingRate", ref difficulty.childAgingRate, ToStringStyle.Integer, ToStringNumberSense.Factor, 1f, 6f, 1f, false, 1000f);
+                    DrawCustomDifficultySlider(listing_Standard, "adultAgingRate", ref difficulty.adultAgingRate, ToStringStyle.Integer, ToStringNumberSense.Factor, 1f, 6f, 1f, false, 1000f);
+                    DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightChildren);
+                }
+            }
 
 			private static void DrawCustomRight(Listing_Standard listing, Difficulty difficulty, ref float sectionHeightGeneral, ref float sectionHeightPlayerTools, ref float sectionHeightAdaptation)
 			{
