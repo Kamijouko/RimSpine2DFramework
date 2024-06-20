@@ -251,7 +251,8 @@ namespace RimSpine2DFramework
                 Rect rect3 = new Rect(0f, 120f, 290f, 9999f);
                 float num = 300f;
 
-                Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
+                Rect position = new Rect(445f - outRect2.x, rect.height - def.windowScale.y - 1f, def.windowScale.x, def.windowScale.y);
+                //Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
                 if (chosenStoryteller != null && chosenStoryteller.listVisible)
 				{
                     //绘制叙述者	
@@ -373,7 +374,7 @@ namespace RimSpine2DFramework
 						if (___explanationScrollPositionAnimated != null)
 						{
 							float time2 = Time.time;
-							if (time2 < ___explanationScrollPositionAnimated.keys.Last<Keyframe>().time)
+							if (time2 < ___explanationScrollPositionAnimated.keys.Last<UnityEngine.Keyframe>().time)
 							{
 								___explanationScrollPosition.y = ___explanationScrollPositionAnimated.Evaluate(time2);
 							}

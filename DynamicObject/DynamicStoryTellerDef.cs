@@ -27,7 +27,7 @@ namespace RimSpine2DFramework
 
         public bool loop = true;
 
-        public Vector2 windowScale = new Vector2(580, 620);
+        public Vector2 windowScale = new Vector2(540, 620);
 
         public Vector2 scale = new Vector2(1f, 1f);
 
