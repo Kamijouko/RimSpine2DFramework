@@ -204,6 +204,7 @@ namespace RimSpine2DFramework
 			}
 		}
 
+
 		[HarmonyPatch(typeof(StorytellerUI))]
         [HarmonyPatch("DrawStorytellerSelectionInterface")]
         public class DynamicStoryTellerPatch
