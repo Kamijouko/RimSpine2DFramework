@@ -373,7 +373,7 @@ namespace RimSpine2DFramework
 						if (___explanationScrollPositionAnimated != null)
 						{
 							float time2 = Time.time;
-							if (time2 < ___explanationScrollPositionAnimated.keys.Last<Keyframe>().time)
+							if (time2 < ___explanationScrollPositionAnimated.keys.Last<UnityEngine.Keyframe>().time)
 							{
 								___explanationScrollPosition.y = ___explanationScrollPositionAnimated.Evaluate(time2);
 							}
