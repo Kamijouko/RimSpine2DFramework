@@ -254,6 +254,7 @@ namespace RimSpine2DFramework
 				___explanationInnerRect.width = outRect2.width - 16f;
 				Widgets.BeginScrollView(outRect2, ref ___explanationScrollPosition, ___explanationInnerRect, true);
                 Text.Font = GameFont.Small;
+                Widgets.Label(new Rect(0f, 0f, 300f, 999f), "HowStorytellersWork".Translate());
                 Rect rect3 = new Rect(0f, 120f, 290f, 9999f);
                 float num = 300f;
 
@@ -318,19 +319,21 @@ namespace RimSpine2DFramework
                     }
                 }
 
-                Widgets.Label(new Rect(0f, 0f, 300f, 999f), "HowStorytellersWork".Translate());
+                
                 
                 if (chosenStoryteller != null && chosenStoryteller.listVisible)
 				{
-					Text.Anchor = TextAnchor.UpperLeft;
+                    //Rect position = new Rect(390f - outRect2.x, rect.height - Storyteller.PortraitSizeLarge.y - 1f, Storyteller.PortraitSizeLarge.x, Storyteller.PortraitSizeLarge.y);
+                    //GUI.DrawTexture(position, chosenStoryteller.portraitLargeTex);
+                    Text.Anchor = TextAnchor.UpperLeft;
 					infoListing.Begin(rect3);
 					Text.Font = GameFont.Medium;
 					infoListing.Indent(15f);
-					infoListing.Label(chosenStoryteller.label, -1f, null);
+					infoListing.Label(chosenStoryteller.label, -1f, tipSignal:null);
 					infoListing.Outdent(15f);
 					Text.Font = GameFont.Small;
 					infoListing.Gap(8f);
-					infoListing.Label(chosenStoryteller.description, 160f, null);
+					infoListing.Label(chosenStoryteller.description, 160f, tipSignal: null);
 					infoListing.Gap(6f);
 					foreach (DifficultyDef difficultyDef in DefDatabase<DifficultyDef>.AllDefs)
 					{
@@ -490,7 +493,7 @@ namespace RimSpine2DFramework
                 {
                     label = label + " - " + labelSuffix;
                 }
-                listing.Label(label, -1f, tooltip.CapitalizeFirst());
+                listing.Label(label, -1f, tipSignal:tooltip.CapitalizeFirst());
                 float num2 = listing.Slider(num, min, max);
                 if (num2 != num)
                 {
@@ -536,7 +539,7 @@ namespace RimSpine2DFramework
             private static Listing_Standard DrawCustomSectionStart(Listing_Standard listing, float height, string label, string tooltip = null)
             {
                 listing.Gap(12f);
-                listing.Label(label, -1f, tooltip);
+                listing.Label(label, -1f, tipSignal:tooltip);
                 Listing_Standard listing_Standard = listing.BeginSection(height, 8f, 6f);
                 listing_Standard.maxOneColumn = true;
                 return listing_Standard;
