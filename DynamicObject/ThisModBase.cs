@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HugsLib;
 using Verse;
 using RimWorld;
 using UnityEngine;
@@ -14,15 +13,16 @@ using System.Collections;
 
 namespace RimSpine2DFramework
 {
-    public class ThisModBase : ModBase
+    public class ThisModBase : Mod
     {
-        public override string ModIdentifier { get; } = "RimSpine2DFramework.NazunaRei.kamijouko";
+        //public override string ModIdentifier { get; } = "RimSpine2DFramework.NazunaRei.kamijouko";
 
-        public override void DefsLoaded()
+        public ThisModBase(ModContentPack content) : base(content) 
         {
-            base.DefsLoaded();
+            Instance = this;
             ModStaticMethod.ThisMod = this;
-            //Logger.Message("已读取"+ModContentPack.assetBundles.loadedAssetBundles.Count.ToString()+"个AB包");    
         }
+
+        public static ThisModBase Instance; 
     }
 }

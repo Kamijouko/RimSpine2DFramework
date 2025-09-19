@@ -17,7 +17,7 @@ namespace RimSpine2DFramework
         {
             get
             {
-                return ThisMod == null ? ModLister.GetActiveModWithIdentifier("RimSpine2DFramework.NazunaRei.kamijouko").RootDir.ToString() : ThisMod.ModContentPack.RootDir;
+                return ThisMod == null ? ModLister.GetActiveModWithIdentifier("RimSpine2DFramework.NazunaRei.kamijouko").RootDir.ToString() : ThisMod.Content.RootDir;
             }
         }
 
