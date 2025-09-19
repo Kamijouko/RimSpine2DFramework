@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Verse;
 
 namespace RimSpine2DFramework
 {
@@ -27,6 +26,9 @@ namespace RimSpine2DFramework
         public bool canInteract = true;
 
         public int IdleTimes = 0;
+
+        private const int InteractionTrackIndex = 1;
+        private const float InteractionFadeMixDuration = 0.2f;
 
         private static readonly ISpineRuntimeAdapter Spine35Adapter = new Spine35RuntimeAdapter();
         private static readonly ISpineRuntimeAdapter Spine38Adapter = new Spine38RuntimeAdapter();
@@ -87,7 +89,7 @@ namespace RimSpine2DFramework
 
             if (def == null)
             {
-                Log.Warning("DynamicObjectInstance definition is not initialized.");
+                throw new InvalidOperationException("DynamicObjectInstance definition is not initialized.");
             }
 
             ISpineRuntimeAdapter adapter = GetAdapter();
@@ -115,28 +117,28 @@ namespace RimSpine2DFramework
             canInteract = false;
 
             ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
-            AttachReenableInteraction(state.AddAnimation(0, def.interactAnimationName, false, 0f));
-            AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
-            Log.Message("DynamicObject Loaded");
+            ISpineTrackEntryAdapter interactionEntry = state.SetAnimation(InteractionTrackIndex, def.interactAnimationName, false);
+            ISpineTrackEntryAdapter emptyEntry = state.AddEmptyAnimation(InteractionTrackIndex, InteractionFadeMixDuration, 0f);
+            AttachReenableInteraction(emptyEntry ?? interactionEntry);
         }
 
         private ISpineRuntimeAdapter GetAdapter()
         {
             if (key == null)
             {
-                Log.Warning("DynamicObjectInstance key is not initialized.");
+                throw new InvalidOperationException("DynamicObjectInstance key is not initialized.");
             }
 
             string version = GetNormalizedVersion();
             if (version == null)
             {
-                Log.Warning("DynamicObjectInstance version is not set.");
+                throw new InvalidOperationException("DynamicObjectInstance version is not set.");
             }
 
             Tuple<ImportMode, string> adapterKey = Tuple.Create(key.importMode, version);
             if (!AdapterLookup.TryGetValue(adapterKey, out ISpineRuntimeAdapter adapter))
             {
-                Log.Warning($"No Spine runtime adapter registered for version '{version}' and import mode '{key.importMode}'.");
+                throw new InvalidOperationException($"No Spine runtime adapter registered for version '{version}' and import mode '{key.importMode}'.");
             }
 
             return adapter;
