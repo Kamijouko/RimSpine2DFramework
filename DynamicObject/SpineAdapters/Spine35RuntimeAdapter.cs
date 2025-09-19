@@ -76,6 +76,12 @@ namespace RimSpine2DFramework
             {
                 return new Spine35TrackEntryAdapter(animationState.AddAnimation(trackIndex, animationName, loop, delay));
             }
+
+            public ISpineTrackEntryAdapter AddEmptyAnimation(int trackIndex, float mixDuration, float delay)
+            {
+                Spine35.TrackEntry trackEntry = animationState.AddEmptyAnimation(trackIndex, mixDuration, delay);
+                return trackEntry == null ? null : new Spine35TrackEntryAdapter(trackEntry);
+            }
         }
 
         private class Spine35TrackEntryAdapter : ISpineTrackEntryAdapter
