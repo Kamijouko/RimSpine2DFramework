@@ -1,25 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Verse;
-using RimWorld;
 using UnityEngine;
-using System.IO;
-using System.Collections;
 
 namespace RimSpine2DFramework
 {
     public class DynamicObjectInstance : MonoBehaviour
     {
-        public Spine35.Unity.SkeletonAnimation spine35skeleton;
-
-        public Spine38.Unity.SkeletonAnimation spine38skeleton;
-
-        public Spine40.Unity.SkeletonAnimation spine40skeleton;
-
-        public Spine41.Unity.SkeletonAnimation spine41skeleton;
+        internal Spine35.Unity.SkeletonAnimation spine35skeleton;
+        internal Spine38.Unity.SkeletonAnimation spine38skeleton;
+        internal Spine40.Unity.SkeletonAnimation spine40skeleton;
+        internal Spine41.Unity.SkeletonAnimation spine41skeleton;
 
         public GameObject gObject;
 
@@ -37,220 +27,168 @@ namespace RimSpine2DFramework
 
         public int IdleTimes = 0;
 
+        private static readonly ISpineRuntimeAdapter Spine35Adapter = new Spine35RuntimeAdapter();
+        private static readonly ISpineRuntimeAdapter Spine38Adapter = new Spine38RuntimeAdapter();
+        private static readonly ISpineRuntimeAdapter Spine40Adapter = new Spine40RuntimeAdapter();
+        private static readonly ISpineRuntimeAdapter Spine41Adapter = new Spine41RuntimeAdapter();
+
+        private static readonly Dictionary<Tuple<ImportMode, string>, ISpineRuntimeAdapter> AdapterLookup = new Dictionary<Tuple<ImportMode, string>, ISpineRuntimeAdapter>
+        {
+            { Tuple.Create(ImportMode.File, Spine35Adapter.Version), Spine35Adapter },
+            { Tuple.Create(ImportMode.AssetBundle, Spine35Adapter.Version), Spine35Adapter },
+            { Tuple.Create(ImportMode.File, Spine38Adapter.Version), Spine38Adapter },
+            { Tuple.Create(ImportMode.AssetBundle, Spine38Adapter.Version), Spine38Adapter },
+            { Tuple.Create(ImportMode.File, Spine40Adapter.Version), Spine40Adapter },
+            { Tuple.Create(ImportMode.AssetBundle, Spine40Adapter.Version), Spine40Adapter },
+            { Tuple.Create(ImportMode.File, Spine41Adapter.Version), Spine41Adapter },
+            { Tuple.Create(ImportMode.AssetBundle, Spine41Adapter.Version), Spine41Adapter }
+        };
+
         public bool IsNull
         {
             get
             {
-                return spine35skeleton == null && spine38skeleton == null && spine41skeleton == null && gObject == null;
+                return spine35skeleton == null && spine38skeleton == null && spine40skeleton == null && spine41skeleton == null && gObject == null;
             }
         }
 
         public void Update()
         {
-            //特殊动作循环，
-            //根据IdleTimes（当前循环次数）和def里设置的特殊动画间隔次数来判断是否执行特殊动画，
-            //执行特殊动画逻辑与HarmonyMain中注释的点击动画逻辑一致
-            if (canInteract == true && IdleTimes >= def.specialAnimationLoopForIdleAnimationTimes)
+            if (!canInteract || def == null)
             {
-                IdleTimes = 0;
-                canInteract = false;
-                if (ver == "3.8")
-                {
-                    Spine38.TrackEntry track = spine38skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
-                    track.Complete += delegate (Spine38.TrackEntry t)
-                    {
-                        if (track.Animation.Name == def.specialAnimationName)
-                            canInteract = true;
-                    };
-                    Spine38.TrackEntry track2 = spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                    track2.Complete += delegate (Spine38.TrackEntry t)
-                    {
-                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
-                            IdleTimes++;
-                    };
-                }
-                else if (ver == "3.5")
-                {
-                    Spine35.TrackEntry track = spine35skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
-                    track.Complete += delegate (Spine35.TrackEntry t)
-                    {
-                        if (track.Animation.Name == def.specialAnimationName)
-                            canInteract = true;
-                    };
-                    Spine35.TrackEntry track2 = spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                    track2.Complete += delegate (Spine35.TrackEntry t)
-                    {
-                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
-                            IdleTimes++;
-                    };
-                }
-                else
-                {
-                    Spine41.TrackEntry track = spine41skeleton.AnimationState.AddAnimation(0, def.specialAnimationName, false, 0f);
-                    track.Complete += delegate (Spine41.TrackEntry t)
-                    {
-                        if (track.Animation.Name == def.specialAnimationName)
-                            canInteract = true;
-                    };
-                    Spine41.TrackEntry track2 = spine41skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                    track2.Complete += delegate (Spine41.TrackEntry t)
-                    {
-                        if (canInteract == true && track2.Animation.Name == def.idleAnimationName)
-                            IdleTimes++;
-                    };
-                } 
-                
+                return;
             }
+
+            if (IdleTimes < def.specialAnimationLoopForIdleAnimationTimes)
+            {
+                return;
+            }
+
+            if (!TryResolveAdapter(out ISpineRuntimeAdapter adapter) || !adapter.HasSkeleton(this))
+            {
+                return;
+            }
+
+            IdleTimes = 0;
+            canInteract = false;
+
+            ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
+            AttachReenableInteraction(state.AddAnimation(0, def.specialAnimationName, false, 0f));
+            AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
         }
 
         public void CreateSpineAnimation()
         {
             if (!gameObject.activeInHierarchy)
+            {
                 gameObject.SetActive(true);
-
-            if (ver == "3.8")
-            {
-                if (spine38skeleton != null)
-                    return;
-                SpineTextAssetData data = ModDynamicObjectManager.spine38Database[key.defName];
-                Spine38.Unity.SpineAtlasAsset atlas;
-                Spine38.Unity.SkeletonDataAsset skeleton;
-                if (key.importMode == ImportMode.File)
-                {
-                    atlas = Spine38.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
-                    skeleton = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                else
-                {
-                    atlas = Spine38.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
-                    skeleton = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-
-                /*AssetBundle ab = ModStaticMethod.ThisMod.ModContentPack.assetBundles.loadedAssetBundles.FirstOrDefault(x => x.name == "pazonka");
-                Log.Warning("ab == null: "+(ab == null).ToStringSafe());
-                if (ab != null)
-                {
-                    gObject = ab.LoadAsset<GameObject>("pazion");
-                    Log.Warning("gObject == null: " + (gObject == null).ToStringSafe());
-                    gObject = Instantiate(gObject);
-                    gObject.transform.parent = transform;
-                    gObject.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
-                    gObject.transform.rotation = Quaternion.Euler(def.rotation);
-                    gObject.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
-                }*/
-
-                spine38skeleton = Spine38.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
-                spine38skeleton.transform.parent = gameObject.transform;
-                spine38skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
-                spine38skeleton.transform.rotation = Quaternion.Euler(def.rotation);
-                spine38skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
-                spine38skeleton.skeleton.SetSkin(def.skin);
-                //设置为循环Idle动画，并且添加在单次循环完成后属性IdleTimes加1的事件（记录循环次数）
-                Spine38.TrackEntry track = spine38skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                track.Complete += delegate (Spine38.TrackEntry t)
-                {
-                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
-                        IdleTimes++;
-                };
-                spine38skeleton.Initialize(false);
-
             }
-            else if (ver == "3.5")
+
+            if (def == null)
             {
-                if (spine35skeleton != null)
-                    return;
-                SpineTextAssetData data = ModDynamicObjectManager.spine35Database[key.defName];
-                Spine35.Unity.AtlasAsset atlas;
-                Spine35.Unity.SkeletonDataAsset skeleton;
-                if (key.importMode == ImportMode.File)
-                {
-                    atlas = Spine35.Unity.AtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
-                    skeleton = Spine35.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                else
-                {
-                    atlas = Spine35.Unity.AtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
-                    skeleton = Spine35.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                spine35skeleton = Spine35.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
-                spine35skeleton.transform.parent = gameObject.transform;
-                spine35skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
-                spine35skeleton.transform.rotation = Quaternion.Euler(def.rotation);
-                spine35skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
-                spine35skeleton.skeleton.SetSkin(def.skin);
-                //spine35skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                Spine35.TrackEntry track = spine35skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                track.Complete += delegate (Spine35.TrackEntry t)
-                {
-                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
-                        IdleTimes++;
-                };
-                spine35skeleton.Initialize(false);
+                throw new InvalidOperationException("DynamicObjectInstance definition is not initialized.");
             }
-            else if (ver == "4.0")
+
+            ISpineRuntimeAdapter adapter = GetAdapter();
+            if (adapter.HasSkeleton(this))
             {
-                if (spine40skeleton != null)
-                    return;
-                SpineTextAssetData data = ModDynamicObjectManager.spine40Database[key.defName];
-                Spine40.Unity.SpineAtlasAsset atlas;
-                Spine40.Unity.SkeletonDataAsset skeleton;
-                if (key.importMode == ImportMode.File)
-                {
-                    atlas = Spine40.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
-                    skeleton = Spine40.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                else
-                {
-                    atlas = Spine40.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
-                    skeleton = Spine40.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                spine40skeleton = Spine40.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
-                spine40skeleton.transform.parent = gameObject.transform;
-                spine40skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
-                spine40skeleton.transform.rotation = Quaternion.Euler(def.rotation);
-                spine40skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
-                spine40skeleton.skeleton.SetSkin(def.skin);
-                //spine40skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                Spine40.TrackEntry track = spine40skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                track.Complete += delegate (Spine40.TrackEntry t)
-                {
-                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
-                        IdleTimes++;
-                };
-                spine40skeleton.Initialize(false);
+                return;
             }
-            else
+
+            adapter.EnsureSkeleton(this);
+            AttachIdleCompletion(adapter.GetAnimationState(this).SetAnimation(0, def.idleAnimationName, def.loop));
+        }
+
+        public void PlayInteractionAnimation()
+        {
+            if (!canInteract || def == null)
             {
-                if (spine41skeleton != null)
-                    return;
-                SpineTextAssetData data = ModDynamicObjectManager.spine41Database[key.defName];
-                Spine41.Unity.SpineAtlasAsset atlas;
-                Spine41.Unity.SkeletonDataAsset skeleton;
-                if (key.importMode == ImportMode.File)
-                {
-                    atlas = Spine41.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
-                    skeleton = Spine41.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                else
-                {
-                    atlas = Spine41.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.materials, true);
-                    skeleton = Spine41.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
-                }
-                spine41skeleton = Spine41.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
-                spine41skeleton.transform.parent = gameObject.transform;
-                spine41skeleton.transform.localScale = new Vector3(scale.x * def.scale.x, scale.y * def.scale.y, scale.z);
-                spine41skeleton.transform.rotation = Quaternion.Euler(def.rotation);
-                spine41skeleton.transform.position = new Vector3(position.x + def.offset.x, position.y + def.offset.y, position.z + def.cameraDistance);
-                spine41skeleton.skeleton.SetSkin(def.skin);
-                //spine41skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                Spine41.TrackEntry track = spine41skeleton.AnimationState.SetAnimation(0, def.idleAnimationName, def.loop);
-                track.Complete += delegate (Spine41.TrackEntry t)
-                {
-                    if (canInteract == true && track.Animation.Name == def.idleAnimationName)
-                        IdleTimes++;
-                };
-                spine41skeleton.Initialize(false);
+                return;
             }
+
+            if (!TryResolveAdapter(out ISpineRuntimeAdapter adapter) || !adapter.HasSkeleton(this))
+            {
+                return;
+            }
+
+            canInteract = false;
+
+            ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
+            AttachReenableInteraction(state.AddAnimation(0, def.interactAnimationName, false, 0f));
+            AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
+        }
+
+        private ISpineRuntimeAdapter GetAdapter()
+        {
+            if (key == null)
+            {
+                throw new InvalidOperationException("DynamicObjectInstance key is not initialized.");
+            }
+
+            string version = GetNormalizedVersion();
+            if (version == null)
+            {
+                throw new InvalidOperationException("DynamicObjectInstance version is not set.");
+            }
+
+            Tuple<ImportMode, string> adapterKey = Tuple.Create(key.importMode, version);
+            if (!AdapterLookup.TryGetValue(adapterKey, out ISpineRuntimeAdapter adapter))
+            {
+                throw new InvalidOperationException($"No Spine runtime adapter registered for version '{version}' and import mode '{key.importMode}'.");
+            }
+
+            return adapter;
+        }
+
+        private bool TryResolveAdapter(out ISpineRuntimeAdapter adapter)
+        {
+            adapter = null;
+            if (key == null)
+            {
+                return false;
+            }
+
+            string version = GetNormalizedVersion();
+            if (version == null)
+            {
+                return false;
+            }
+
+            return AdapterLookup.TryGetValue(Tuple.Create(key.importMode, version), out adapter);
+        }
+
+        private string GetNormalizedVersion()
+        {
+            return string.IsNullOrWhiteSpace(ver) ? null : ver.Trim();
+        }
+
+        private void AttachIdleCompletion(ISpineTrackEntryAdapter trackEntry)
+        {
+            if (trackEntry == null)
+            {
+                return;
+            }
+
+            trackEntry.OnComplete(() =>
+            {
+                if (canInteract)
+                {
+                    IdleTimes++;
+                }
+            });
+        }
+
+        private void AttachReenableInteraction(ISpineTrackEntryAdapter trackEntry)
+        {
+            if (trackEntry == null)
+            {
+                return;
+            }
+
+            trackEntry.OnComplete(() =>
+            {
+                canInteract = true;
+            });
         }
     }
 }

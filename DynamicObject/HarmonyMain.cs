@@ -280,42 +280,7 @@ namespace RimSpine2DFramework
                     //并且执行完后再次循环Idle动画，添加每次单次循环完成后DynamicObjectInstance的属性IdleTimes加1的事件（记录循环次数）
                     if (Widgets.ButtonText(position, "", false, false) && instance.canInteract)
                     {
-                        instance.canInteract = false;
-                        if (instance.ver == "3.8")
-                        {
-                            Spine38.TrackEntry track = instance.spine38skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-                            track.Complete += delegate (Spine38.TrackEntry t)
-                            {
-                                if (track.Animation.Name == def.interactAnimationName)
-                                    instance.canInteract = true;
-                            };
-                            Spine38.TrackEntry track2 = instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                            track2.Complete += delegate (Spine38.TrackEntry t)
-                            {
-                                if (instance.canInteract == true && track2.Animation.Name == def.idleAnimationName)
-                                    instance.IdleTimes++;
-                            };
-                        }
-                        else if (instance.ver == "3.5")
-                        {
-                            Spine35.TrackEntry track = instance.spine35skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-                            track.Complete += delegate (Spine35.TrackEntry t)
-                            {
-                                if (track.Animation.Name == def.interactAnimationName)
-                                    instance.canInteract = true;
-                            };
-                            instance.spine35skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                        }
-                        else
-                        {
-                            Spine41.TrackEntry track = instance.spine41skeleton.AnimationState.AddAnimation(0, def.interactAnimationName, false, 0f);
-                            track.Complete += delegate (Spine41.TrackEntry t)
-                            {
-                                if (track.Animation.Name == def.interactAnimationName)
-                                    instance.canInteract = true;
-                            };
-                            instance.spine38skeleton.AnimationState.AddAnimation(0, def.idleAnimationName, def.loop, 0f);
-                        }
+                        instance.PlayInteractionAnimation();
                     }
                 }
 
