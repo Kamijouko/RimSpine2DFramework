@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Verse;
 
 namespace RimSpine2DFramework
 {
@@ -86,7 +87,7 @@ namespace RimSpine2DFramework
 
             if (def == null)
             {
-                throw new InvalidOperationException("DynamicObjectInstance definition is not initialized.");
+                Log.Warning("DynamicObjectInstance definition is not initialized.");
             }
 
             ISpineRuntimeAdapter adapter = GetAdapter();
@@ -116,25 +117,26 @@ namespace RimSpine2DFramework
             ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
             AttachReenableInteraction(state.AddAnimation(0, def.interactAnimationName, false, 0f));
             AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
+            Log.Message("DynamicObject Loaded");
         }
 
         private ISpineRuntimeAdapter GetAdapter()
         {
             if (key == null)
             {
-                throw new InvalidOperationException("DynamicObjectInstance key is not initialized.");
+                Log.Warning("DynamicObjectInstance key is not initialized.");
             }
 
             string version = GetNormalizedVersion();
             if (version == null)
             {
-                throw new InvalidOperationException("DynamicObjectInstance version is not set.");
+                Log.Warning("DynamicObjectInstance version is not set.");
             }
 
             Tuple<ImportMode, string> adapterKey = Tuple.Create(key.importMode, version);
             if (!AdapterLookup.TryGetValue(adapterKey, out ISpineRuntimeAdapter adapter))
             {
-                throw new InvalidOperationException($"No Spine runtime adapter registered for version '{version}' and import mode '{key.importMode}'.");
+                Log.Warning($"No Spine runtime adapter registered for version '{version}' and import mode '{key.importMode}'.");
             }
 
             return adapter;

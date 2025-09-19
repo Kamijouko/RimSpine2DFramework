@@ -34,8 +34,9 @@ namespace RimSpine2DFramework
             }
 
             Spine41.Unity.SkeletonAnimation skeletonAnimation = Spine41.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
-            ConfigureSkeleton(instance, skeletonAnimation);
             instance.spine41skeleton = skeletonAnimation;
+            ConfigureSkeleton(instance, instance.spine41skeleton);
+            
         }
 
         private static void ConfigureSkeleton(DynamicObjectInstance instance, Spine41.Unity.SkeletonAnimation skeleton)

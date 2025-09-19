@@ -15,11 +15,6 @@ namespace RimSpine2DFramework
 {
     public class HarmonyMain
     {
-        public HarmonyMain()
-        {
-            var harmonyInstance = new Harmony("RimSpine2DFramework.NazunaRei.kamijouko");
-			harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-		}
 
 		[HarmonyPatch(typeof(UIRoot_Entry))]
 		[HarmonyPatch("DoMainMenu")]
