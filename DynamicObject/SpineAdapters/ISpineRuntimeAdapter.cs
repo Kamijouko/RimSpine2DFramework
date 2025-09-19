@@ -18,6 +18,8 @@ namespace RimSpine2DFramework
         ISpineTrackEntryAdapter SetAnimation(int trackIndex, string animationName, bool loop);
 
         ISpineTrackEntryAdapter AddAnimation(int trackIndex, string animationName, bool loop, float delay);
+
+        ISpineTrackEntryAdapter AddEmptyAnimation(int trackIndex, float mixDuration, float delay);
     }
 
     public interface ISpineTrackEntryAdapter
