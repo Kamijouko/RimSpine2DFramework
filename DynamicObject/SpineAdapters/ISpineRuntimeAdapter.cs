@@ -19,6 +19,8 @@ namespace RimSpine2DFramework
 
         ISpineTrackEntryAdapter AddAnimation(int trackIndex, string animationName, bool loop, float delay);
 
+        ISpineTrackEntryAdapter SetEmptyAnimation(int trackIndex, float mixDuration);
+
         ISpineTrackEntryAdapter AddEmptyAnimation(int trackIndex, float mixDuration, float delay);
     }
 
@@ -27,5 +29,7 @@ namespace RimSpine2DFramework
         string AnimationName { get; }
 
         void OnComplete(Action action);
+
+        void SetMixDuration(float mixDuration);
     }
 }
