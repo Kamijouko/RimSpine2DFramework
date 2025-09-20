@@ -138,14 +138,14 @@ namespace RimSpine2DFramework
                             ConstructorInfo ctor = AccessTools.Constructor(typeof(TextAsset), new[] { typeof(byte[]) });
                             if (ctor == null)
                             {
-                                LogSimple.Error($"[RimSpine2DFramework] Cannot find TextAsset(byte[]) constructor for '{def.spine.skeletonPath}'.");
+                                Log.Error($"[RimSpine2DFramework] Cannot find TextAsset(byte[]) constructor for '{def.spine.skeletonPath}'.");
                                 continue;
                             }
                             skeletonAsset = (TextAsset)ctor.Invoke(new object[] { skeletonBytes });
                         }
                         catch (Exception ex)
                         {
-                            LogSimple.Error($"[RimSpine2DFramework] Failed to load binary skeleton '{def.spine.skeletonPath}': {ex}");
+                            Log.Error($"[RimSpine2DFramework] Failed to load binary skeleton '{def.spine.skeletonPath}': {ex}");
                             continue;
                         }
                     }
