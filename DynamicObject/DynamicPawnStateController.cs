@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -10,6 +13,11 @@ namespace RimSpine2DFramework
     public class DynamicPawnStateController
     {
         private const int VerbRetentionTicks = 120;
+
+        private static readonly PropertyInfo NeedCurCategoryProperty = AccessTools.Property(typeof(Need), "CurCategory");
+        private static readonly PropertyInfo NeedCurLevelCategoryProperty = AccessTools.Property(typeof(Need), "CurLevelCategory");
+        private static readonly MemberInfo NeedDefCategoriesMember = ResolveNeedDefMember(new[] { "needCategories", "categories" });
+        private static readonly MemberInfo NeedDefStagesMember = ResolveNeedDefMember(new[] { "stages", "needStages" });
 
         private readonly DynamicObjectInstance instance;
         private readonly DynamicPawnStateMachineDef definition;
@@ -336,14 +344,43 @@ namespace RimSpine2DFramework
                 }
             }
 
-            if (trigger.stageIndex >= 0 && (int)need.CurCategory != trigger.stageIndex)
+            bool categoryAvailable = TryGetNeedCategory(need, out object categoryValue);
+
+            if (trigger.stageIndex >= 0)
             {
-                return false;
+                bool? stageIndexMatches = null;
+
+                if (categoryAvailable)
+                {
+                    stageIndexMatches = MatchNeedStageIndex(need, categoryValue, trigger.stageIndex);
+                }
+
+                if (stageIndexMatches == null)
+                {
+                    stageIndexMatches = MatchNeedStageIndexFromDef(need.def, trigger.stageIndex);
+                }
+
+                if (stageIndexMatches == false)
+                {
+                    return false;
+                }
             }
 
             if (!string.IsNullOrEmpty(trigger.stageName))
             {
-                if (!string.Equals(need.CurCategory.ToString(), trigger.stageName, StringComparison.OrdinalIgnoreCase))
+                bool? stageNameMatches = null;
+
+                if (categoryAvailable)
+                {
+                    stageNameMatches = MatchNeedStageName(need, categoryValue, trigger.stageName);
+                }
+
+                if (stageNameMatches == null)
+                {
+                    stageNameMatches = MatchNeedStageNameFromDef(need.def, trigger.stageName);
+                }
+
+                if (stageNameMatches == false)
                 {
                     return false;
                 }
@@ -478,6 +515,530 @@ namespace RimSpine2DFramework
             }
 
             return string.Equals(mentalState.def.defName, target, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool TryGetNeedCategory(Need need, out object categoryValue)
+        {
+            categoryValue = null;
+            if (need == null)
+            {
+                return false;
+            }
+
+            PropertyInfo[] properties =
+            {
+                NeedCurCategoryProperty,
+                NeedCurLevelCategoryProperty
+            };
+
+            foreach (PropertyInfo property in properties)
+            {
+                if (property == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    categoryValue = property.GetValue(need);
+                    return true;
+                }
+                catch
+                {
+                    // Continue trying other potential category properties.
+                }
+            }
+
+            return false;
+        }
+
+        private static bool? MatchNeedStageIndex(Need need, object categoryValue, int stageIndex)
+        {
+            if (categoryValue == null)
+            {
+                return null;
+            }
+
+            int? directIndex = ConvertCategoryToInt(categoryValue);
+            if (directIndex.HasValue)
+            {
+                return directIndex.Value == stageIndex;
+            }
+
+            NeedDef needDef = need?.def;
+            if (needDef != null)
+            {
+                IList categories = GetNeedDefCategories(needDef);
+                if (categories != null && categories.Count > 0)
+                {
+                    int index = FindIndex(categories, categoryValue);
+                    if (index >= 0)
+                    {
+                        return index == stageIndex;
+                    }
+                }
+
+                IList stages = GetNeedDefStages(needDef);
+                if (stages != null && stages.Count > 0)
+                {
+                    int index = FindIndex(stages, categoryValue);
+                    if (index >= 0)
+                    {
+                        return index == stageIndex;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static bool? MatchNeedStageIndexFromDef(NeedDef needDef, int stageIndex)
+        {
+            if (needDef == null)
+            {
+                return null;
+            }
+
+            IList categories = GetNeedDefCategories(needDef);
+            if (categories != null)
+            {
+                if (categories.Count == 0)
+                {
+                    return null;
+                }
+
+                return stageIndex >= 0 && stageIndex < categories.Count;
+            }
+
+            IList stages = GetNeedDefStages(needDef);
+            if (stages != null)
+            {
+                if (stages.Count == 0)
+                {
+                    return null;
+                }
+
+                return stageIndex >= 0 && stageIndex < stages.Count;
+            }
+
+            return null;
+        }
+
+        private static bool? MatchNeedStageName(Need need, object categoryValue, string stageName)
+        {
+            if (categoryValue == null)
+            {
+                return null;
+            }
+
+            string resolvedName = ExtractCategoryName(categoryValue);
+            if (!string.IsNullOrEmpty(resolvedName))
+            {
+                return string.Equals(resolvedName, stageName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            NeedDef needDef = need?.def;
+            if (needDef != null)
+            {
+                IList categories = GetNeedDefCategories(needDef);
+                if (categories != null && categories.Count > 0)
+                {
+                    int index = FindIndex(categories, categoryValue);
+                    if (index >= 0)
+                    {
+                        string name = ExtractCategoryName(categories[index]);
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            return string.Equals(name, stageName, StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
+                }
+
+                IList stages = GetNeedDefStages(needDef);
+                if (stages != null && stages.Count > 0)
+                {
+                    int index = FindIndex(stages, categoryValue);
+                    if (index >= 0)
+                    {
+                        string name = ExtractCategoryName(stages[index]);
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            return string.Equals(name, stageName, StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
+                }
+            }
+
+            string fallback = categoryValue.ToString();
+            if (!string.IsNullOrEmpty(fallback))
+            {
+                return string.Equals(fallback, stageName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return null;
+        }
+
+        private static bool? MatchNeedStageNameFromDef(NeedDef needDef, string stageName)
+        {
+            if (needDef == null)
+            {
+                return null;
+            }
+
+            IList categories = GetNeedDefCategories(needDef);
+            if (categories != null)
+            {
+                if (categories.Count == 0)
+                {
+                    return null;
+                }
+
+                foreach (object category in categories)
+                {
+                    if (CategoryMatchesName(category, stageName))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            IList stages = GetNeedDefStages(needDef);
+            if (stages != null)
+            {
+                if (stages.Count == 0)
+                {
+                    return null;
+                }
+
+                foreach (object stage in stages)
+                {
+                    if (CategoryMatchesName(stage, stageName))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            return null;
+        }
+
+        private static int? ConvertCategoryToInt(object categoryValue)
+        {
+            if (categoryValue == null)
+            {
+                return null;
+            }
+
+            if (categoryValue is int intValue)
+            {
+                return intValue;
+            }
+
+            if (categoryValue is Enum enumValue)
+            {
+                try
+                {
+                    return Convert.ToInt32(enumValue);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            if (categoryValue is IConvertible convertible)
+            {
+                try
+                {
+                    return convertible.ToInt32(null);
+                }
+                catch
+                {
+                    // Ignore and try parsing the string representation instead.
+                }
+            }
+
+            if (int.TryParse(categoryValue.ToString(), out int parsed))
+            {
+                return parsed;
+            }
+
+            return null;
+        }
+
+        private static IList GetNeedDefCategories(NeedDef needDef)
+        {
+            return GetListFromMember(NeedDefCategoriesMember, needDef);
+        }
+
+        private static IList GetNeedDefStages(NeedDef needDef)
+        {
+            return GetListFromMember(NeedDefStagesMember, needDef);
+        }
+
+        private static MemberInfo ResolveNeedDefMember(IEnumerable<string> names)
+        {
+            if (names == null)
+            {
+                return null;
+            }
+
+            foreach (string name in names)
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    continue;
+                }
+
+                PropertyInfo property = AccessTools.Property(typeof(NeedDef), name);
+                if (property != null)
+                {
+                    return property;
+                }
+
+                FieldInfo field = AccessTools.Field(typeof(NeedDef), name);
+                if (field != null)
+                {
+                    return field;
+                }
+            }
+
+            return null;
+        }
+
+        private static IList GetListFromMember(MemberInfo member, object instance)
+        {
+            if (member == null || instance == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                object value = null;
+                if (member is FieldInfo field)
+                {
+                    value = field.GetValue(instance);
+                }
+                else if (member is PropertyInfo property)
+                {
+                    value = property.GetValue(instance);
+                }
+
+                if (value is IList list)
+                {
+                    return list;
+                }
+
+                if (value is IEnumerable enumerable)
+                {
+                    List<object> buffer = new List<object>();
+                    foreach (object item in enumerable)
+                    {
+                        buffer.Add(item);
+                    }
+
+                    return buffer;
+                }
+            }
+            catch
+            {
+                // Ignore reflection failures and fall back to other strategies.
+            }
+
+            return null;
+        }
+
+        private static int FindIndex(IList list, object value)
+        {
+            if (list == null)
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                object candidate = list[i];
+                if (CategoryValuesEqual(candidate, value))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static bool CategoryValuesEqual(object left, object right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (left == null || right == null)
+            {
+                return false;
+            }
+
+            if (Equals(left, right))
+            {
+                return true;
+            }
+
+            string leftName = ExtractCategoryName(left);
+            string rightName = ExtractCategoryName(right);
+            if (!string.IsNullOrEmpty(leftName) && !string.IsNullOrEmpty(rightName))
+            {
+                return string.Equals(leftName, rightName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
+
+        private static bool CategoryMatchesName(object value, string stageName)
+        {
+            if (string.IsNullOrEmpty(stageName))
+            {
+                return false;
+            }
+
+            string resolved = ExtractCategoryName(value);
+            return !string.IsNullOrEmpty(resolved) && string.Equals(resolved, stageName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ExtractCategoryName(object value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            if (value is string strValue && !string.IsNullOrEmpty(strValue))
+            {
+                return strValue;
+            }
+
+            if (value is Def defValue)
+            {
+                if (!string.IsNullOrEmpty(defValue.defName))
+                {
+                    return defValue.defName;
+                }
+
+                if (!string.IsNullOrEmpty(defValue.label))
+                {
+                    return defValue.label;
+                }
+
+                string labelCap = defValue.LabelCap;
+                if (!string.IsNullOrEmpty(labelCap))
+                {
+                    return labelCap;
+                }
+            }
+
+            Type type = value.GetType();
+
+            PropertyInfo property = AccessTools.Property(type, "label") ?? AccessTools.Property(type, "Label");
+            if (property != null)
+            {
+                try
+                {
+                    object propertyValue = property.GetValue(value);
+                    if (propertyValue is string label && !string.IsNullOrEmpty(label))
+                    {
+                        return label;
+                    }
+                }
+                catch
+                {
+                    // Ignore and continue to other options.
+                }
+            }
+
+            PropertyInfo labelCapProperty = AccessTools.Property(type, "LabelCap") ?? AccessTools.Property(type, "labelCap");
+            if (labelCapProperty != null)
+            {
+                try
+                {
+                    object propertyValue = labelCapProperty.GetValue(value);
+                    if (propertyValue is string labelCap && !string.IsNullOrEmpty(labelCap))
+                    {
+                        return labelCap;
+                    }
+
+                    if (propertyValue != null)
+                    {
+                        string converted = propertyValue.ToString();
+                        if (!string.IsNullOrEmpty(converted))
+                        {
+                            return converted;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Ignore and continue to other options.
+                }
+            }
+
+            PropertyInfo defNameProperty = AccessTools.Property(type, "defName");
+            if (defNameProperty != null)
+            {
+                try
+                {
+                    object propertyValue = defNameProperty.GetValue(value);
+                    if (propertyValue is string defName && !string.IsNullOrEmpty(defName))
+                    {
+                        return defName;
+                    }
+                }
+                catch
+                {
+                    // Ignore and fall back to the string representation.
+                }
+            }
+
+            FieldInfo labelField = AccessTools.Field(type, "label");
+            if (labelField != null)
+            {
+                try
+                {
+                    object fieldValue = labelField.GetValue(value);
+                    if (fieldValue is string fieldLabel && !string.IsNullOrEmpty(fieldLabel))
+                    {
+                        return fieldLabel;
+                    }
+                }
+                catch
+                {
+                    // Ignore and continue to the next option.
+                }
+            }
+
+            FieldInfo defNameField = AccessTools.Field(type, "defName");
+            if (defNameField != null)
+            {
+                try
+                {
+                    object fieldValue = defNameField.GetValue(value);
+                    if (fieldValue is string fieldDefName && !string.IsNullOrEmpty(fieldDefName))
+                    {
+                        return fieldDefName;
+                    }
+                }
+                catch
+                {
+                    // Ignore and continue.
+                }
+            }
+
+            string text = value.ToString();
+            return string.IsNullOrEmpty(text) ? null : text;
         }
 
         private void ApplyState(ISpineRuntimeAdapter adapter, DynamicPawnStateMachineDef.PawnAnimationState state)
