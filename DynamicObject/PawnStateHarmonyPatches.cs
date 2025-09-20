@@ -15,9 +15,15 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo PawnJobTrackerPawnField = AccessTools.Field(typeof(Pawn_JobTracker), "pawn");
         private static readonly FieldInfo PawnNeedsTrackerPawnField = AccessTools.Field(typeof(Pawn_NeedsTracker), "pawn");
         private static readonly Type PawnVerbTrackerType = ResolvePawnVerbTrackerType();
-        private static readonly FieldInfo PawnVerbTrackerPawnField = AccessTools.Field(PawnVerbTrackerType, "pawn");
-        private static readonly PropertyInfo PawnVerbTrackerPrimaryVerbProperty = AccessTools.Property(PawnVerbTrackerType, "PrimaryVerb");
-        private static readonly FieldInfo PawnVerbTrackerPrimaryVerbField = AccessTools.Field(PawnVerbTrackerType, "primaryVerb");
+        private static readonly FieldInfo PawnVerbTrackerPawnField = PawnVerbTrackerType != null
+            ? AccessTools.Field(PawnVerbTrackerType, "pawn")
+            : null;
+        private static readonly PropertyInfo PawnVerbTrackerPrimaryVerbProperty = PawnVerbTrackerType != null
+            ? AccessTools.Property(PawnVerbTrackerType, "PrimaryVerb")
+            : null;
+        private static readonly FieldInfo PawnVerbTrackerPrimaryVerbField = PawnVerbTrackerType != null
+            ? AccessTools.Field(PawnVerbTrackerType, "primaryVerb")
+            : null;
         private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
         private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
         private static readonly FieldInfo JobDriverCurToilField = AccessTools.Field(typeof(JobDriver), "curToil");
@@ -26,8 +32,11 @@ namespace RimSpine2DFramework
         private static Type ResolvePawnVerbTrackerType()
         {
             return AccessTools.TypeByName("PawnVerbsTracker")
+                   ?? AccessTools.TypeByName("Verse.PawnVerbsTracker")
+                   ?? AccessTools.TypeByName("RimWorld.PawnVerbsTracker")
                    ?? AccessTools.TypeByName("Pawn_VerbTracker")
-                   ?? typeof(Pawn_VerbTracker);
+                   ?? AccessTools.TypeByName("Verse.Pawn_VerbTracker")
+                   ?? AccessTools.TypeByName("RimWorld.Pawn_VerbTracker");
         }
 
         private static Pawn GetPawn(object tracker, FieldInfo pawnField)
@@ -43,11 +52,6 @@ namespace RimSpine2DFramework
         private static Pawn GetPawn(Pawn_NeedsTracker tracker)
         {
             return GetPawn(tracker, PawnNeedsTrackerPawnField);
-        }
-
-        private static Pawn GetPawn(Pawn_VerbTracker tracker)
-        {
-            return GetPawn(tracker, PawnVerbTrackerPawnField);
         }
 
         private static Pawn GetPawn(HediffSet hediffSet)
@@ -150,7 +154,7 @@ namespace RimSpine2DFramework
         {
             private static MethodBase TargetMethod()
             {
-                return AccessTools.Method(PawnVerbTrackerType, "VerbsTick");
+                return PawnVerbTrackerType != null ? AccessTools.Method(PawnVerbTrackerType, "VerbsTick") : null;
             }
 
             private static void Postfix(object __instance)
