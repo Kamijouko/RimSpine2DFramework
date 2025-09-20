@@ -12,6 +12,36 @@ namespace RimSpine2DFramework
     {
         private static readonly FieldInfo CurJobField = AccessTools.Field(typeof(Pawn_JobTracker), "curJob");
         private static readonly FieldInfo CurDriverField = AccessTools.Field(typeof(Pawn_JobTracker), "curDriver");
+        private static readonly FieldInfo PawnJobTrackerPawnField = AccessTools.Field(typeof(Pawn_JobTracker), "pawn");
+        private static readonly FieldInfo PawnNeedsTrackerPawnField = AccessTools.Field(typeof(Pawn_NeedsTracker), "pawn");
+        private static readonly FieldInfo PawnVerbTrackerPawnField = AccessTools.Field(typeof(Pawn_VerbTracker), "pawn");
+        private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
+        private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
+
+        private static Pawn GetPawn(Pawn_JobTracker tracker)
+        {
+            return tracker != null ? PawnJobTrackerPawnField?.GetValue(tracker) as Pawn : null;
+        }
+
+        private static Pawn GetPawn(Pawn_NeedsTracker tracker)
+        {
+            return tracker != null ? PawnNeedsTrackerPawnField?.GetValue(tracker) as Pawn : null;
+        }
+
+        private static Pawn GetPawn(Pawn_VerbTracker tracker)
+        {
+            return tracker != null ? PawnVerbTrackerPawnField?.GetValue(tracker) as Pawn : null;
+        }
+
+        private static Pawn GetPawn(HediffSet hediffSet)
+        {
+            return hediffSet != null ? HediffSetPawnField?.GetValue(hediffSet) as Pawn : null;
+        }
+
+        private static Pawn GetPawn(ThoughtHandler handler)
+        {
+            return handler != null ? ThoughtHandlerPawnField?.GetValue(handler) as Pawn : null;
+        }
 
         private static Job GetCurrentJob(Pawn_JobTracker tracker)
         {
@@ -25,7 +55,7 @@ namespace RimSpine2DFramework
 
         private static void NotifyJobUpdate(Pawn_JobTracker tracker, Job jobOverride = null)
         {
-            Pawn pawn = tracker?.pawn;
+            Pawn pawn = GetPawn(tracker);
             if (pawn == null)
             {
                 return;
@@ -52,7 +82,7 @@ namespace RimSpine2DFramework
         {
             private static void Postfix(Pawn_JobTracker __instance)
             {
-                Pawn pawn = __instance?.pawn;
+                Pawn pawn = GetPawn(__instance);
                 if (pawn == null)
                 {
                     return;
@@ -76,7 +106,7 @@ namespace RimSpine2DFramework
         {
             private static void Postfix(Pawn_VerbTracker __instance)
             {
-                Pawn pawn = __instance?.pawn;
+                Pawn pawn = GetPawn(__instance);
                 if (pawn == null)
                 {
                     return;
@@ -92,7 +122,7 @@ namespace RimSpine2DFramework
         {
             private static void Postfix(Pawn_NeedsTracker __instance)
             {
-                Pawn pawn = __instance?.pawn;
+                Pawn pawn = GetPawn(__instance);
                 if (pawn == null)
                 {
                     return;
@@ -107,7 +137,7 @@ namespace RimSpine2DFramework
         {
             private static void Postfix(HediffSet __instance)
             {
-                Pawn pawn = __instance?.pawn;
+                Pawn pawn = GetPawn(__instance);
                 if (pawn == null)
                 {
                     return;
@@ -165,7 +195,7 @@ namespace RimSpine2DFramework
 
         private static void NotifyThoughtsChanged(ThoughtHandler handler)
         {
-            Pawn pawn = handler?.pawn;
+            Pawn pawn = GetPawn(handler);
             if (pawn == null)
             {
                 return;
