@@ -550,13 +550,14 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            LordDuty duty = pawn.mindState?.duty;
-            if (duty?.def == null)
+            PawnDuty duty = pawn.mindState?.duty;
+            PawnDutyDef dutyDef = duty?.def;
+            if (dutyDef == null)
             {
                 return false;
             }
 
-            return string.Equals(duty.def.defName, target, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(dutyDef.defName, target, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool MatchesMentalStateTrigger(DynamicPawnStateMachineDef.PawnStateTrigger trigger)
