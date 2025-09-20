@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -26,6 +28,7 @@ namespace RimSpine2DFramework
             : null;
         private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
         private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
+        private static readonly FieldInfo MemoryThoughtHandlerPawnField = AccessTools.Field(typeof(MemoryThoughtHandler), "pawn");
         private static readonly FieldInfo JobDriverCurToilField = AccessTools.Field(typeof(JobDriver), "curToil");
         private static readonly PropertyInfo JobDriverCurToilProperty = AccessTools.Property(typeof(JobDriver), "CurToil");
 
@@ -65,6 +68,11 @@ namespace RimSpine2DFramework
         private static Pawn GetPawn(ThoughtHandler handler)
         {
             return GetPawn(handler, ThoughtHandlerPawnField);
+        }
+
+        private static Pawn GetPawn(MemoryThoughtHandler handler)
+        {
+            return GetPawn(handler, MemoryThoughtHandlerPawnField);
         }
 
         private static Verb GetPrimaryVerb(object verbTracker)
@@ -203,36 +211,56 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(ThoughtHandler), "TryGainMemory", new Type[] { typeof(Thought_Memory), typeof(Pawn), typeof(Precept) })]
-        private static class ThoughtHandler_TryGainMemory_Patch
+        [HarmonyPatch]
+        private static class MemoryThoughtHandler_TryGainMemory_Patch
         {
+            private static MethodInfo[] targetMethods;
+
             private static bool Prepare()
             {
-                return AccessTools.Method(typeof(ThoughtHandler), "TryGainMemory", new Type[] { typeof(Thought_Memory), typeof(Pawn), typeof(Precept) }) != null;
+                targetMethods = AccessTools.GetDeclaredMethods(typeof(MemoryThoughtHandler))
+                    .Where(method => method.Name.IndexOf("TryGainMemory", StringComparison.Ordinal) >= 0)
+                    .ToArray();
+                return targetMethods.Length > 0;
             }
 
-            private static void Postfix(ThoughtHandler __instance)
+            private static IEnumerable<MethodBase> TargetMethods()
+            {
+                return targetMethods;
+            }
+
+            private static void Postfix(MemoryThoughtHandler __instance)
             {
                 NotifyThoughtsChanged(__instance);
             }
         }
 
-        [HarmonyPatch(typeof(ThoughtHandler), "TryGainMemory", new Type[] { typeof(Thought_Memory), typeof(Pawn), typeof(Precept), typeof(bool), typeof(bool) })]
-        private static class ThoughtHandler_TryGainMemoryWithFlags_Patch
+        [HarmonyPatch]
+        private static class MemoryThoughtHandler_RemoveMemory_Patch
         {
+            private static MethodInfo[] targetMethods;
+
             private static bool Prepare()
             {
-                return AccessTools.Method(typeof(ThoughtHandler), "TryGainMemory", new Type[] { typeof(Thought_Memory), typeof(Pawn), typeof(Precept), typeof(bool), typeof(bool) }) != null;
+                targetMethods = AccessTools.GetDeclaredMethods(typeof(MemoryThoughtHandler))
+                    .Where(method => method.Name.IndexOf("RemoveMemory", StringComparison.Ordinal) >= 0)
+                    .ToArray();
+                return targetMethods.Length > 0;
             }
 
-            private static void Postfix(ThoughtHandler __instance)
+            private static IEnumerable<MethodBase> TargetMethods()
+            {
+                return targetMethods;
+            }
+
+            private static void Postfix(MemoryThoughtHandler __instance)
             {
                 NotifyThoughtsChanged(__instance);
             }
         }
 
-        [HarmonyPatch(typeof(ThoughtHandler), "RemoveMemory")]
-        private static class ThoughtHandler_RemoveMemory_Patch
+        [HarmonyPatch(typeof(ThoughtHandler), "ThoughtInterval")]
+        private static class ThoughtHandler_ThoughtInterval_Patch
         {
             private static void Postfix(ThoughtHandler __instance)
             {
@@ -240,13 +268,15 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(ThoughtHandler), "ThoughtIntervalTick")]
-        private static class ThoughtHandler_ThoughtIntervalTick_Patch
+        private static void NotifyThoughtsChanged(MemoryThoughtHandler handler)
         {
-            private static void Postfix(ThoughtHandler __instance)
+            Pawn pawn = GetPawn(handler);
+            if (pawn == null)
             {
-                NotifyThoughtsChanged(__instance);
+                return;
             }
+
+            DynamicPawnStateRegistry.NotifyThoughtsChanged(pawn);
         }
 
         private static void NotifyThoughtsChanged(ThoughtHandler handler)
