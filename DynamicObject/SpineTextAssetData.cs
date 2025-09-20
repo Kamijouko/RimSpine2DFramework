@@ -11,18 +11,20 @@ namespace RimSpine2DFramework
     {
         public TextAsset atlasTxt;
         public TextAsset skeletonByte;
+        public byte[] skeletonBytes;
 
         public Material[] materials;
         public Texture2D[] textures;
         public Shader shader;
 
-        public SpineTextAssetData(TextAsset atlas, TextAsset skeleton, Material[] mats = null, Texture2D[] texs = null, Shader shade = null)
+        public SpineTextAssetData(TextAsset atlas, TextAsset skeleton, Material[] mats = null, Texture2D[] texs = null, Shader shade = null, byte[] skeletonBytes = null)
         {
             atlasTxt = atlas;
             skeletonByte = skeleton;
             materials = mats;
             textures = texs;
             shader = shade;
+            this.skeletonBytes = skeletonBytes;
         }
     }
 }
