@@ -144,11 +144,12 @@ namespace RimSpine2DFramework
                         ModDynamicObjectManager.spine40Database.Add(def.defName, data);
                     }
                     else if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
-					{
-						ModDynamicObjectManager.spine41Database.Add(def.defName, data);
-					}
-				}
-			}
+                                        {
+                                                ModDynamicObjectManager.spine41Database.Add(def.defName, data);
+                                        }
+                                }
+                                DynamicPawnStateRegistry.ReloadDefinitions();
+                        }
 
 			public static void ResolveAllStoryTellerCameras()
 			{

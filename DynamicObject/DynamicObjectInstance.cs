@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Verse;
 
 namespace RimSpine2DFramework
 {
@@ -26,6 +27,8 @@ namespace RimSpine2DFramework
         public bool canInteract = true;
 
         public int IdleTimes = 0;
+
+        private DynamicPawnStateController pawnStateController;
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
@@ -56,8 +59,51 @@ namespace RimSpine2DFramework
             }
         }
 
+        internal DynamicPawnStateController PawnStateController => pawnStateController;
+
+        internal void AttachStateController(DynamicPawnStateController controller)
+        {
+            pawnStateController = controller;
+        }
+
+        internal void DetachStateController(DynamicPawnStateController controller)
+        {
+            if (pawnStateController == controller)
+            {
+                pawnStateController = null;
+            }
+        }
+
+        internal bool TryGetSpineAdapter(out ISpineRuntimeAdapter adapter)
+        {
+            return TryResolveAdapter(out adapter);
+        }
+
+        public bool TryBindPawn(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                DynamicPawnStateRegistry.Unbind(this);
+                return false;
+            }
+
+            if (DynamicPawnStateRegistry.TryBind(this, pawn))
+            {
+                return pawnStateController != null;
+            }
+
+            DynamicPawnStateRegistry.Unbind(this);
+            return false;
+        }
+
         public void Update()
         {
+            if (pawnStateController != null)
+            {
+                pawnStateController.Tick();
+                return;
+            }
+
             if (!canInteract || def == null)
             {
                 return;
@@ -88,6 +134,21 @@ namespace RimSpine2DFramework
                 gameObject.SetActive(true);
             }
 
+            if (pawnStateController != null)
+            {
+                if (TryGetSpineAdapter(out ISpineRuntimeAdapter stateAdapter))
+                {
+                    if (!stateAdapter.HasSkeleton(this))
+                    {
+                        stateAdapter.EnsureSkeleton(this);
+                    }
+
+                    pawnStateController.RefreshNow();
+                }
+
+                return;
+            }
+
             if (def == null)
             {
                 throw new InvalidOperationException("DynamicObjectInstance definition is not initialized.");
@@ -105,6 +166,12 @@ namespace RimSpine2DFramework
 
         public void PlayInteractionAnimation()
         {
+            if (pawnStateController != null)
+            {
+                pawnStateController.TriggerInteraction();
+                return;
+            }
+
             if (!canInteract || def == null)
             {
                 return;
