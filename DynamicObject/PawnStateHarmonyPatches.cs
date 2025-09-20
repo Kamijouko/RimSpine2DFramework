@@ -14,35 +14,65 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo CurDriverField = AccessTools.Field(typeof(Pawn_JobTracker), "curDriver");
         private static readonly FieldInfo PawnJobTrackerPawnField = AccessTools.Field(typeof(Pawn_JobTracker), "pawn");
         private static readonly FieldInfo PawnNeedsTrackerPawnField = AccessTools.Field(typeof(Pawn_NeedsTracker), "pawn");
-        private static readonly FieldInfo PawnVerbTrackerPawnField = AccessTools.Field(typeof(Pawn_VerbTracker), "pawn");
+        private static readonly Type PawnVerbTrackerType = ResolvePawnVerbTrackerType();
+        private static readonly FieldInfo PawnVerbTrackerPawnField = AccessTools.Field(PawnVerbTrackerType, "pawn");
+        private static readonly PropertyInfo PawnVerbTrackerPrimaryVerbProperty = AccessTools.Property(PawnVerbTrackerType, "PrimaryVerb");
+        private static readonly FieldInfo PawnVerbTrackerPrimaryVerbField = AccessTools.Field(PawnVerbTrackerType, "primaryVerb");
         private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
         private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
         private static readonly FieldInfo JobDriverCurToilField = AccessTools.Field(typeof(JobDriver), "curToil");
         private static readonly PropertyInfo JobDriverCurToilProperty = AccessTools.Property(typeof(JobDriver), "CurToil");
 
+        private static Type ResolvePawnVerbTrackerType()
+        {
+            return AccessTools.TypeByName("PawnVerbsTracker")
+                   ?? AccessTools.TypeByName("Pawn_VerbTracker")
+                   ?? typeof(Pawn_VerbTracker);
+        }
+
+        private static Pawn GetPawn(object tracker, FieldInfo pawnField)
+        {
+            return tracker != null ? pawnField?.GetValue(tracker) as Pawn : null;
+        }
+
         private static Pawn GetPawn(Pawn_JobTracker tracker)
         {
-            return tracker != null ? PawnJobTrackerPawnField?.GetValue(tracker) as Pawn : null;
+            return GetPawn(tracker, PawnJobTrackerPawnField);
         }
 
         private static Pawn GetPawn(Pawn_NeedsTracker tracker)
         {
-            return tracker != null ? PawnNeedsTrackerPawnField?.GetValue(tracker) as Pawn : null;
+            return GetPawn(tracker, PawnNeedsTrackerPawnField);
         }
 
         private static Pawn GetPawn(Pawn_VerbTracker tracker)
         {
-            return tracker != null ? PawnVerbTrackerPawnField?.GetValue(tracker) as Pawn : null;
+            return GetPawn(tracker, PawnVerbTrackerPawnField);
         }
 
         private static Pawn GetPawn(HediffSet hediffSet)
         {
-            return hediffSet != null ? HediffSetPawnField?.GetValue(hediffSet) as Pawn : null;
+            return GetPawn(hediffSet, HediffSetPawnField);
         }
 
         private static Pawn GetPawn(ThoughtHandler handler)
         {
-            return handler != null ? ThoughtHandlerPawnField?.GetValue(handler) as Pawn : null;
+            return GetPawn(handler, ThoughtHandlerPawnField);
+        }
+
+        private static Verb GetPrimaryVerb(object verbTracker)
+        {
+            if (verbTracker == null)
+            {
+                return null;
+            }
+
+            if (PawnVerbTrackerPrimaryVerbProperty != null)
+            {
+                return PawnVerbTrackerPrimaryVerbProperty.GetValue(verbTracker) as Verb;
+            }
+
+            return PawnVerbTrackerPrimaryVerbField?.GetValue(verbTracker) as Verb;
         }
 
         private static Job GetCurrentJob(Pawn_JobTracker tracker)
@@ -115,18 +145,23 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(Pawn_VerbTracker), "VerbsTick")]
+        [HarmonyPatch]
         private static class PawnVerbTracker_VerbsTick_Patch
         {
-            private static void Postfix(Pawn_VerbTracker __instance)
+            private static MethodBase TargetMethod()
             {
-                Pawn pawn = GetPawn(__instance);
+                return AccessTools.Method(PawnVerbTrackerType, "VerbsTick");
+            }
+
+            private static void Postfix(object __instance)
+            {
+                Pawn pawn = GetPawn(__instance, PawnVerbTrackerPawnField);
                 if (pawn == null)
                 {
                     return;
                 }
 
-                Verb verb = __instance.PrimaryVerb;
+                Verb verb = GetPrimaryVerb(__instance);
                 DynamicPawnStateRegistry.NotifyVerbUsed(pawn, verb);
             }
         }
