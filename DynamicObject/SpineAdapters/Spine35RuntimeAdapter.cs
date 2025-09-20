@@ -108,7 +108,6 @@ namespace RimSpine2DFramework
                 {
                     if (entry == trackEntry)
                     {
-                        trackEntry.Complete -= Handler;
                         action();
                     }
                 }
