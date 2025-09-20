@@ -18,6 +18,12 @@ namespace RimSpine2DFramework
         private static readonly PropertyInfo NeedCurLevelCategoryProperty = AccessTools.Property(typeof(Need), "CurLevelCategory");
         private static readonly MemberInfo NeedDefCategoriesMember = ResolveNeedDefMember(new[] { "needCategories", "categories" });
         private static readonly MemberInfo NeedDefStagesMember = ResolveNeedDefMember(new[] { "stages", "needStages" });
+        private static readonly PropertyInfo ThoughtHandlerMemoriesProperty = AccessTools.Property(typeof(ThoughtHandler), "memories");
+        private static readonly FieldInfo ThoughtHandlerMemoriesField = ThoughtHandlerMemoriesProperty == null ? AccessTools.Field(typeof(ThoughtHandler), "memories") : null;
+        private static readonly Type ThoughtHandlerMemoriesType = ThoughtHandlerMemoriesProperty?.PropertyType ?? ThoughtHandlerMemoriesField?.FieldType;
+        private static readonly PropertyInfo MemoryHandlerMemoriesListProperty = ResolveMemoriesListProperty();
+        private static readonly FieldInfo MemoryHandlerMemoriesListField = MemoryHandlerMemoriesListProperty == null ? ResolveMemoriesListField() : null;
+        private static readonly MethodInfo MemoryHandlerMemoriesListMethod = MemoryHandlerMemoriesListProperty == null && MemoryHandlerMemoriesListField == null ? ResolveMemoriesListMethod() : null;
 
         private readonly DynamicObjectInstance instance;
         private readonly DynamicPawnStateMachineDef definition;
@@ -439,15 +445,15 @@ namespace RimSpine2DFramework
             }
 
             ThoughtHandler handler = pawn.needs?.mood?.thoughts;
-            Thought_MemoryHandler memories = handler?.memories;
-            List<Thought_Memory> list = memories?.MemoriesListForReading;
-            if (list == null)
+            IEnumerable memories = GetMemoriesForReading(handler);
+            if (memories == null)
             {
                 return false;
             }
 
-            foreach (Thought_Memory memory in list)
+            foreach (object memoryObject in memories)
             {
+                Thought_Memory memory = memoryObject as Thought_Memory;
                 if (memory?.def == null)
                 {
                     continue;
@@ -476,6 +482,64 @@ namespace RimSpine2DFramework
             }
 
             return false;
+        }
+
+        private static IEnumerable GetMemoriesForReading(ThoughtHandler handler)
+        {
+            if (handler == null)
+            {
+                return null;
+            }
+
+            object memories = null;
+            try
+            {
+                if (ThoughtHandlerMemoriesProperty != null)
+                {
+                    memories = ThoughtHandlerMemoriesProperty.GetValue(handler);
+                }
+                else if (ThoughtHandlerMemoriesField != null)
+                {
+                    memories = ThoughtHandlerMemoriesField.GetValue(handler);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (memories == null)
+            {
+                return null;
+            }
+
+            object list = null;
+            try
+            {
+                if (MemoryHandlerMemoriesListProperty != null)
+                {
+                    list = MemoryHandlerMemoriesListProperty.GetValue(memories);
+                }
+                else if (MemoryHandlerMemoriesListField != null)
+                {
+                    list = MemoryHandlerMemoriesListField.GetValue(memories);
+                }
+                else if (MemoryHandlerMemoriesListMethod != null)
+                {
+                    list = MemoryHandlerMemoriesListMethod.Invoke(memories, Array.Empty<object>());
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (list is IEnumerable enumerable)
+            {
+                return enumerable;
+            }
+
+            return memories as IEnumerable;
         }
 
         private bool MatchesDutyTrigger(DynamicPawnStateMachineDef.PawnStateTrigger trigger)
@@ -778,6 +842,37 @@ namespace RimSpine2DFramework
         private static IList GetNeedDefStages(NeedDef needDef)
         {
             return GetListFromMember(NeedDefStagesMember, needDef);
+        }
+
+        private static PropertyInfo ResolveMemoriesListProperty()
+        {
+            if (ThoughtHandlerMemoriesType == null)
+            {
+                return null;
+            }
+
+            return AccessTools.Property(ThoughtHandlerMemoriesType, "MemoriesListForReading");
+        }
+
+        private static FieldInfo ResolveMemoriesListField()
+        {
+            if (ThoughtHandlerMemoriesType == null)
+            {
+                return null;
+            }
+
+            return AccessTools.Field(ThoughtHandlerMemoriesType, "MemoriesListForReading");
+        }
+
+        private static MethodInfo ResolveMemoriesListMethod()
+        {
+            if (ThoughtHandlerMemoriesType == null)
+            {
+                return null;
+            }
+
+            return AccessTools.Method(ThoughtHandlerMemoriesType, "MemoriesListForReading")
+                   ?? AccessTools.Method(ThoughtHandlerMemoriesType, "get_MemoriesListForReading");
         }
 
         private static MemberInfo ResolveNeedDefMember(IEnumerable<string> names)
