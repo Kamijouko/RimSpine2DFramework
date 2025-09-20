@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Verse;
 
 namespace RimSpine2DFramework
 {
@@ -31,6 +32,8 @@ namespace RimSpine2DFramework
         private const float InteractionFadeInMixDuration = 0.2f;
         private const float InteractionFadeOutMixDuration = 0.4f;
 
+        private DynamicObjectStateController stateController;
+
         private static readonly ISpineRuntimeAdapter Spine35Adapter = new Spine35RuntimeAdapter();
         private static readonly ISpineRuntimeAdapter Spine38Adapter = new Spine38RuntimeAdapter();
         private static readonly ISpineRuntimeAdapter Spine40Adapter = new Spine40RuntimeAdapter();
@@ -48,6 +51,8 @@ namespace RimSpine2DFramework
             { Tuple.Create(ImportMode.AssetBundle, Spine41Adapter.Version), Spine41Adapter }
         };
 
+        public Pawn boundPawn;
+
         public bool IsNull
         {
             get
@@ -58,27 +63,14 @@ namespace RimSpine2DFramework
 
         public void Update()
         {
-            if (!canInteract || def == null)
+            if (def == null)
             {
                 return;
             }
 
-            if (IdleTimes < def.specialAnimationLoopForIdleAnimationTimes)
-            {
-                return;
-            }
-
-            if (!TryResolveAdapter(out ISpineRuntimeAdapter adapter) || !adapter.HasSkeleton(this))
-            {
-                return;
-            }
-
-            IdleTimes = 0;
-            //canInteract = false;
-
-            ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
-            AttachReenableInteraction(state.AddAnimation(0, def.specialAnimationName, false, 0f));
-            AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
+            EnsureStateController();
+            stateController?.Evaluate(boundPawn);
+            stateController?.ApplyState(this);
         }
 
         public void CreateSpineAnimation()
@@ -93,6 +85,8 @@ namespace RimSpine2DFramework
                 throw new InvalidOperationException("DynamicObjectInstance definition is not initialized.");
             }
 
+            EnsureStateController();
+
             ISpineRuntimeAdapter adapter = GetAdapter();
             if (adapter.HasSkeleton(this))
             {
@@ -100,7 +94,8 @@ namespace RimSpine2DFramework
             }
 
             adapter.EnsureSkeleton(this);
-            AttachIdleCompletion(adapter.GetAnimationState(this).SetAnimation(0, def.idleAnimationName, def.loop));
+            stateController?.OnSkeletonReady();
+            stateController?.ApplyState(this);
         }
 
         public void PlayInteractionAnimation()
@@ -110,7 +105,7 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            if (!TryResolveAdapter(out ISpineRuntimeAdapter adapter) || !adapter.HasSkeleton(this))
+            if (!TryGetAdapter(out ISpineRuntimeAdapter adapter) || !adapter.HasSkeleton(this))
             {
                 return;
             }
@@ -147,7 +142,7 @@ namespace RimSpine2DFramework
             return adapter;
         }
 
-        private bool TryResolveAdapter(out ISpineRuntimeAdapter adapter)
+        internal bool TryGetAdapter(out ISpineRuntimeAdapter adapter)
         {
             adapter = null;
             if (key == null)
@@ -169,7 +164,7 @@ namespace RimSpine2DFramework
             return string.IsNullOrWhiteSpace(ver) ? null : ver.Trim();
         }
 
-        private void AttachIdleCompletion(ISpineTrackEntryAdapter trackEntry)
+        internal void AttachIdleCompletion(ISpineTrackEntryAdapter trackEntry)
         {
             if (trackEntry == null)
             {
@@ -185,7 +180,7 @@ namespace RimSpine2DFramework
             });
         }
 
-        private void AttachReenableInteraction(ISpineTrackEntryAdapter trackEntry)
+        internal void AttachReenableInteraction(ISpineTrackEntryAdapter trackEntry)
         {
             if (trackEntry == null)
             {
@@ -196,6 +191,38 @@ namespace RimSpine2DFramework
             {
                 canInteract = true;
             });
+        }
+
+        public void BindPawn(Pawn pawn)
+        {
+            boundPawn = pawn;
+            EnsureStateController();
+            stateController?.BindPawn(pawn);
+        }
+
+        public void UnbindPawn()
+        {
+            stateController?.UnbindPawn(boundPawn);
+            boundPawn = null;
+        }
+
+        private void EnsureStateController()
+        {
+            if (stateController != null || def == null)
+            {
+                return;
+            }
+
+            stateController = new DynamicObjectStateController(this);
+            if (boundPawn != null)
+            {
+                stateController.BindPawn(boundPawn);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            stateController?.UnbindPawn(boundPawn);
         }
     }
 }

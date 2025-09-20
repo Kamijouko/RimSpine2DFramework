@@ -10,6 +10,7 @@ using RimWorld;
 using HarmonyLib;
 using System.Reflection;
 using Verse.Noise;
+using Verse.AI;
 
 namespace RimSpine2DFramework
 {
@@ -146,9 +147,10 @@ namespace RimSpine2DFramework
                     else if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
 					{
 						ModDynamicObjectManager.spine41Database.Add(def.defName, data);
-					}
-				}
-			}
+        }
+
+    }
+}
 
 			public static void ResolveAllStoryTellerCameras()
 			{
@@ -678,15 +680,74 @@ namespace RimSpine2DFramework
 				Log.Warning("1");
             }
         }*/
-		/*[HarmonyPatch(typeof(PawnGraphicSet))]
-		[HarmonyPatch("ResolveApparelGraphics")]
-		public class TestPatch2
-		{
-			static void Postfix()
-			{
-				Log.Warning("2");
-			}
-		}*/
+                /*[HarmonyPatch(typeof(PawnGraphicSet))]
+                [HarmonyPatch("ResolveApparelGraphics")]
+                public class TestPatch2
+                {
+                        static void Postfix()
+                        {
+                                Log.Warning("2");
+                        }
+                }*/
 
-	}
+        [HarmonyPatch(typeof(Pawn_JobTracker), "StartJob")]
+        public static class PawnJobTrackerStartJobPatch
+        {
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn_JobTracker), "EndCurrentJob")]
+        public static class PawnJobTrackerEndJobPatch
+        {
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn_NeedsTracker), "Notify_NeedChanged")]
+        public static class PawnNeedsTrackerNotifyChangedPatch
+        {
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(HediffSet), "AddDirect")]
+        public static class HediffSetAddDirectPatch
+        {
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(HediffSet), "Remove")]
+        public static class HediffSetRemovePatch
+        {
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        [HarmonyPatch]
+        public static class ThoughtHandlerTryGainMemoryPatch
+        {
+            static IEnumerable<MethodBase> TargetMethods()
+            {
+                return AccessTools.GetDeclaredMethods(typeof(ThoughtHandler)).Where(m => m.Name == "TryGainMemory");
+            }
+
+            public static void Postfix(Pawn ___pawn)
+            {
+                DynamicObjectStateController.NotifyPawnStateChanged(___pawn);
+            }
+        }
+
+        }
 }

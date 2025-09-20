@@ -376,6 +376,7 @@
   <ItemGroup>
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
+    <Compile Include="DynamicObjectStateController.cs" />
     <Compile Include="DynamicStoryTellerDef.cs" />
     <Compile Include="HarmonyMain.cs" />
     <Compile Include="ImportMode.cs" />
