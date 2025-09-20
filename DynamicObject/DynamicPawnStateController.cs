@@ -554,7 +554,7 @@ namespace RimSpine2DFramework
             }
 
             PawnDuty duty = pawn.mindState?.duty;
-            PawnDutyDef dutyDef = duty?.def;
+            DutyDef dutyDef = duty?.def;
             if (dutyDef == null)
             {
                 return false;
