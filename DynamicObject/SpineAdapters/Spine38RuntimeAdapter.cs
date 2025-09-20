@@ -1,4 +1,6 @@
 using System;
+using System.Reflection;
+using System.Text;
 using UnityEngine;
 
 namespace RimSpine2DFramework
@@ -25,7 +27,14 @@ namespace RimSpine2DFramework
             if (instance.key.importMode == ImportMode.File)
             {
                 atlas = Spine38.Unity.SpineAtlasAsset.CreateRuntimeInstance(data.atlasTxt, data.textures, data.shader, true);
-                skeleton = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
+                if (data.skeletonBytes != null && data.skeletonBytes.Length > 0)
+                {
+                    skeleton = CreateSkeletonFromBytes(instance, data, atlas);
+                }
+                else
+                {
+                    skeleton = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
+                }
             }
             else
             {
@@ -36,6 +45,70 @@ namespace RimSpine2DFramework
             Spine38.Unity.SkeletonAnimation skeletonAnimation = Spine38.Unity.SkeletonAnimation.NewSkeletonAnimationGameObject(skeleton);
             instance.spine38skeleton = skeletonAnimation;
             ConfigureSkeleton(instance, instance.spine38skeleton);
+        }
+
+        private static readonly FieldInfo SkeletonDataField = typeof(Spine38.Unity.SkeletonDataAsset).GetField("skeletonData", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo StateDataField = typeof(Spine38.Unity.SkeletonDataAsset).GetField("stateData", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        private static Spine38.Unity.SkeletonDataAsset CreateSkeletonFromBytes(DynamicObjectInstance instance, SpineTextAssetData data, Spine38.Unity.SpineAtlasAsset atlas)
+        {
+            Spine38.Unity.SkeletonDataAsset skeletonAsset = Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, false);
+            Spine38.Atlas atlasInstance = atlas.GetAtlas();
+            Spine38.AttachmentLoader attachmentLoader = atlasInstance != null
+                ? (Spine38.AttachmentLoader)new Spine38.AtlasAttachmentLoader(atlasInstance)
+                : new Spine38.Unity.RegionlessAttachmentLoader();
+
+            float scale = skeletonAsset.scale;
+            string skeletonPath = instance?.key?.spine?.skeletonPath ?? data.skeletonByte?.name ?? string.Empty;
+            bool isBinary = skeletonPath.EndsWith(".skel", StringComparison.OrdinalIgnoreCase) || skeletonPath.EndsWith(".skel.bytes", StringComparison.OrdinalIgnoreCase);
+
+            Spine38.SkeletonData skeletonData;
+            try
+            {
+                if (isBinary)
+                {
+                    skeletonData = Spine38.Unity.SkeletonDataAsset.ReadSkeletonData(data.skeletonBytes, attachmentLoader, scale);
+                }
+                else
+                {
+                    string jsonText = data.skeletonByte != null ? data.skeletonByte.text : Encoding.UTF8.GetString(data.skeletonBytes);
+                    skeletonData = Spine38.Unity.SkeletonDataAsset.ReadSkeletonData(jsonText, attachmentLoader, scale);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[RimSpine2DFramework] Failed to parse Spine 3.8 skeleton for '{instance?.key?.defName ?? "unknown"}': {ex}");
+                return Spine38.Unity.SkeletonDataAsset.CreateRuntimeInstance(data.skeletonByte, atlas, true);
+            }
+
+            if (skeletonAsset.skeletonDataModifiers != null)
+            {
+                foreach (Spine38.Unity.SkeletonDataModifierAsset modifier in skeletonAsset.skeletonDataModifiers)
+                {
+                    if (modifier == null)
+                    {
+                        continue;
+                    }
+
+                    if (skeletonAsset.isUpgradingBlendModeMaterials && modifier is Spine38.Unity.BlendModeMaterialsAsset)
+                    {
+                        continue;
+                    }
+
+                    modifier.Apply(skeletonData);
+                }
+            }
+
+            if (!skeletonAsset.isUpgradingBlendModeMaterials)
+            {
+                skeletonAsset.blendModeMaterials.ApplyMaterials(skeletonData);
+            }
+
+            SkeletonDataField?.SetValue(skeletonAsset, skeletonData);
+            Spine38.AnimationStateData stateData = new Spine38.AnimationStateData(skeletonData);
+            StateDataField?.SetValue(skeletonAsset, stateData);
+            skeletonAsset.FillStateData();
+            return skeletonAsset;
         }
 
         private static void ConfigureSkeleton(DynamicObjectInstance instance, Spine38.Unity.SkeletonAnimation skeleton)

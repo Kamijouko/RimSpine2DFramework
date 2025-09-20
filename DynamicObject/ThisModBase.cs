@@ -84,6 +84,7 @@ namespace RimSpine2DFramework
                     def.spine.ver = "3.8";
                 TextAsset atlasAsset;
                 TextAsset skeletonAsset;
+                byte[] skeletonBytes = null;
                 Material[] materials = null;
                 Texture2D[] textures = null;
                 Shader shader = ShaderTypeDefOf.Cutout.Shader;
@@ -134,14 +135,8 @@ namespace RimSpine2DFramework
                     {
                         try
                         {
-                            byte[] skeletonBytes = File.ReadAllBytes(skeletonFullPath);
-                            ConstructorInfo ctor = AccessTools.Constructor(typeof(TextAsset), new[] { typeof(byte[]) });
-                            if (ctor == null)
-                            {
-                                Log.Error($"[RimSpine2DFramework] Cannot find TextAsset(byte[]) constructor for '{def.spine.skeletonPath}'.");
-                                continue;
-                            }
-                            skeletonAsset = (TextAsset)ctor.Invoke(new object[] { skeletonBytes });
+                            skeletonBytes = File.ReadAllBytes(skeletonFullPath);
+                            skeletonAsset = new TextAsset(string.Empty);
                         }
                         catch (Exception ex)
                         {
@@ -193,7 +188,7 @@ namespace RimSpine2DFramework
                     //Log.Warning(textures.Length.ToString());
                 }
 
-                SpineTextAssetData data = new SpineTextAssetData(atlasAsset, skeletonAsset, materials, textures, shader);
+                SpineTextAssetData data = new SpineTextAssetData(atlasAsset, skeletonAsset, materials, textures, shader, skeletonBytes);
                 if (def.spine.ver == "3.5" && !ModDynamicObjectManager.spine35Database.ContainsKey(def.defName))
                 {
                     ModDynamicObjectManager.spine35Database.Add(def.defName, data);
