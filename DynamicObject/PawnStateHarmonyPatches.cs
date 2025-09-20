@@ -31,7 +31,10 @@ namespace RimSpine2DFramework
 
         private static Type ResolvePawnVerbTrackerType()
         {
-            return AccessTools.TypeByName("PawnVerbsTracker")
+            return AccessTools.TypeByName("VerbTracker")
+                   ?? AccessTools.TypeByName("Verse.VerbTracker")
+                   ?? AccessTools.TypeByName("RimWorld.VerbTracker")
+                   ?? AccessTools.TypeByName("PawnVerbsTracker")
                    ?? AccessTools.TypeByName("Verse.PawnVerbsTracker")
                    ?? AccessTools.TypeByName("RimWorld.PawnVerbsTracker")
                    ?? AccessTools.TypeByName("Pawn_VerbTracker")
