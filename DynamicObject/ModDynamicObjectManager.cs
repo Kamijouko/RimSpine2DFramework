@@ -24,5 +24,6 @@ namespace RimSpine2DFramework
         public static Dictionary<string, AssetBundle> bundles = new Dictionary<string, AssetBundle>();
 
         public static Dictionary<string, GameObject> DynamicStoryTellerDatabase = new Dictionary<string, GameObject>();
+        public static string lastChosenStoryTeller = null;
     }
 }

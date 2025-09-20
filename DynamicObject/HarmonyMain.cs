@@ -10,6 +10,7 @@ using RimWorld;
 using HarmonyLib;
 using System.Reflection;
 using Verse.Noise;
+using System.Xml.Linq;
 
 namespace RimSpine2DFramework
 {
@@ -217,7 +218,10 @@ namespace RimSpine2DFramework
 				DynamicStoryTellerDef def = defs.FirstOrDefault(x => x.storyTeller.defName == defName);
 				if (defs.NullOrEmpty() || def == null || (def != null && !ModDynamicObjectManager.DynamicStoryTellerDatabase.ContainsKey(def.defName)))
                 {
-					return true;
+					if (ModDynamicObjectManager.lastChosenStoryTeller != null) 
+						ModDynamicObjectManager.DynamicStoryTellerDatabase[ModDynamicObjectManager.lastChosenStoryTeller].SetActive(false);
+						ModDynamicObjectManager.lastChosenStoryTeller = null;
+                    return true;
                 }
 
 				Widgets.BeginGroup(rect);
@@ -268,7 +272,9 @@ namespace RimSpine2DFramework
                     if (instance.IsNull)
                         instance.CreateSpineAnimation();
                     ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].SetActive(true);
+                    ModDynamicObjectManager.lastChosenStoryTeller = def.defName;
                     GUI.DrawTexture(position, ModDynamicObjectManager.DynamicStoryTellerDatabase[def.defName].GetComponent<Camera>().targetTexture);
+					
 
                     //点击互动逻辑，
                     //点击后DynamicObjectInstance的属性canInteract设为false（不可点击），
