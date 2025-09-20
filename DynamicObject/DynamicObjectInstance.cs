@@ -29,7 +29,7 @@ namespace RimSpine2DFramework
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
-        private const float InteractionFadeOutMixDuration = 0.2f;
+        private const float InteractionFadeOutMixDuration = 0.4f;
 
         private static readonly ISpineRuntimeAdapter Spine35Adapter = new Spine35RuntimeAdapter();
         private static readonly ISpineRuntimeAdapter Spine38Adapter = new Spine38RuntimeAdapter();
@@ -74,7 +74,7 @@ namespace RimSpine2DFramework
             }
 
             IdleTimes = 0;
-            canInteract = false;
+            //canInteract = false;
 
             ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
             AttachReenableInteraction(state.AddAnimation(0, def.specialAnimationName, false, 0f));
