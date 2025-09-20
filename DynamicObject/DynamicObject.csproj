@@ -374,7 +374,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DynamicGraphicData.cs" />
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
     <Compile Include="DynamicStoryTellerDef.cs" />
