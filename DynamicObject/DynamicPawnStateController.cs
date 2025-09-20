@@ -223,7 +223,10 @@ namespace RimSpine2DFramework
             {
                 if (state.isFallback)
                 {
-                    fallback ??= state;
+                    if (fallback == null)
+                    {
+                        fallback = state;
+                    }
                     continue;
                 }
 
