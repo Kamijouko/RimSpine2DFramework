@@ -118,12 +118,43 @@ namespace RimSpine2DFramework
                     if (txtPath == null || jsonPath == null)
                         continue;
 
-                    string txt = File.ReadAllText(Path.Combine(txtPath, def.spine.atlasPath));
-                    string json = File.ReadAllText(Path.Combine(jsonPath, def.spine.skeletonPath));
+                    string atlasFullPath = Path.Combine(txtPath, def.spine.atlasPath);
+                    string skeletonFullPath = Path.Combine(jsonPath, def.spine.skeletonPath);
 
+                    string txt = File.ReadAllText(atlasFullPath);
                     atlasAsset = new TextAsset(txt);
-                    skeletonAsset = new TextAsset(json);
                     atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
+
+                    string skeletonExtension = Path.GetExtension(def.spine.skeletonPath);
+                    bool isBinarySkeleton = skeletonExtension.Equals(".skel", StringComparison.OrdinalIgnoreCase)
+                        || def.spine.skeletonPath.EndsWith(".skel", StringComparison.OrdinalIgnoreCase)
+                        || def.spine.skeletonPath.EndsWith(".skel.bytes", StringComparison.OrdinalIgnoreCase);
+
+                    if (isBinarySkeleton)
+                    {
+                        try
+                        {
+                            byte[] skeletonBytes = File.ReadAllBytes(skeletonFullPath);
+                            ConstructorInfo ctor = AccessTools.Constructor(typeof(TextAsset), new[] { typeof(byte[]) });
+                            if (ctor == null)
+                            {
+                                LogSimple.Error($"[RimSpine2DFramework] Cannot find TextAsset(byte[]) constructor for '{def.spine.skeletonPath}'.");
+                                continue;
+                            }
+                            skeletonAsset = (TextAsset)ctor.Invoke(new object[] { skeletonBytes });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogSimple.Error($"[RimSpine2DFramework] Failed to load binary skeleton '{def.spine.skeletonPath}': {ex}");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        string json = File.ReadAllText(skeletonFullPath);
+                        skeletonAsset = new TextAsset(json);
+                    }
+
                     skeletonAsset.name = Path.GetFileName(def.spine.skeletonPath);
                     if (def.spine.shaderName == "Spine-Skeleton.shader")
                     {
