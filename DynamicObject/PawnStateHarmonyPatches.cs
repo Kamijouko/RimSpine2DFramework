@@ -173,7 +173,7 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(Pawn_NeedsTracker), "NeedIntervalTick")]
+        [HarmonyPatch(typeof(Pawn_NeedsTracker), "NeedsTrackerTickInterval")]
         private static class PawnNeedsTracker_NeedIntervalTick_Patch
         {
             private static void Postfix(Pawn_NeedsTracker __instance)
