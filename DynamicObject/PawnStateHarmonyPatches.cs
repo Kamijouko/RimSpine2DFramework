@@ -17,6 +17,8 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo PawnVerbTrackerPawnField = AccessTools.Field(typeof(Pawn_VerbTracker), "pawn");
         private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
         private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
+        private static readonly FieldInfo JobDriverCurToilField = AccessTools.Field(typeof(JobDriver), "curToil");
+        private static readonly PropertyInfo JobDriverCurToilProperty = AccessTools.Property(typeof(JobDriver), "CurToil");
 
         private static Pawn GetPawn(Pawn_JobTracker tracker)
         {
@@ -53,6 +55,17 @@ namespace RimSpine2DFramework
             return CurDriverField?.GetValue(tracker) as JobDriver;
         }
 
+        private static Toil GetCurrentToil(JobDriver driver)
+        {
+            if (driver == null)
+            {
+                return null;
+            }
+
+            return JobDriverCurToilField?.GetValue(driver) as Toil
+                ?? JobDriverCurToilProperty?.GetValue(driver) as Toil;
+        }
+
         private static void NotifyJobUpdate(Pawn_JobTracker tracker, Job jobOverride = null)
         {
             Pawn pawn = GetPawn(tracker);
@@ -64,7 +77,8 @@ namespace RimSpine2DFramework
             Job job = jobOverride ?? GetCurrentJob(tracker);
             JobDriver driver = GetCurrentDriver(tracker);
             int stageIndex = driver?.CurToilIndex ?? -1;
-            string stageLabel = driver?.CurToil?.debugName ?? driver?.CurToil?.ToString();
+            Toil currentToil = GetCurrentToil(driver);
+            string stageLabel = currentToil?.debugName ?? currentToil?.ToString();
             DynamicPawnStateRegistry.NotifyJobUpdate(pawn, job, stageIndex, stageLabel);
         }
 
