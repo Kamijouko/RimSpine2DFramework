@@ -276,6 +276,8 @@ namespace RimSpine2DFramework
                     return MatchesDutyTrigger(trigger);
                 case DynamicPawnStateMachineDef.PawnStateTriggerSource.MentalState:
                     return MatchesMentalStateTrigger(trigger);
+                case DynamicPawnStateMachineDef.PawnStateTriggerSource.Movement:
+                    return MatchesMovementTrigger(trigger);
                 default:
                     return false;
             }
@@ -583,6 +585,17 @@ namespace RimSpine2DFramework
             }
 
             return string.Equals(mentalState.def.defName, target, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool MatchesMovementTrigger(DynamicPawnStateMachineDef.PawnStateTrigger trigger)
+        {
+            bool isMoving = pawn?.pather?.Moving == true;
+            if (!trigger.isMoving.HasValue)
+            {
+                return !isMoving;
+            }
+
+            return isMoving == trigger.isMoving.Value;
         }
 
         private static bool TryGetNeedCategory(Need need, out object categoryValue)

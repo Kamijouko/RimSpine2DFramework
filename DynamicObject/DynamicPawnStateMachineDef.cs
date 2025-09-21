@@ -125,6 +125,8 @@ namespace RimSpine2DFramework
 
             public string stageName;
 
+            public bool? isMoving;
+
             public float threshold = float.NaN;
 
             public bool thresholdGreaterOrEqual = true;
@@ -144,7 +146,8 @@ namespace RimSpine2DFramework
             Hediff,
             Thought,
             Duty,
-            MentalState
+            MentalState,
+            Movement
         }
     }
 }

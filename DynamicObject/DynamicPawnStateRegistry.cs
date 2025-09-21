@@ -105,16 +105,31 @@ namespace RimSpine2DFramework
                         continue;
                     }
 
-                    if (trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Job ||
-                        trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Need ||
-                        trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Hediff ||
-                        trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Thought ||
-                        trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Verb)
+                    switch (trigger.source)
                     {
-                        string resolvedDef = trigger.def?.defName ?? trigger.defName;
-                        if (resolvedDef.NullOrEmpty())
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Job:
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Need:
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Hediff:
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Thought:
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Verb:
                         {
-                            Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' defines a trigger without defName.");
+                            string resolvedDef = trigger.def?.defName ?? trigger.defName;
+                            if (resolvedDef.NullOrEmpty())
+                            {
+                                Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' defines a trigger without defName.");
+                            }
+
+                            break;
+                        }
+
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.Movement:
+                        {
+                            if (!trigger.isMoving.HasValue)
+                            {
+                                Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' uses a Movement trigger without specifying isMoving. Set isMoving="true" or isMoving="false".");
+                            }
+
+                            break;
                         }
                     }
                 }
