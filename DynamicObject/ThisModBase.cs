@@ -125,7 +125,6 @@ namespace RimSpine2DFramework
                     string txt = File.ReadAllText(atlasFullPath);
                     atlasAsset = new TextAsset(txt);
                     atlasAsset.name = Path.GetFileName(def.spine.atlasPath);
-                    List<string> atlasPageNames = ExtractAtlasPageNames(txt);
 
                     string skeletonExtension = Path.GetExtension(def.spine.skeletonPath);
                     bool isBinarySkeleton = skeletonExtension.Equals(".skel", StringComparison.OrdinalIgnoreCase)
@@ -180,95 +179,11 @@ namespace RimSpine2DFramework
                         }
                     }
                     //Log.Warning(shader.name);
-                    List<Texture2D> loadedTextures = new List<Texture2D>(def.spine.textures.Count);
-                    Dictionary<string, Texture2D> textureLookup = new Dictionary<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
+                    textures = new Texture2D[def.spine.textures.Count];
                     for (int i = 0; i < def.spine.textures.Count; i++)
                     {
-                        string texturePath = def.spine.textures[i].texPath;
-                        Texture2D texture = ContentFinder<Texture2D>.Get(texturePath);
-                        if (texture == null)
-                        {
-                            Log.Error($"[RimSpine2DFramework] Failed to load texture '{texturePath}' for def '{def.defName}'.");
-                            loadedTextures.Add(null);
-                            continue;
-                        }
-
-                        string normalizedName = NormalizeTextureKey(texturePath);
-                        if (string.IsNullOrEmpty(normalizedName))
-                        {
-                            Log.Error($"[RimSpine2DFramework] Unable to determine texture name for '{texturePath}' while loading '{def.defName}'.");
-                        }
-                        else
-                        {
-                            texture.name = normalizedName;
-                            if (textureLookup.ContainsKey(normalizedName))
-                            {
-                                Log.Warning($"[RimSpine2DFramework] Duplicate texture name '{normalizedName}' detected while loading '{def.defName}'. Using the last occurrence.");
-                                textureLookup[normalizedName] = texture;
-                            }
-                            else
-                            {
-                                textureLookup.Add(normalizedName, texture);
-                            }
-                        }
-
-                        loadedTextures.Add(texture);
-                    }
-
-                    if (atlasPageNames.Count > 0)
-                    {
-                        Texture2D[] orderedTextures = new Texture2D[atlasPageNames.Count];
-                        bool missingTexture = false;
-                        HashSet<string> normalizedPageSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                        for (int i = 0; i < atlasPageNames.Count; i++)
-                        {
-                            string pageName = atlasPageNames[i];
-                            string normalizedPageName = NormalizeTextureKey(pageName);
-                            if (string.IsNullOrEmpty(normalizedPageName))
-                            {
-                                Log.Error($"[RimSpine2DFramework] Unable to normalize atlas page name '{pageName}' from '{def.spine.atlasPath}' while loading '{def.defName}'.");
-                                missingTexture = true;
-                                continue;
-                            }
-
-                            normalizedPageSet.Add(normalizedPageName);
-
-                            if (!textureLookup.TryGetValue(normalizedPageName, out Texture2D matchedTexture) || matchedTexture == null)
-                            {
-                                Log.Error($"[RimSpine2DFramework] Texture matching atlas page '{pageName}' (normalized '{normalizedPageName}') was not found for '{def.defName}'.");
-                                missingTexture = true;
-                                continue;
-                            }
-
-                            matchedTexture.name = normalizedPageName;
-                            orderedTextures[i] = matchedTexture;
-                        }
-
-                        foreach (KeyValuePair<string, Texture2D> kvp in textureLookup)
-                        {
-                            if (!normalizedPageSet.Contains(kvp.Key))
-                            {
-                                Log.Warning($"[RimSpine2DFramework] Texture '{kvp.Key}' loaded for '{def.defName}' is not referenced by atlas '{def.spine.atlasPath}'.");
-                            }
-                        }
-
-                        if (missingTexture || orderedTextures.Any(t => t == null))
-                        {
-                            Log.Error($"[RimSpine2DFramework] Failed to build a complete texture set for '{def.defName}'. Skipping definition.");
-                            continue;
-                        }
-
-                        textures = orderedTextures;
-                    }
-                    else
-                    {
-                        textures = loadedTextures.ToArray();
-                        if (textures.Any(t => t == null))
-                        {
-                            Log.Error($"[RimSpine2DFramework] Some textures failed to load for '{def.defName}' and atlas order could not be determined. Skipping definition.");
-                            continue;
-                        }
+                        Texture2D texture = ContentFinder<Texture2D>.Get(def.spine.textures[i].texPath);
+                        textures[i] = texture;
                     }
                     //Log.Warning(textures.Length.ToString());
                 }
@@ -346,63 +261,6 @@ namespace RimSpine2DFramework
                 obj.SetActive(false);
                 ModDynamicObjectManager.DynamicStoryTellerDatabase.Add(def.defName, obj);
             }
-        }
-
-        private static string NormalizeTextureKey(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return string.Empty;
-
-            string normalized = Path.GetFileNameWithoutExtension(name);
-            if (string.IsNullOrWhiteSpace(normalized))
-                normalized = Path.GetFileName(name);
-
-            return string.IsNullOrWhiteSpace(normalized) ? string.Empty : normalized.Trim();
-        }
-
-        private static List<string> ExtractAtlasPageNames(string atlasText)
-        {
-            List<string> pageNames = new List<string>();
-            if (string.IsNullOrEmpty(atlasText))
-                return pageNames;
-
-            string[] lines = atlasText.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string current = lines[i].Trim();
-                if (string.IsNullOrEmpty(current) || current.Contains(":"))
-                    continue;
-
-                string nextNonEmpty = string.Empty;
-                for (int j = i + 1; j < lines.Length; j++)
-                {
-                    string candidate = lines[j].Trim();
-                    if (string.IsNullOrEmpty(candidate))
-                        continue;
-
-                    nextNonEmpty = candidate;
-                    break;
-                }
-
-                if (string.IsNullOrEmpty(nextNonEmpty))
-                    continue;
-
-                if (IsAtlasPagePropertyLine(nextNonEmpty))
-                    pageNames.Add(current);
-            }
-
-            return pageNames;
-        }
-
-        private static bool IsAtlasPagePropertyLine(string line)
-        {
-            if (string.IsNullOrEmpty(line))
-                return false;
-
-            return line.StartsWith("size:", StringComparison.OrdinalIgnoreCase)
-                || line.StartsWith("format:", StringComparison.OrdinalIgnoreCase)
-                || line.StartsWith("filter:", StringComparison.OrdinalIgnoreCase)
-                || line.StartsWith("repeat:", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
