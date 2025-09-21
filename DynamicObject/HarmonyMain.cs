@@ -176,7 +176,22 @@ namespace RimSpine2DFramework
 							Find.GameInitData.permadeathChosen = true;
 							Find.GameInitData.permadeath = true;
 						}
-					}
+                        if (ModsConfig.AnomalyActive)
+                        {
+                            infoListing.Gap(15f);
+                            if (infoListing.ButtonText("AnomalySettings".Translate() + "...", null, 1f))
+                            {
+                                if (difficulty == null)
+                                {
+                                    Messages.Message("MustChooseDifficulty".Translate(), MessageTypeDefOf.RejectInput, false);
+                                }
+                                else
+                                {
+                                    Find.WindowStack.Add(new Dialog_AnomalySettings(difficultyValues));
+                                }
+                            }
+                        }
+                    }
 					num = rect3.y + infoListing.CurHeight;
 					infoListing.End();
 					if (difficulty != null && difficulty.isCustom)
