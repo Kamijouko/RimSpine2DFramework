@@ -126,7 +126,7 @@ namespace RimSpine2DFramework
                         {
                             if (!trigger.isMoving.HasValue)
                             {
-                                Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' uses a Movement trigger without specifying isMoving. Set isMoving="true" or isMoving="false".");
+                                Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' uses a Movement trigger without specifying isMoving. Set isMoving=true or isMoving=false.");
                             }
 
                             break;
