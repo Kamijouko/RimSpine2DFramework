@@ -203,6 +203,9 @@ namespace RimSpine2DFramework
             Vector3 targetPosition = pawnDrawPos + pawnPositionOffset;
             transform.position = targetPosition;
             position = targetPosition;
+
+            if (curPawn.Rotation == Rot4.East) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.2f);
+            if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.2f);
         }
 
         public void Update()

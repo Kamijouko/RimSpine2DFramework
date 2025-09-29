@@ -148,6 +148,7 @@ namespace RimSpine2DFramework
             }
 
             lastVerbIdentifier = ResolveVerbSource(verb, out string abilityDef);
+            Log.Warning(lastVerbIdentifier);
             lastVerbAbility = abilityDef;
             lastVerbTick = Find.TickManager?.TicksGame ?? lastVerbTick;
             RequestRefresh();
