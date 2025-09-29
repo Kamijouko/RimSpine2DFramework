@@ -29,6 +29,7 @@ namespace RimSpine2DFramework
         public int IdleTimes = 0;
 
         private DynamicPawnStateController pawnStateController;
+        private SkeletonConfiguration? pawnSkeletonConfiguration;
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
@@ -61,6 +62,24 @@ namespace RimSpine2DFramework
 
         internal DynamicPawnStateController PawnStateController => pawnStateController;
 
+        internal struct SkeletonConfiguration
+        {
+            public Vector2 Scale;
+            public Vector2 Offset;
+            public Vector3 Rotation;
+            public float CameraDistance;
+            public string Skin;
+
+            public static SkeletonConfiguration Default => new SkeletonConfiguration
+            {
+                Scale = Vector2.one,
+                Offset = Vector2.zero,
+                Rotation = Vector3.zero,
+                CameraDistance = 1f,
+                Skin = "default"
+            };
+        }
+
         internal void AttachStateController(DynamicPawnStateController controller)
         {
             pawnStateController = controller;
@@ -71,7 +90,56 @@ namespace RimSpine2DFramework
             if (pawnStateController == controller)
             {
                 pawnStateController = null;
+                pawnSkeletonConfiguration = null;
             }
+        }
+
+        internal void ApplyPawnSkeletonSettings(DynamicPawnStateMachineDef.PawnSkeletonSettings settings)
+        {
+            if (settings == null)
+            {
+                pawnSkeletonConfiguration = null;
+                return;
+            }
+
+            SkeletonConfiguration configuration = new SkeletonConfiguration
+            {
+                Scale = settings.scale == Vector2.zero ? Vector2.one : settings.scale,
+                Offset = settings.offset,
+                Rotation = settings.rotation,
+                CameraDistance = settings.cameraDistance <= 0f ? 1f : settings.cameraDistance,
+                Skin = string.IsNullOrEmpty(settings.defaultSkin) ? SkeletonConfiguration.Default.Skin : settings.defaultSkin
+            };
+
+            pawnSkeletonConfiguration = configuration;
+        }
+
+        internal void ClearPawnSkeletonSettings()
+        {
+            pawnSkeletonConfiguration = null;
+        }
+
+        internal SkeletonConfiguration GetEffectiveSkeletonConfiguration()
+        {
+            if (def != null)
+            {
+                return new SkeletonConfiguration
+                {
+                    Scale = def.scale == Vector2.zero ? Vector2.one : def.scale,
+                    Offset = def.offset,
+                    Rotation = def.rotation,
+                    CameraDistance = def.cameraDistance <= 0f ? 1f : def.cameraDistance,
+                    Skin = string.IsNullOrEmpty(def.skin) ? SkeletonConfiguration.Default.Skin : def.skin
+                };
+            }
+
+            return pawnSkeletonConfiguration ?? SkeletonConfiguration.Default;
+        }
+
+        internal string GetDefaultSkinName()
+        {
+            SkeletonConfiguration configuration = GetEffectiveSkeletonConfiguration();
+            return string.IsNullOrEmpty(configuration.Skin) ? SkeletonConfiguration.Default.Skin : configuration.Skin;
         }
 
         internal bool TryGetSpineAdapter(out ISpineRuntimeAdapter adapter)
