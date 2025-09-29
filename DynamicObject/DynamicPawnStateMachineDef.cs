@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace RimSpine2DFramework
@@ -19,8 +18,6 @@ namespace RimSpine2DFramework
         public string interactionStateId;
 
         public int priority;
-
-        public PawnSkeletonSettings skeleton = new PawnSkeletonSettings();
 
         public class PawnBinding
         {
@@ -93,8 +90,6 @@ namespace RimSpine2DFramework
 
             public string animationName;
 
-            public string skin;
-
             public bool loop = true;
 
             public bool useQueue;
@@ -153,19 +148,6 @@ namespace RimSpine2DFramework
             Duty,
             MentalState,
             Movement
-        }
-
-        public class PawnSkeletonSettings
-        {
-            public string defaultSkin = "default";
-
-            public Vector2 scale = Vector2.one;
-
-            public Vector2 offset = Vector2.zero;
-
-            public Vector3 rotation = Vector3.zero;
-
-            public float cameraDistance = 1f;
         }
     }
 }

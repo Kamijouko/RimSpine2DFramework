@@ -11,8 +11,6 @@ namespace RimSpine2DFramework
         void EnsureSkeleton(DynamicObjectInstance instance);
 
         ISpineAnimationStateAdapter GetAnimationState(DynamicObjectInstance instance);
-
-        void SetSkin(DynamicObjectInstance instance, string skinName);
     }
 
     public interface ISpineAnimationStateAdapter
