@@ -94,12 +94,40 @@ namespace RimSpine2DFramework
 
         private static void ConfigureSkeleton(DynamicObjectInstance instance, Spine35.Unity.SkeletonAnimation skeleton)
         {
+            DynamicObjectInstance.SkeletonConfiguration config = instance.GetEffectiveSkeletonConfiguration();
             skeleton.transform.parent = instance.gameObject.transform;
-            skeleton.transform.localScale = new Vector3(instance.scale.x * instance.def.scale.x, instance.scale.y * instance.def.scale.y, instance.scale.z);
-            skeleton.transform.rotation = Quaternion.Euler(instance.def.rotation);
-            skeleton.transform.position = new Vector3(instance.position.x + instance.def.offset.x, instance.position.y + instance.def.offset.y, instance.position.z + instance.def.cameraDistance);
-            skeleton.skeleton.SetSkin(instance.def.skin);
+            skeleton.transform.localScale = new Vector3(instance.scale.x * config.Scale.x, instance.scale.y * config.Scale.y, instance.scale.z);
+            skeleton.transform.rotation = Quaternion.Euler(config.Rotation);
+            skeleton.transform.position = new Vector3(instance.position.x + config.Offset.x, instance.position.y + config.Offset.y, instance.position.z + config.CameraDistance);
+            if (!string.IsNullOrEmpty(config.Skin))
+            {
+                skeleton.skeleton.SetSkin(config.Skin);
+            }
+
             skeleton.Initialize(false);
+        }
+
+        public void SetSkin(DynamicObjectInstance instance, string skinName)
+        {
+            if (instance?.spine35skeleton == null || string.IsNullOrEmpty(skinName))
+            {
+                return;
+            }
+
+            Spine35.Unity.SkeletonAnimation skeletonAnimation = instance.spine35skeleton;
+            Spine35.Skeleton skeleton = skeletonAnimation.Skeleton;
+            if (skeleton == null)
+            {
+                return;
+            }
+
+            if (!string.Equals(skeleton.Skin?.Name, skinName, StringComparison.OrdinalIgnoreCase))
+            {
+                skeleton.SetSkin(skinName);
+            }
+
+            skeleton.SetSlotsToSetupPose();
+            skeletonAnimation.AnimationState?.Apply(skeleton);
         }
 
         public ISpineAnimationStateAdapter GetAnimationState(DynamicObjectInstance instance)
