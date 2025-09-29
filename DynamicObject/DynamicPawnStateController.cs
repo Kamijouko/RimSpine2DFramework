@@ -50,6 +50,7 @@ namespace RimSpine2DFramework
             this.pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
 
+            instance.AttachPawn(pawn);
             instance.AttachStateController(this);
             instance.ApplyPawnSkeletonSettings(definition?.skeleton);
         }
@@ -68,6 +69,7 @@ namespace RimSpine2DFramework
             }
 
             disposed = true;
+            instance.DetachPawn(this.Pawn);
             instance.DetachStateController(this);
             instance.ClearPawnSkeletonSettings();
             DynamicPawnStateRegistry.NotifyControllerDisposed(this);

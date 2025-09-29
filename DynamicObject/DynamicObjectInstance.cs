@@ -28,6 +28,8 @@ namespace RimSpine2DFramework
 
         public int IdleTimes = 0;
 
+        private Pawn curPawn;
+
         private DynamicPawnStateController pawnStateController;
         private SkeletonConfiguration? pawnSkeletonConfiguration;
 
@@ -78,6 +80,19 @@ namespace RimSpine2DFramework
                 CameraDistance = 1f,
                 Skin = "default"
             };
+        }
+
+        internal void AttachPawn(Pawn pawn)
+        {
+            curPawn = pawn;
+        }
+
+        internal void DetachPawn(Pawn pawn)
+        {
+            if (curPawn == pawn)
+            {
+                curPawn = null;
+            }
         }
 
         internal void AttachStateController(DynamicPawnStateController controller)
@@ -170,6 +185,11 @@ namespace RimSpine2DFramework
             {
                 pawnStateController.Tick();
                 return;
+            }
+
+            if (curPawn!= null)
+            {
+                transform.position = curPawn.DrawPos;
             }
 
             if (!canInteract || def == null)

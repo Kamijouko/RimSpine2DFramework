@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -12,6 +13,8 @@ namespace RimSpine2DFramework
     {
         private static readonly Dictionary<string, List<DynamicPawnStateMachineDef>> StateMachinesByObject = new Dictionary<string, List<DynamicPawnStateMachineDef>>(StringComparer.OrdinalIgnoreCase);
 
+        private static readonly Dictionary<string, List<DynamicObjectDef>> DynamicObjectByKind = new Dictionary<string, List<DynamicObjectDef>>();
+        
         private static readonly Dictionary<Pawn, DynamicPawnStateController> ControllersByPawn = new Dictionary<Pawn, DynamicPawnStateController>();
 
         private static readonly Dictionary<DynamicObjectInstance, DynamicPawnStateController> ControllersByInstance = new Dictionary<DynamicObjectInstance, DynamicPawnStateController>();
@@ -20,12 +23,26 @@ namespace RimSpine2DFramework
 
         public static void ReloadDefinitions()
         {
+            DynamicObjectByKind.Clear();
+            List<DynamicObjectPlanDef> plans = DefDatabase<DynamicObjectPlanDef>.AllDefsListForReading;
+            if (plans.NullOrEmpty()) return;
+
+            foreach (DynamicObjectPlanDef plan in plans)
+            {
+                if (plan == null || plan.pawnKindDefs.NullOrEmpty() || plan.dynamicObjectDefs.NullOrEmpty()) continue;
+
+                foreach (PawnKindDef kind in plan.pawnKindDefs)
+                {
+                    if (!DynamicObjectByKind.ContainsKey(kind.defName))
+                        DynamicObjectByKind.Add(kind.defName, plan.dynamicObjectDefs);
+                    else
+                        Log.Error($"检测到{kind.defName}同时存在于{plan.defName}以及其他DynamicObjectPlanDef中，请保持{kind.defName}在所有DynamicObjectPlanDef中仅有一个。");
+                }
+            }
+
             StateMachinesByObject.Clear();
             List<DynamicPawnStateMachineDef> defs = DefDatabase<DynamicPawnStateMachineDef>.AllDefsListForReading;
-            if (defs.NullOrEmpty())
-            {
-                return;
-            }
+            if (defs.NullOrEmpty()) return;
 
             foreach (DynamicPawnStateMachineDef def in defs)
             {
@@ -134,6 +151,25 @@ namespace RimSpine2DFramework
                         }
                     }
                 }
+            }
+        }
+
+        public static void TryCreateAndBindInstancesForPawn(PawnKindDef kind, Pawn pawn)
+        {
+            if (DynamicObjectByKind.TryGetValue(kind.defName, out List<DynamicObjectDef> list))
+            {
+                GameObject obj = new GameObject(pawn.Name.ToStringFull);
+                foreach (DynamicObjectDef def in list)
+                { 
+                    DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
+                    ResolveInstanceVer(def, instance);
+                    instance.key = def;
+                    instance.TryBindPawn(pawn);
+                    Log.Warning("spawned.");
+                }
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                obj.SetActive(true);
+                ModDynamicObjectManager.DynamicPawnDatabase[pawn.Name.ToStringFull] = obj;
             }
         }
 

@@ -376,11 +376,13 @@
   <ItemGroup>
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
+    <Compile Include="DynamicObjectPlanDef.cs" />
     <Compile Include="DynamicPawnStateController.cs" />
     <Compile Include="DynamicPawnStateMachineDef.cs" />
     <Compile Include="DynamicPawnStateRegistry.cs" />
     <Compile Include="DynamicStoryTellerDef.cs" />
     <Compile Include="HarmonyMain.cs" />
+    <Compile Include="IncidentWorker_AggressiveOriginiumSlug.cs" />
     <Compile Include="PawnStateHarmonyPatches.cs" />
     <Compile Include="ImportMode.cs" />
     <Compile Include="ModDynamicObjectManager.cs" />
