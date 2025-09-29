@@ -32,6 +32,8 @@ namespace RimSpine2DFramework
 
         private DynamicPawnStateController pawnStateController;
         private SkeletonConfiguration? pawnSkeletonConfiguration;
+        private Vector3 pawnPositionOffset;
+        private bool pawnPositionOffsetInitialized;
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
@@ -91,7 +93,12 @@ namespace RimSpine2DFramework
         {
             if (curPawn == pawn)
             {
+                if (pawnPositionOffsetInitialized)
+                {
+                    position = pawnPositionOffset;
+                }
                 curPawn = null;
+                pawnPositionOffsetInitialized = false;
             }
         }
 
@@ -179,18 +186,38 @@ namespace RimSpine2DFramework
             return false;
         }
 
+        internal void SyncWithPawnPosition()
+        {
+            if (curPawn == null || curPawn.DestroyedOrNull())
+            {
+                return;
+            }
+
+            if (!pawnPositionOffsetInitialized)
+            {
+                pawnPositionOffset = position;
+                pawnPositionOffsetInitialized = true;
+            }
+
+            Vector3 pawnDrawPos = curPawn.DrawPos;
+            Vector3 targetPosition = pawnDrawPos + pawnPositionOffset;
+            transform.position = targetPosition;
+            position = targetPosition;
+        }
+
         public void Update()
         {
             if (pawnStateController != null)
             {
+                SyncWithPawnPosition();
                 pawnStateController.Tick();
                 return;
             }
 
-            /*if (curPawn!= null)
+            if (curPawn != null && !curPawn.DestroyedOrNull())
             {
-                transform.position = curPawn.Position.ToVector3();
-            }*/
+                SyncWithPawnPosition();
+            }
 
             if (!canInteract || def == null)
             {
