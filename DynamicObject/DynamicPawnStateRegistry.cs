@@ -158,7 +158,7 @@ namespace RimSpine2DFramework
         {
             if (DynamicObjectByKind.TryGetValue(kind.defName, out List<DynamicObjectDef> list))
             {
-                GameObject obj = new GameObject(pawn.Name.ToStringFull);
+                GameObject obj = new GameObject(kind.defName);
                 foreach (DynamicObjectDef def in list)
                 { 
                     DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
@@ -169,7 +169,7 @@ namespace RimSpine2DFramework
                 }
                 UnityEngine.Object.DontDestroyOnLoad(obj);
                 obj.SetActive(true);
-                ModDynamicObjectManager.DynamicPawnDatabase[pawn.Name.ToStringFull] = obj;
+                //ModDynamicObjectManager.DynamicPawnDatabase[pawn.Name.ToStringFull] = obj;
             }
         }
 

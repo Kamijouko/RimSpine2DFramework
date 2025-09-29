@@ -187,10 +187,10 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            if (curPawn!= null)
+            /*if (curPawn!= null)
             {
-                transform.position = curPawn.DrawPos;
-            }
+                transform.position = curPawn.Position.ToVector3();
+            }*/
 
             if (!canInteract || def == null)
             {
