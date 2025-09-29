@@ -42,6 +42,7 @@ namespace RimSpine2DFramework
 
         private bool needsRefresh = true;
         private bool disposed;
+        private string currentSkin;
 
         public DynamicPawnStateController(DynamicObjectInstance instance, Pawn pawn, DynamicPawnStateMachineDef definition)
         {
@@ -50,6 +51,7 @@ namespace RimSpine2DFramework
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
 
             instance.AttachStateController(this);
+            instance.ApplyPawnSkeletonSettings(definition?.skeleton);
         }
 
         public DynamicObjectInstance Instance => instance;
@@ -67,6 +69,7 @@ namespace RimSpine2DFramework
 
             disposed = true;
             instance.DetachStateController(this);
+            instance.ClearPawnSkeletonSettings();
             DynamicPawnStateRegistry.NotifyControllerDisposed(this);
         }
 
@@ -1188,6 +1191,18 @@ namespace RimSpine2DFramework
                 entry.SetMixDuration(state.mixDuration);
             }
 
+            string targetSkin = state.skin;
+            if (targetSkin.NullOrEmpty())
+            {
+                targetSkin = instance.GetDefaultSkinName();
+            }
+
+            if (!targetSkin.NullOrEmpty() && !string.Equals(currentSkin, targetSkin, StringComparison.OrdinalIgnoreCase))
+            {
+                adapter.SetSkin(instance, targetSkin);
+                currentSkin = targetSkin;
+            }
+
             currentStateId = state.stateId;
         }
 
@@ -1203,6 +1218,11 @@ namespace RimSpine2DFramework
             if (!adapter.HasSkeleton(instance))
             {
                 adapter.EnsureSkeleton(instance);
+                currentSkin = instance.GetDefaultSkinName();
+            }
+            else if (currentSkin.NullOrEmpty())
+            {
+                currentSkin = instance.GetDefaultSkinName();
             }
 
             return true;
