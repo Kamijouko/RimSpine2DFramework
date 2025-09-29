@@ -162,6 +162,8 @@ namespace RimSpine2DFramework
                 foreach (DynamicObjectDef def in list)
                 { 
                     DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
+                    instance.position = Vector3.zero;
+                    instance.transform.position = pawn.DrawPos;
                     ResolveInstanceVer(def, instance);
                     instance.key = def;
                     bool bound = instance.TryBindPawn(pawn);
