@@ -20,6 +20,9 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo PawnVerbTrackerPawnField = PawnVerbTrackerType != null
             ? AccessTools.Field(PawnVerbTrackerType, "pawn")
             : null;
+        private static readonly FieldInfo PawnVerbTrackerDirectOwnerField = PawnVerbTrackerType != null
+            ? AccessTools.Field(PawnVerbTrackerType, "directOwner")
+            : null;
         private static readonly PropertyInfo PawnVerbTrackerPrimaryVerbProperty = PawnVerbTrackerType != null
             ? AccessTools.Property(PawnVerbTrackerType, "PrimaryVerb")
             : null;
@@ -47,7 +50,29 @@ namespace RimSpine2DFramework
 
         private static Pawn GetPawn(object tracker, FieldInfo pawnField)
         {
-            return tracker != null ? pawnField?.GetValue(tracker) as Pawn : null;
+            if (tracker == null)
+            {
+                return null;
+            }
+
+            if (pawnField != null)
+            {
+                return pawnField.GetValue(tracker) as Pawn;
+            }
+
+            object owner = PawnVerbTrackerDirectOwnerField?.GetValue(tracker);
+            if (owner == null)
+            {
+                return null;
+            }
+
+            Pawn pawn = owner as Pawn;
+            if (pawn != null)
+            {
+                return pawn;
+            }
+
+            return (owner as IVerbOwner)?.ConstantCaster as Pawn;
         }
 
         private static Pawn GetPawn(Pawn_JobTracker tracker)
