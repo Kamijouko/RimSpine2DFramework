@@ -107,7 +107,7 @@ namespace RimSpine2DFramework
                 Scale = settings.scale == Vector2.zero ? Vector2.one : settings.scale,
                 Offset = settings.offset,
                 Rotation = settings.rotation,
-                CameraDistance = settings.cameraDistance <= 0f ? 1f : settings.cameraDistance,
+                CameraDistance = settings.cameraDistance < 0f ? 0f : settings.cameraDistance,
                 Skin = string.IsNullOrEmpty(settings.defaultSkin) ? SkeletonConfiguration.Default.Skin : settings.defaultSkin
             };
 

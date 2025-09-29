@@ -93,7 +93,7 @@ namespace RimSpine2DFramework
 
             public string animationName;
 
-            public string skin;
+            public string skin = "default";
 
             public bool loop = true;
 
@@ -165,7 +165,7 @@ namespace RimSpine2DFramework
 
             public Vector3 rotation = Vector3.zero;
 
-            public float cameraDistance = 1f;
+            public float cameraDistance = 0f;
         }
     }
 }

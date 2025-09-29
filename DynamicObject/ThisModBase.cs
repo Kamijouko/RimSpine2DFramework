@@ -221,30 +221,7 @@ namespace RimSpine2DFramework
                     continue;
                 GameObject obj = new GameObject(def.defName);
                 DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
-                if (def.dynamicObject.spine.ver == "3.5")
-                {
-                    if (!ModDynamicObjectManager.spine35Database.ContainsKey(def.dynamicObject.defName))
-                        continue;
-                    instance.ver = "3.5";
-                }
-                else if (def.dynamicObject.spine.ver == "3.8")
-                {
-                    if (!ModDynamicObjectManager.spine38Database.ContainsKey(def.dynamicObject.defName))
-                        continue;
-                    instance.ver = "3.8";
-                }
-                else if (def.dynamicObject.spine.ver == "4.0")
-                {
-                    if (!ModDynamicObjectManager.spine40Database.ContainsKey(def.dynamicObject.defName))
-                        continue;
-                    instance.ver = "4.0";
-                }
-                else
-                {
-                    if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.dynamicObject.defName))
-                        continue;
-                    instance.ver = "4.1";
-                }
+                DynamicPawnStateRegistry.ResolveInstanceVer(def.dynamicObject, instance);
                 instance.key = def.dynamicObject;
                 instance.def = def;
                 Camera cam = obj.AddComponent<Camera>();

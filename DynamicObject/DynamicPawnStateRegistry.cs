@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -133,6 +134,34 @@ namespace RimSpine2DFramework
                         }
                     }
                 }
+            }
+        }
+
+        public static void ResolveInstanceVer(DynamicObjectDef def, DynamicObjectInstance instance)
+        {
+            if (def.spine.ver == "3.5")
+            {
+                if (!ModDynamicObjectManager.spine35Database.ContainsKey(def.defName))
+                    return;
+                instance.ver = "3.5";
+            }
+            else if (def.spine.ver == "3.8")
+            {
+                if (!ModDynamicObjectManager.spine38Database.ContainsKey(def.defName))
+                    return;
+                instance.ver = "3.8";
+            }
+            else if (def.spine.ver == "4.0")
+            {
+                if (!ModDynamicObjectManager.spine40Database.ContainsKey(def.defName))
+                    return;
+                instance.ver = "4.0";
+            }
+            else
+            {
+                if (!ModDynamicObjectManager.spine41Database.ContainsKey(def.defName))
+                    return;
+                instance.ver = "4.1";
             }
         }
 
