@@ -36,7 +36,7 @@ namespace RimSpine2DFramework
                     if (!DynamicObjectByKind.ContainsKey(kind.defName))
                         DynamicObjectByKind.Add(kind.defName, plan.dynamicObjectDefs);
                     else
-                        Log.Error($"¼ì²âµ½{kind.defName}Í¬Ê±´æÔÚÓÚ{plan.defName}ÒÔ¼°ÆäËûDynamicObjectPlanDefÖĞ£¬Çë±£³Ö{kind.defName}ÔÚËùÓĞDynamicObjectPlanDefÖĞ½öÓĞÒ»¸ö¡£");
+                        Log.Error($"æ£€æµ‹åˆ°{kind.defName}åŒæ—¶å­˜åœ¨äº{plan.defName}ä»¥åŠå…¶ä»–DynamicObjectPlanDefä¸­ï¼Œè¯·ä¿æŒ{kind.defName}åœ¨æ‰€æœ‰DynamicObjectPlanDefä¸­ä»…æœ‰ä¸€ä¸ªã€‚");
                 }
             }
 
@@ -164,7 +164,12 @@ namespace RimSpine2DFramework
                     DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
                     ResolveInstanceVer(def, instance);
                     instance.key = def;
-                    instance.TryBindPawn(pawn);
+                    bool bound = instance.TryBindPawn(pawn);
+                    if (bound)
+                    {
+                        instance.SyncWithPawnPosition();
+                        obj.transform.position = instance.transform.position;
+                    }
                     Log.Warning("spawned.");
                 }
                 UnityEngine.Object.DontDestroyOnLoad(obj);
@@ -241,6 +246,7 @@ namespace RimSpine2DFramework
             DynamicPawnStateController controller = new DynamicPawnStateController(instance, pawn, match);
             ControllersByPawn[pawn] = controller;
             ControllersByInstance[instance] = controller;
+            instance.SyncWithPawnPosition();
             controller.RefreshNow();
             return true;
         }
