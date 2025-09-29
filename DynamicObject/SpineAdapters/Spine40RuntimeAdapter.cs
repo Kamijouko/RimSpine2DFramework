@@ -117,7 +117,8 @@ namespace RimSpine2DFramework
             DynamicObjectInstance.SkeletonConfiguration config = instance.GetEffectiveSkeletonConfiguration();
             skeleton.transform.parent = instance.gameObject.transform;
             skeleton.transform.localScale = new Vector3(instance.scale.x * config.Scale.x, instance.scale.y * config.Scale.y, instance.scale.z);
-            skeleton.transform.rotation = Quaternion.Euler(config.Rotation);
+            Quaternion baseRotation = instance.def == null ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
+            skeleton.transform.rotation = baseRotation * Quaternion.Euler(config.Rotation);
             skeleton.transform.position = new Vector3(instance.position.x + config.Offset.x, instance.position.y + config.Offset.y, instance.position.z + config.CameraDistance);
             if (!string.IsNullOrEmpty(config.Skin))
             {
