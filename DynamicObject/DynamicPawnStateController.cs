@@ -30,6 +30,7 @@ namespace RimSpine2DFramework
         private readonly Pawn pawn;
 
         private string currentStateId;
+        private int? currentTrackIndex;
         private string forcedStateId;
 
         private string lastJobDefName;
@@ -1174,6 +1175,11 @@ namespace RimSpine2DFramework
                 return;
             }
 
+            if (currentTrackIndex.HasValue && currentTrackIndex.Value != state.trackIndex)
+            {
+                animationState.SetEmptyAnimation(currentTrackIndex.Value, state.clearMixDuration);
+            }
+
             if (state.clearTrack)
             {
                 animationState.SetEmptyAnimation(state.trackIndex, state.clearMixDuration);
@@ -1207,6 +1213,7 @@ namespace RimSpine2DFramework
             }
 
             currentStateId = state.stateId;
+            currentTrackIndex = state.trackIndex;
         }
 
         private bool TryEnsureSkeleton(out ISpineRuntimeAdapter adapter)
