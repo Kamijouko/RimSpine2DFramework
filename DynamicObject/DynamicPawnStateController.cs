@@ -122,15 +122,29 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            lastJobDefName = job?.def?.defName;
-            lastJobStageIndex = stageIndex;
-            lastJobStageLabel = stageLabel;
+            string newJobDef = job?.def?.defName;
+            int newStageIndex = stageIndex;
+            string newStageLabel = stageLabel;
+
+            if (lastJobDefName == newJobDef && lastJobStageIndex == newStageIndex && lastJobStageLabel == newStageLabel)
+            {
+                return;
+            }
+
+            lastJobDefName = newJobDef;
+            lastJobStageIndex = newStageIndex;
+            lastJobStageLabel = newStageLabel;
             RequestRefresh();
         }
 
         public void NotifyJobEnded()
         {
             if (disposed)
+            {
+                return;
+            }
+
+            if (lastJobDefName == null && lastJobStageIndex == -1 && lastJobStageLabel == null)
             {
                 return;
             }
