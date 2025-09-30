@@ -95,13 +95,13 @@ namespace RimSpine2DFramework
                 return;
             }
 
+            bool verbRetentionExceeded = false;
             if (lastVerbIdentifier != null)
             {
                 int ticksGame = Find.TickManager?.TicksGame ?? -1;
                 if (ticksGame >= 0 && lastVerbTick >= 0 && ticksGame - lastVerbTick > VerbRetentionTicks)
                 {
-                    lastVerbIdentifier = null;
-                    lastVerbAbility = null;
+                    verbRetentionExceeded = true;
                     needsRefresh = true;
                 }
             }
@@ -113,6 +113,13 @@ namespace RimSpine2DFramework
 
             needsRefresh = false;
             EvaluateAndApply();
+
+            if (verbRetentionExceeded)
+            {
+                lastVerbIdentifier = null;
+                lastVerbAbility = null;
+                lastVerbTick = -1;
+            }
         }
 
         public void NotifyJobUpdated(Job job, int stageIndex, string stageLabel)
