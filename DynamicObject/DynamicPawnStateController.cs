@@ -1244,7 +1244,7 @@ namespace RimSpine2DFramework
                 return null;
             }
 
-            if (verb is Verb_CastAbility abilityVerb && abilityVerb.ability?.def != null)
+            /*if (verb is Verb_CastAbility abilityVerb && abilityVerb.ability?.def != null)
             {
                 abilityDef = abilityVerb.ability.def.defName;
                 return abilityDef;
@@ -1258,7 +1258,7 @@ namespace RimSpine2DFramework
             if (verb.HediffCompSource != null && verb.HediffCompSource.parent?.def != null)
             {
                 return verb.HediffCompSource.parent.def.defName;
-            }
+            }*/
 
             return verb.GetType().Name;
         }
