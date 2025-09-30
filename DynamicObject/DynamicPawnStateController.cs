@@ -12,7 +12,7 @@ namespace RimSpine2DFramework
 {
     public class DynamicPawnStateController
     {
-        private const int VerbRetentionTicks = 1;
+        private const int VerbRetentionTicks = 120;
 
         private static readonly PropertyInfo NeedCurCategoryProperty = AccessTools.Property(typeof(Need), "CurCategory");
         private static readonly PropertyInfo NeedCurLevelCategoryProperty = AccessTools.Property(typeof(Need), "CurLevelCategory");
@@ -151,6 +151,7 @@ namespace RimSpine2DFramework
             lastVerbIdentifier = ResolveVerbSource(verb, out string abilityDef);
             Log.Warning(lastVerbIdentifier);
             lastVerbAbility = abilityDef;
+            Log.Warning(lastVerbAbility);
             lastVerbTick = Find.TickManager?.TicksGame ?? lastVerbTick;
             RequestRefresh();
         }
