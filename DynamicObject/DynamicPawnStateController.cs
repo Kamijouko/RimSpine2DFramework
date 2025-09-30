@@ -12,7 +12,7 @@ namespace RimSpine2DFramework
 {
     public class DynamicPawnStateController
     {
-        private const int VerbRetentionTicks = 120;
+        private const int VerbRetentionTicks = 30;
 
         private static readonly PropertyInfo NeedCurCategoryProperty = AccessTools.Property(typeof(Need), "CurCategory");
         private static readonly PropertyInfo NeedCurLevelCategoryProperty = AccessTools.Property(typeof(Need), "CurLevelCategory");
