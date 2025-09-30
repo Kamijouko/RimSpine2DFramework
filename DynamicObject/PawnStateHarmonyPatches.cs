@@ -135,19 +135,20 @@ namespace RimSpine2DFramework
         [HarmonyPatch]
         private static class Verb_TryStartCastOn_Patch
         {
-            private static MethodInfo[] targetMethods;
+            private static MethodInfo targetMethod;
 
             private static bool Prepare()
             {
-                targetMethods = AccessTools.GetDeclaredMethods(typeof(Verb))
+                targetMethod = AccessTools.GetDeclaredMethods(typeof(Verb))
                     .Where(method => method.Name == nameof(Verb.TryStartCastOn))
-                    .ToArray();
-                return targetMethods.Length > 0;
+                    .OrderByDescending(method => method.GetParameters().Length)
+                    .FirstOrDefault();
+                return targetMethod != null;
             }
 
             private static IEnumerable<MethodBase> TargetMethods()
             {
-                return targetMethods;
+                yield return targetMethod;
             }
 
             private static void Postfix(Verb __instance, bool __result)
