@@ -12,8 +12,6 @@ namespace RimSpine2DFramework
 {
     public class DynamicPawnStateController
     {
-        private const int VerbRetentionTicks = 30;
-
         private static readonly PropertyInfo NeedCurCategoryProperty = AccessTools.Property(typeof(Need), "CurCategory");
         private static readonly PropertyInfo NeedCurLevelCategoryProperty = AccessTools.Property(typeof(Need), "CurLevelCategory");
         private static readonly MemberInfo NeedDefCategoriesMember = ResolveNeedDefMember(new[] { "needCategories", "categories" });
@@ -33,14 +31,17 @@ namespace RimSpine2DFramework
         private int? currentTrackIndex;
         private string forcedStateId;
 
+        private int currentAnimationPriority = int.MinValue;
+        private bool currentStateFromVerb;
+        private ISpineTrackEntryAdapter currentTrackEntry;
+        private bool waitingForAnimationCompletion;
+
         private string lastJobDefName;
         private int lastJobStageIndex = -1;
         private string lastJobStageLabel;
 
         private string lastVerbIdentifier;
         private string lastVerbAbility;
-        private int lastVerbTick = -1;
-
         private bool needsRefresh = true;
         private bool disposed;
         private string currentSkin;
@@ -95,17 +96,6 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            bool verbRetentionExceeded = false;
-            if (lastVerbIdentifier != null)
-            {
-                int ticksGame = Find.TickManager?.TicksGame ?? -1;
-                if (ticksGame >= 0 && lastVerbTick >= 0 && ticksGame - lastVerbTick > VerbRetentionTicks)
-                {
-                    verbRetentionExceeded = true;
-                    needsRefresh = true;
-                }
-            }
-
             if (!needsRefresh)
             {
                 return;
@@ -114,12 +104,6 @@ namespace RimSpine2DFramework
             needsRefresh = false;
             EvaluateAndApply();
 
-            if (verbRetentionExceeded)
-            {
-                lastVerbIdentifier = null;
-                lastVerbAbility = null;
-                lastVerbTick = -1;
-            }
         }
 
         public void NotifyJobUpdated(Job job, int stageIndex, string stageLabel)
@@ -170,10 +154,7 @@ namespace RimSpine2DFramework
             }
 
             lastVerbIdentifier = ResolveVerbSource(verb, out string abilityDef);
-            Log.Warning(lastVerbIdentifier);
             lastVerbAbility = abilityDef;
-            Log.Warning(lastVerbAbility);
-            lastVerbTick = Find.TickManager?.TicksGame ?? lastVerbTick;
             RequestRefresh();
         }
 
@@ -214,29 +195,36 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            DynamicPawnStateMachineDef.PawnAnimationState state = SelectState();
+            DynamicPawnStateMachineDef.PawnAnimationState state = SelectState(out bool isForced);
             if (state == null)
             {
                 return;
             }
 
-            bool shouldReplay = state.forceRestart || !string.Equals(currentStateId, state.stateId, StringComparison.OrdinalIgnoreCase);
+            if (waitingForAnimationCompletion && !isForced && state.priority < currentAnimationPriority)
+            {
+                return;
+            }
+
+            bool shouldReplay = isForced || state.forceRestart || !string.Equals(currentStateId, state.stateId, StringComparison.OrdinalIgnoreCase);
             if (!shouldReplay)
             {
                 return;
             }
 
-            ApplyState(adapter, state);
+            ApplyState(adapter, state, isForced);
         }
 
-        private DynamicPawnStateMachineDef.PawnAnimationState SelectState()
+        private DynamicPawnStateMachineDef.PawnAnimationState SelectState(out bool isForced)
         {
+            isForced = false;
+
             if (!string.IsNullOrEmpty(forcedStateId))
             {
                 DynamicPawnStateMachineDef.PawnAnimationState forced = definition.states?.FirstOrDefault(s => s != null && string.Equals(s.stateId, forcedStateId, StringComparison.OrdinalIgnoreCase));
-                forcedStateId = null;
                 if (forced != null)
                 {
+                    isForced = true;
                     return forced;
                 }
             }
@@ -1182,7 +1170,7 @@ namespace RimSpine2DFramework
             return string.IsNullOrEmpty(text) ? null : text;
         }
 
-        private void ApplyState(ISpineRuntimeAdapter adapter, DynamicPawnStateMachineDef.PawnAnimationState state)
+        private void ApplyState(ISpineRuntimeAdapter adapter, DynamicPawnStateMachineDef.PawnAnimationState state, bool isForced)
         {
             if (string.IsNullOrEmpty(state.animationName))
             {
@@ -1236,6 +1224,74 @@ namespace RimSpine2DFramework
 
             currentStateId = state.stateId;
             currentTrackIndex = state.trackIndex;
+            currentAnimationPriority = state.priority;
+
+            bool newStateFromVerb = StateHasVerbTrigger(state);
+            if (!newStateFromVerb && currentStateFromVerb)
+            {
+                ClearVerbTrigger();
+            }
+
+            currentStateFromVerb = newStateFromVerb;
+
+            bool shouldWait = ShouldWaitForCompletion(state);
+            currentTrackEntry = entry;
+            waitingForAnimationCompletion = shouldWait;
+            entry.OnComplete(() => OnTrackEntryComplete(entry));
+
+            if (!shouldWait)
+            {
+                currentTrackEntry = null;
+                if (currentStateFromVerb)
+                {
+                    ClearVerbTrigger();
+                }
+            }
+
+            if (isForced)
+            {
+                forcedStateId = null;
+            }
+        }
+
+        private static bool ShouldWaitForCompletion(DynamicPawnStateMachineDef.PawnAnimationState state)
+        {
+            return state != null && !state.loop;
+        }
+
+        private static bool StateHasVerbTrigger(DynamicPawnStateMachineDef.PawnAnimationState state)
+        {
+            if (state?.triggers == null)
+            {
+                return false;
+            }
+
+            return state.triggers.Any(trigger => trigger != null && trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Verb);
+        }
+
+        private void OnTrackEntryComplete(ISpineTrackEntryAdapter entry)
+        {
+            if (entry == null || !ReferenceEquals(entry, currentTrackEntry))
+            {
+                return;
+            }
+
+            currentTrackEntry = null;
+            waitingForAnimationCompletion = false;
+
+            if (currentStateFromVerb)
+            {
+                ClearVerbTrigger();
+            }
+
+            RequestRefresh();
+        }
+
+        private void ClearVerbTrigger()
+        {
+            lastVerbIdentifier = null;
+            lastVerbAbility = null;
+            currentStateFromVerb = false;
         }
 
         private bool TryEnsureSkeleton(out ISpineRuntimeAdapter adapter)
