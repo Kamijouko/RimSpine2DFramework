@@ -118,7 +118,7 @@ namespace RimSpine2DFramework
             skeleton.transform.localScale = new Vector3(instance.scale.x * config.Scale.x, instance.scale.y * config.Scale.y, instance.scale.z);
             Quaternion baseRotation = instance.def == null ? Quaternion.LookRotation(Vector3.down, Vector3.forward) : Quaternion.identity;
             skeleton.transform.rotation = baseRotation * Quaternion.Euler(config.Rotation);
-            skeleton.transform.position = new Vector3(instance.position.x + config.Offset.x, instance.position.y + config.Offset.y, instance.position.z + config.CameraDistance);
+            skeleton.transform.localPosition = new Vector3(/*instance.position.x + */config.Offset.x, /*instance.position.y + */config.CameraDistance, /*instance.position.z + */config.Offset.y);
             if (!string.IsNullOrEmpty(config.Skin))
             {
                 skeleton.skeleton.SetSkin(config.Skin);

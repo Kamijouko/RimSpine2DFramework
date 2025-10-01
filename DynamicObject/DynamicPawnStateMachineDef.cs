@@ -23,7 +23,6 @@ namespace RimSpine2DFramework
 
         public PawnSkeletonSettings skeleton = new PawnSkeletonSettings();
 
-        [DefaultValue(false)]
         public bool hideVanillaPawn = false;
 
         public class PawnBinding
