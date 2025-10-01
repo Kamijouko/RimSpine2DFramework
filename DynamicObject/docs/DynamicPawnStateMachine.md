@@ -46,6 +46,8 @@ priority（状态机级）：同一动态对象可能有多份状态机定义，
 
 skeleton：PawnSkeletonSettings 默认骨架参数，在控制器构造时应用到 DynamicObjectInstance，为 Pawn 专用实例提供默认皮肤、缩放、偏移、旋转与相机距离等基础外观设置。
 
+hideVanillaPawn：布尔开关，默认为 `false`。当设置为 `true` 时，状态机控制器会阻止原版 `PawnRenderer` 绘制该 Pawn，仅保留 Spine 动态模型，适用于完全替换原模型的场景。
+
 PawnBinding 字段
 pawnKinds / factions：限制绑定到特定 PawnKind 或阵营；如果列表为空则不限制，对应条件不满足时 Matches 会返回 false。
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -21,6 +22,9 @@ namespace RimSpine2DFramework
         public int priority;
 
         public PawnSkeletonSettings skeleton = new PawnSkeletonSettings();
+
+        [DefaultValue(false)]
+        public bool hideVanillaPawn = false;
 
         public class PawnBinding
         {

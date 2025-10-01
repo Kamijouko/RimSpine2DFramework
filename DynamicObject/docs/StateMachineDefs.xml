@@ -4,14 +4,15 @@
 		<defName>Originium_Slug_State_Machine</defName>
 		<targetDynamicObject>Originium_Slug</targetDynamicObject>
 		<defaultStateId>idle</defaultStateId>
-		<priority>0</priority>
-		<skeleton>
-			<defaultSkin>default</defaultSkin>
-			<scale>(10, 10)</scale>
-			<offset>(0, 0)</offset>
-			<rotation>(0, 0, 0)</rotation>
-			<cameraDistance>0</cameraDistance>
-		</skeleton>
+                <priority>0</priority>
+                <skeleton>
+                        <defaultSkin>default</defaultSkin>
+                        <scale>(10, 10)</scale>
+                        <offset>(0, 0)</offset>
+                        <rotation>(0, 0, 0)</rotation>
+                        <cameraDistance>0</cameraDistance>
+                </skeleton>
+                <hideVanillaPawn>true</hideVanillaPawn>
 		<binding>
 			<pawnKinds>
 				<li>Bear_Polar</li>
