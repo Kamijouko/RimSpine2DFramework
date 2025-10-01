@@ -63,6 +63,8 @@ namespace RimSpine2DFramework
 
         public Pawn Pawn => pawn;
 
+        public bool HideVanillaPawn => definition?.hideVanillaPawn == true;
+
         public void Dispose()
         {
             if (disposed)

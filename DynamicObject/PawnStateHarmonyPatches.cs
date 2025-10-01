@@ -21,6 +21,15 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo MemoryThoughtHandlerPawnField = AccessTools.Field(typeof(MemoryThoughtHandler), "pawn");
         private static readonly FieldInfo JobDriverCurToilField = AccessTools.Field(typeof(JobDriver), "curToil");
         private static readonly PropertyInfo JobDriverCurToilProperty = AccessTools.Property(typeof(JobDriver), "CurToil");
+        private static readonly FieldInfo PawnRendererPawnField = AccessTools.Field(typeof(PawnRenderer), "pawn");
+        private static readonly Type PawnRendererRenderCacheType = AccessTools.Inner(typeof(PawnRenderer), "RenderCache");
+        private static readonly Type PawnRendererPawnCacheEntryType = PawnRendererRenderCacheType != null ? AccessTools.Inner(PawnRendererRenderCacheType, "PawnCacheEntry") : null;
+        private static readonly FieldInfo PawnCacheEntryRendererField = PawnRendererPawnCacheEntryType != null ? AccessTools.Field(PawnRendererPawnCacheEntryType, "renderer") : null;
+        private static readonly FieldInfo PawnCacheEntryPawnField = PawnRendererPawnCacheEntryType != null
+            ? PawnRendererPawnCacheEntryType
+                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                .FirstOrDefault(field => field.FieldType == typeof(Pawn))
+            : null;
 
         private static Pawn GetPawn(object tracker, FieldInfo pawnField)
         {
@@ -60,6 +69,53 @@ namespace RimSpine2DFramework
         private static Pawn GetPawn(MemoryThoughtHandler handler)
         {
             return GetPawn(handler, MemoryThoughtHandlerPawnField);
+        }
+
+        private static Pawn GetPawn(PawnRenderer renderer)
+        {
+            if (renderer == null)
+            {
+                return null;
+            }
+
+            if (PawnRendererPawnField != null)
+            {
+                return PawnRendererPawnField.GetValue(renderer) as Pawn;
+            }
+
+            return null;
+        }
+
+        private static Pawn GetPawnFromCacheEntry(object cacheEntry)
+        {
+            if (cacheEntry == null)
+            {
+                return null;
+            }
+
+            if (PawnCacheEntryPawnField != null)
+            {
+                return PawnCacheEntryPawnField.GetValue(cacheEntry) as Pawn;
+            }
+
+            if (PawnCacheEntryRendererField != null)
+            {
+                PawnRenderer renderer = PawnCacheEntryRendererField.GetValue(cacheEntry) as PawnRenderer;
+                return GetPawn(renderer);
+            }
+
+            return null;
+        }
+
+        private static bool ShouldHideVanillaPawn(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            DynamicPawnStateController controller = DynamicPawnStateRegistry.GetController(pawn);
+            return controller?.HideVanillaPawn == true;
         }
 
         private static Job GetCurrentJob(Pawn_JobTracker tracker)
@@ -195,6 +251,54 @@ namespace RimSpine2DFramework
                 }
 
                 DynamicPawnStateRegistry.NotifyHediffsChanged(pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(PawnRenderer), "RenderPawnAt")]
+        private static class PawnRenderer_RenderPawnAt_Patch
+        {
+            private static bool Prefix(PawnRenderer __instance)
+            {
+                Pawn pawn = GetPawn(__instance);
+                if (pawn == null)
+                {
+                    return true;
+                }
+
+                return !ShouldHideVanillaPawn(pawn);
+            }
+        }
+
+        [HarmonyPatch]
+        private static class PawnRenderer_RenderCache_PawnCacheEntry_RenderPawn_Patch
+        {
+            private static MethodInfo targetMethod;
+
+            private static bool Prepare()
+            {
+                if (PawnRendererPawnCacheEntryType == null)
+                {
+                    return false;
+                }
+
+                targetMethod = AccessTools.Method(PawnRendererPawnCacheEntryType, "RenderPawn");
+                return targetMethod != null;
+            }
+
+            private static MethodBase TargetMethod()
+            {
+                return targetMethod;
+            }
+
+            private static bool Prefix(object __instance)
+            {
+                Pawn pawn = GetPawnFromCacheEntry(__instance);
+                if (pawn == null)
+                {
+                    return true;
+                }
+
+                return !ShouldHideVanillaPawn(pawn);
             }
         }
 
