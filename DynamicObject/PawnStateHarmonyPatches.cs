@@ -207,6 +207,41 @@ namespace RimSpine2DFramework
                 yield return targetMethod;
             }
 
+            private static bool Prefix(Verb __instance, ref bool __result, object[] __args)
+            {
+                if (__instance == null)
+                {
+                    return true;
+                }
+
+                if (DynamicPawnStateRegistry.IsVerbExecutionInProgress(__instance))
+                {
+                    return true;
+                }
+
+                Pawn casterPawn = __instance.CasterPawn;
+                if (casterPawn == null)
+                {
+                    return true;
+                }
+
+                DynamicPawnStateController controller = DynamicPawnStateRegistry.GetController(casterPawn);
+                if (controller == null || !controller.ShouldDelayVerbExecution(__instance))
+                {
+                    return true;
+                }
+
+                object[] argumentCopy = __args != null && __args.Length > 0 ? (object[])__args.Clone() : Array.Empty<object>();
+                if (!DynamicPawnStateRegistry.TryQueueVerbCast(casterPawn, __instance, targetMethod, argumentCopy))
+                {
+                    return true;
+                }
+
+                DynamicPawnStateRegistry.NotifyVerbUsed(casterPawn, __instance);
+                __result = false;
+                return false;
+            }
+
             private static void Postfix(Verb __instance, bool __result)
             {
                 if (!__result)

@@ -217,6 +217,35 @@ namespace RimSpine2DFramework
                 trackEntry.Complete += Handler;
             }
 
+            public void OnEvent(Action<SpineEventArgs> action)
+            {
+                if (action == null)
+                {
+                    return;
+                }
+
+                void Handler(Spine41.TrackEntry entry, Spine41.Event e)
+                {
+                    if (entry != trackEntry || e == null)
+                    {
+                        return;
+                    }
+
+                    SpineEventArgs args = new SpineEventArgs(
+                        e.Data?.Name,
+                        e.Time,
+                        e.Int,
+                        e.Float,
+                        e.String,
+                        e.Volume,
+                        e.Balance);
+
+                    action(args);
+                }
+
+                trackEntry.Event += Handler;
+            }
+
             public void SetMixDuration(float mixDuration)
             {
                 trackEntry.MixDuration = mixDuration;
