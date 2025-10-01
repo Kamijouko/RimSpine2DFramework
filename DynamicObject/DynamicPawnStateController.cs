@@ -35,6 +35,9 @@ namespace RimSpine2DFramework
         private bool currentStateFromVerb;
         private ISpineTrackEntryAdapter currentTrackEntry;
         private bool waitingForAnimationCompletion;
+        private bool waitingForVerbEvent;
+        private string pendingVerbEventName;
+        private int? verbEventTimeoutTick;
 
         private string lastJobDefName;
         private int lastJobStageIndex = -1;
@@ -97,6 +100,8 @@ namespace RimSpine2DFramework
                 Dispose();
                 return;
             }
+
+            CheckVerbEventTimeout();
 
             if (!needsRefresh)
             {
@@ -1239,9 +1244,25 @@ namespace RimSpine2DFramework
             bool shouldWait = ShouldWaitForCompletion(state);
             currentTrackEntry = entry;
             waitingForAnimationCompletion = shouldWait;
+            waitingForVerbEvent = false;
+            pendingVerbEventName = null;
+            verbEventTimeoutTick = null;
             entry.OnComplete(() => OnTrackEntryComplete(entry));
 
-            if (!shouldWait)
+            if (currentStateFromVerb && !state.verbEventName.NullOrEmpty() && DynamicPawnStateRegistry.HasQueuedVerb(pawn))
+            {
+                waitingForVerbEvent = true;
+                pendingVerbEventName = state.verbEventName;
+                int currentTick = Find.TickManager != null ? Find.TickManager.TicksGame : 0;
+                verbEventTimeoutTick = currentTick + DynamicPawnStateRegistry.VerbQueueTimeoutTicks;
+                entry.OnEvent(args => OnTrackEntryEvent(entry, args));
+            }
+            else if (currentStateFromVerb)
+            {
+                DynamicPawnStateRegistry.ResolveQueuedVerb(pawn, false);
+            }
+
+            if (!shouldWait && !waitingForVerbEvent)
             {
                 currentTrackEntry = null;
                 if (currentStateFromVerb)
@@ -1289,11 +1310,119 @@ namespace RimSpine2DFramework
             RequestRefresh();
         }
 
+        private void OnTrackEntryEvent(ISpineTrackEntryAdapter entry, SpineEventArgs eventArgs)
+        {
+            if (entry == null || !ReferenceEquals(entry, currentTrackEntry))
+            {
+                return;
+            }
+
+            if (!waitingForVerbEvent || eventArgs == null || pendingVerbEventName.NullOrEmpty())
+            {
+                return;
+            }
+
+            string eventName = eventArgs.Name;
+            if (string.IsNullOrEmpty(eventName) || !string.Equals(eventName, pendingVerbEventName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            waitingForVerbEvent = false;
+            pendingVerbEventName = null;
+            verbEventTimeoutTick = null;
+
+            DynamicPawnStateRegistry.ResolveQueuedVerb(pawn, true);
+
+            if (!waitingForAnimationCompletion)
+            {
+                currentTrackEntry = null;
+                if (currentStateFromVerb)
+                {
+                    ClearVerbTrigger();
+                }
+            }
+        }
+
+        private void CheckVerbEventTimeout()
+        {
+            if (!waitingForVerbEvent || pawn == null || !verbEventTimeoutTick.HasValue)
+            {
+                return;
+            }
+
+            int currentTick = Find.TickManager != null ? Find.TickManager.TicksGame : 0;
+            if (currentTick < verbEventTimeoutTick.Value)
+            {
+                return;
+            }
+
+            string awaitedEvent = pendingVerbEventName;
+            waitingForVerbEvent = false;
+            pendingVerbEventName = null;
+            verbEventTimeoutTick = null;
+
+            DynamicPawnStateRegistry.ResolveQueuedVerb(pawn, false);
+
+            Log.Warning($"[RimSpine2D] Timed out waiting for Spine event '{awaitedEvent}' on pawn '{pawn.LabelShort ?? pawn.Name?.ToStringFull ?? pawn.ToString()}' to resolve verb.");
+        }
+
         private void ClearVerbTrigger()
         {
+            bool hadQueuedVerb = pawn != null && DynamicPawnStateRegistry.HasQueuedVerb(pawn);
             lastVerbIdentifier = null;
             lastVerbAbility = null;
             currentStateFromVerb = false;
+            waitingForVerbEvent = false;
+            pendingVerbEventName = null;
+            verbEventTimeoutTick = null;
+
+            if (hadQueuedVerb)
+            {
+                DynamicPawnStateRegistry.ResolveQueuedVerb(pawn, false);
+            }
+        }
+
+        internal bool ShouldDelayVerbExecution(Verb verb)
+        {
+            if (definition?.states == null)
+            {
+                return false;
+            }
+
+            string previousIdentifier = lastVerbIdentifier;
+            string previousAbility = lastVerbAbility;
+
+            try
+            {
+                lastVerbIdentifier = ResolveVerbSource(verb, out string abilityDef);
+                lastVerbAbility = abilityDef;
+
+                foreach (DynamicPawnStateMachineDef.PawnAnimationState state in definition.states)
+                {
+                    if (state == null || state.verbEventName.NullOrEmpty())
+                    {
+                        continue;
+                    }
+
+                    if (state.triggers.NullOrEmpty())
+                    {
+                        continue;
+                    }
+
+                    if (state.triggers.All(MatchesTrigger))
+                    {
+                        return true;
+                    }
+                }
+            }
+            finally
+            {
+                lastVerbIdentifier = previousIdentifier;
+                lastVerbAbility = previousAbility;
+            }
+
+            return false;
         }
 
         private bool TryEnsureSkeleton(out ISpineRuntimeAdapter adapter)

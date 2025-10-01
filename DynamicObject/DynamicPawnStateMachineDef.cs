@@ -100,6 +100,8 @@ namespace RimSpine2DFramework
 
             public bool loop = true;
 
+            public string verbEventName;
+
             public bool useQueue;
 
             public int trackIndex;

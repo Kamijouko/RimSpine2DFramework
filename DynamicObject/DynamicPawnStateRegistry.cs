@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using RimWorld;
 using UnityEngine;
@@ -14,10 +15,25 @@ namespace RimSpine2DFramework
         private static readonly Dictionary<string, List<DynamicPawnStateMachineDef>> StateMachinesByObject = new Dictionary<string, List<DynamicPawnStateMachineDef>>(StringComparer.OrdinalIgnoreCase);
 
         private static readonly Dictionary<string, List<DynamicObjectDef>> DynamicObjectByKind = new Dictionary<string, List<DynamicObjectDef>>();
-        
+
         private static readonly Dictionary<Pawn, DynamicPawnStateController> ControllersByPawn = new Dictionary<Pawn, DynamicPawnStateController>();
 
         private static readonly Dictionary<DynamicObjectInstance, DynamicPawnStateController> ControllersByInstance = new Dictionary<DynamicObjectInstance, DynamicPawnStateController>();
+
+        private class QueuedVerbCast
+        {
+            public Verb Verb;
+            public MethodInfo Method;
+            public object[] Arguments;
+            public int EnqueuedTick;
+            public int TimeoutTick;
+        }
+
+        internal const int VerbQueueTimeoutTicks = 300;
+
+        private static readonly Dictionary<Pawn, QueuedVerbCast> QueuedVerbCasts = new Dictionary<Pawn, QueuedVerbCast>();
+
+        private static readonly HashSet<Verb> ExecutingQueuedVerbs = new HashSet<Verb>();
 
         public static IReadOnlyDictionary<Pawn, DynamicPawnStateController> ActiveControllers => ControllersByPawn;
 
@@ -208,6 +224,107 @@ namespace RimSpine2DFramework
             }
         }
 
+        internal static bool TryQueueVerbCast(Pawn pawn, Verb verb, MethodInfo method, object[] arguments)
+        {
+            if (pawn == null || verb == null || method == null)
+            {
+                return false;
+            }
+
+            if (ExecutingQueuedVerbs.Contains(verb))
+            {
+                return false;
+            }
+
+            object[] argumentCopy = arguments != null && arguments.Length > 0 ? (object[])arguments.Clone() : Array.Empty<object>();
+            int currentTick = GetCurrentTick();
+
+            QueuedVerbCast queued = new QueuedVerbCast
+            {
+                Verb = verb,
+                Method = method,
+                Arguments = argumentCopy,
+                EnqueuedTick = currentTick,
+                TimeoutTick = currentTick + VerbQueueTimeoutTicks
+            };
+
+            QueuedVerbCasts[pawn] = queued;
+            return true;
+        }
+
+        internal static bool ResolveQueuedVerb(Pawn pawn, bool triggeredByEvent)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            if (!QueuedVerbCasts.TryGetValue(pawn, out QueuedVerbCast queued))
+            {
+                return false;
+            }
+
+            QueuedVerbCasts.Remove(pawn);
+            ExecuteQueuedVerb(pawn, queued, triggeredByEvent);
+            return true;
+        }
+
+        internal static bool HasQueuedVerb(Pawn pawn)
+        {
+            return pawn != null && QueuedVerbCasts.ContainsKey(pawn);
+        }
+
+        internal static bool IsVerbExecutionInProgress(Verb verb)
+        {
+            return verb != null && ExecutingQueuedVerbs.Contains(verb);
+        }
+
+        internal static void ClearQueuedVerb(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return;
+            }
+
+            QueuedVerbCasts.Remove(pawn);
+        }
+
+        private static void ExecuteQueuedVerb(Pawn pawn, QueuedVerbCast queued, bool triggeredByEvent)
+        {
+            if (queued?.Verb == null || queued.Method == null)
+            {
+                return;
+            }
+
+            if (ExecutingQueuedVerbs.Contains(queued.Verb))
+            {
+                return;
+            }
+
+            ExecutingQueuedVerbs.Add(queued.Verb);
+            try
+            {
+                object result = queued.Method.Invoke(queued.Verb, queued.Arguments);
+                if (!(result is bool succeeded) || !succeeded)
+                {
+                    Log.Warning($"[RimSpine2D] Deferred verb '{queued.Verb?.GetType().Name}' for pawn '{pawn?.LabelShort ?? pawn?.ToString() ?? "unknown"}' did not complete successfully after {(triggeredByEvent ? "event" : "timeout")} release.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[RimSpine2D] Failed to resume deferred verb for pawn '{pawn?.LabelShort ?? pawn?.ToString() ?? "unknown"}': {ex}");
+            }
+            finally
+            {
+                ExecutingQueuedVerbs.Remove(queued.Verb);
+            }
+        }
+
+        private static int GetCurrentTick()
+        {
+            return Find.TickManager != null ? Find.TickManager.TicksGame : 0;
+        }
+
         public static bool TryBind(DynamicObjectInstance instance, Pawn pawn)
         {
             if (instance?.key == null || pawn == null)
@@ -284,6 +401,8 @@ namespace RimSpine2DFramework
             {
                 ControllersByPawn.Remove(controller.Pawn);
             }
+
+            ClearQueuedVerb(controller.Pawn);
         }
 
         public static DynamicPawnStateController GetController(Pawn pawn)
