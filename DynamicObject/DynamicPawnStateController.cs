@@ -1437,6 +1437,7 @@ namespace RimSpine2DFramework
             if (!adapter.HasSkeleton(instance))
             {
                 adapter.EnsureSkeleton(instance);
+                instance.RefreshMapVisibility();
                 currentSkin = instance.GetDefaultSkinName();
             }
             else if (currentSkin.NullOrEmpty())
