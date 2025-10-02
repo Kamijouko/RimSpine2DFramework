@@ -192,7 +192,7 @@ namespace RimSpine2DFramework
                     }
                     //Log.Warning("spawned.");
                 }
-                UnityEngine.Object.DontDestroyOnLoad(dObject);
+                //UnityEngine.Object.DontDestroyOnLoad(dObject);
                 dObject.SetActive(true);
                 //ModDynamicObjectManager.DynamicPawnDatabase[pawn.Name.ToStringFull] = obj;
             }

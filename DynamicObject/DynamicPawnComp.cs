@@ -80,7 +80,7 @@ namespace RimSpine2DFramework
             base.PostDeSpawn(map, mode);
             if (curDynamicObject != null)
             {
-                curDynamicObject.SetActive(false);
+                GameObject.Destroy(curDynamicObject);
             }
         }
 

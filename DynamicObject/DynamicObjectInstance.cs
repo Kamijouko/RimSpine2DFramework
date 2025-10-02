@@ -146,12 +146,13 @@ namespace RimSpine2DFramework
         {
             if (def != null)
             {
+                float cameraY = def.cameraDistance <= 0f ? 1f : def.cameraDistance;
                 return new SkeletonConfiguration
                 {
                     Scale = def.scale == Vector2.zero ? Vector2.one : def.scale,
-                    Offset = def.offset,
+                    Offset = new Vector2(def.offset.x, cameraY),
                     Rotation = def.rotation,
-                    CameraDistance = def.cameraDistance <= 0f ? 1f : def.cameraDistance,
+                    CameraDistance = def.offset.y,
                     Skin = string.IsNullOrEmpty(def.skin) ? SkeletonConfiguration.Default.Skin : def.skin
                 };
             }
@@ -269,7 +270,7 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            if (WorldRendererUtility.WorldRenderedNow)
+            if (!WorldRendererUtility.DrawingMap)
             {
                 return false;
             }
