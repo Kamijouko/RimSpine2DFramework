@@ -210,9 +210,40 @@ namespace RimSpine2DFramework
             if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
         }
 
+        private void UpdateAnimationTimeScale(bool isPaused)
+        {
+            float targetTimeScale = isPaused ? 0f : 1f;
+
+            if (spine35skeleton != null && !Mathf.Approximately(spine35skeleton.timeScale, targetTimeScale))
+            {
+                spine35skeleton.timeScale = targetTimeScale;
+            }
+
+            if (spine38skeleton != null && !Mathf.Approximately(spine38skeleton.timeScale, targetTimeScale))
+            {
+                spine38skeleton.timeScale = targetTimeScale;
+            }
+
+            if (spine40skeleton != null && !Mathf.Approximately(spine40skeleton.timeScale, targetTimeScale))
+            {
+                spine40skeleton.timeScale = targetTimeScale;
+            }
+
+            if (spine41skeleton != null && !Mathf.Approximately(spine41skeleton.timeScale, targetTimeScale))
+            {
+                spine41skeleton.timeScale = targetTimeScale;
+            }
+        }
+
         public void Update()
         {
             bool shouldRender = RefreshMapVisibility();
+            bool isPaused = Find.TickManager?.Paused ?? false;
+
+            if (pawnStateController != null || curPawn != null)
+            {
+                UpdateAnimationTimeScale(isPaused);
+            }
 
             if (pawnStateController != null)
             {
