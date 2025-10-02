@@ -35,6 +35,8 @@ namespace RimSpine2DFramework
         private bool currentStateFromVerb;
         private ISpineTrackEntryAdapter currentTrackEntry;
         private bool waitingForAnimationCompletion;
+        private bool currentStateHoldPose;
+        private bool holdPoseActive;
         private bool waitingForVerbEvent;
         private string pendingVerbEventName;
         private int? verbEventTimeoutTick;
@@ -48,6 +50,7 @@ namespace RimSpine2DFramework
         private bool needsRefresh = true;
         private bool disposed;
         private string currentSkin;
+        private bool deathNotified;
 
         public DynamicPawnStateController(DynamicObjectInstance instance, Pawn pawn, DynamicPawnStateMachineDef definition)
         {
@@ -97,6 +100,11 @@ namespace RimSpine2DFramework
 
             if (pawn == null || pawn.DestroyedOrNull())
             {
+                if (ShouldDelayDispose())
+                {
+                    return;
+                }
+
                 Dispose();
                 return;
             }
@@ -302,6 +310,8 @@ namespace RimSpine2DFramework
                     return MatchesMentalStateTrigger(trigger);
                 case DynamicPawnStateMachineDef.PawnStateTriggerSource.Movement:
                     return MatchesMovementTrigger(trigger);
+                case DynamicPawnStateMachineDef.PawnStateTriggerSource.LifeState:
+                    return MatchesLifeStateTrigger(trigger);
                 default:
                     return false;
             }
@@ -1244,6 +1254,8 @@ namespace RimSpine2DFramework
             bool shouldWait = ShouldWaitForCompletion(state);
             currentTrackEntry = entry;
             waitingForAnimationCompletion = shouldWait;
+            currentStateHoldPose = state.holdPoseOnComplete;
+            holdPoseActive = false;
             waitingForVerbEvent = false;
             pendingVerbEventName = null;
             verbEventTimeoutTick = null;
@@ -1305,6 +1317,12 @@ namespace RimSpine2DFramework
             if (currentStateFromVerb)
             {
                 ClearVerbTrigger();
+            }
+
+            if (currentStateHoldPose)
+            {
+                holdPoseActive = true;
+                return;
             }
 
             RequestRefresh();
@@ -1383,6 +1401,36 @@ namespace RimSpine2DFramework
             }
         }
 
+        internal void NotifyPawnDied()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (!deathNotified)
+            {
+                deathNotified = true;
+                RequestRefresh();
+            }
+        }
+
+        internal void NotifyPawnResurrected()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            deathNotified = false;
+            if (holdPoseActive)
+            {
+                holdPoseActive = false;
+            }
+
+            RequestRefresh();
+        }
+
         internal bool ShouldDelayVerbExecution(Verb verb)
         {
             if (definition?.states == null)
@@ -1451,6 +1499,48 @@ namespace RimSpine2DFramework
         private static string ResolveTriggerDefName(DynamicPawnStateMachineDef.PawnStateTrigger trigger)
         {
             return trigger.def?.defName ?? trigger.defName;
+        }
+
+        private bool MatchesLifeStateTrigger(DynamicPawnStateMachineDef.PawnStateTrigger trigger)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            if (trigger.isDead.HasValue)
+            {
+                bool pawnDead = pawn.Dead || deathNotified;
+                if (pawnDead != trigger.isDead.Value)
+                {
+                    return false;
+                }
+            }
+
+            if (trigger.isDowned.HasValue)
+            {
+                if (pawn.Downed != trigger.isDowned.Value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool ShouldDelayDispose()
+        {
+            if (waitingForAnimationCompletion)
+            {
+                return true;
+            }
+
+            if (holdPoseActive && deathNotified)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static string ResolveVerbSource(Verb verb, out string abilityDef)

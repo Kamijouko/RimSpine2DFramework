@@ -16,6 +16,7 @@ namespace RimSpine2DFramework
         private static readonly FieldInfo CurDriverField = AccessTools.Field(typeof(Pawn_JobTracker), "curDriver");
         private static readonly FieldInfo PawnJobTrackerPawnField = AccessTools.Field(typeof(Pawn_JobTracker), "pawn");
         private static readonly FieldInfo PawnNeedsTrackerPawnField = AccessTools.Field(typeof(Pawn_NeedsTracker), "pawn");
+        private static readonly FieldInfo PawnHealthTrackerPawnField = AccessTools.Field(typeof(Pawn_HealthTracker), "pawn");
         private static readonly FieldInfo HediffSetPawnField = AccessTools.Field(typeof(HediffSet), "pawn");
         private static readonly FieldInfo ThoughtHandlerPawnField = AccessTools.Field(typeof(ThoughtHandler), "pawn");
         private static readonly FieldInfo MemoryThoughtHandlerPawnField = AccessTools.Field(typeof(MemoryThoughtHandler), "pawn");
@@ -54,6 +55,11 @@ namespace RimSpine2DFramework
         private static Pawn GetPawn(Pawn_NeedsTracker tracker)
         {
             return GetPawn(tracker, PawnNeedsTrackerPawnField);
+        }
+
+        private static Pawn GetPawn(Pawn_HealthTracker tracker)
+        {
+            return GetPawn(tracker, PawnHealthTrackerPawnField);
         }
 
         private static Pawn GetPawn(HediffSet hediffSet)
@@ -414,6 +420,35 @@ namespace RimSpine2DFramework
             }
 
             DynamicPawnStateRegistry.NotifyThoughtsChanged(pawn);
+        }
+
+        [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.SetDead))]
+        private static class PawnHealthTracker_SetDead_Patch
+        {
+            private static void Postfix(Pawn_HealthTracker __instance)
+            {
+                Pawn pawn = GetPawn(__instance);
+                if (pawn == null)
+                {
+                    return;
+                }
+
+                DynamicPawnStateRegistry.NotifyPawnDied(pawn);
+            }
+        }
+
+        [HarmonyPatch(typeof(HealthUtility), nameof(HealthUtility.TryResurrect))]
+        private static class HealthUtility_TryResurrect_Patch
+        {
+            private static void Postfix(Pawn pawn, bool __result)
+            {
+                if (!__result || pawn == null)
+                {
+                    return;
+                }
+
+                DynamicPawnStateRegistry.NotifyPawnResurrected(pawn);
+            }
         }
     }
 }
