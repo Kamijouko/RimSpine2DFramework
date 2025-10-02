@@ -75,7 +75,7 @@ namespace RimSpine2DFramework
             
         }
 
-        public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
+        /*public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
         {
             base.PostDeSpawn(map, mode);
             if (curDynamicObject != null)
@@ -91,6 +91,6 @@ namespace RimSpine2DFramework
             {
                 GameObject.Destroy(curDynamicObject);
             }
-        }
+        }*/
     }
 }

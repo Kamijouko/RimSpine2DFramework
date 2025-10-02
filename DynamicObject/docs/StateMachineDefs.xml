@@ -4,18 +4,18 @@
 		<defName>Originium_Slug_State_Machine</defName>
 		<targetDynamicObject>Originium_Slug</targetDynamicObject>
 		<defaultStateId>idle</defaultStateId>
-                <priority>0</priority>
-                <skeleton>
-                        <defaultSkin>default</defaultSkin>
-                        <scale>(10, 10)</scale>
-                        <offset>(0, 0)</offset>
-                        <rotation>(0, 0, 0)</rotation>
-                        <cameraDistance>0</cameraDistance>
-                </skeleton>
-                <hideVanillaPawn>true</hideVanillaPawn>
+		<priority>0</priority>
+		<skeleton>
+			<defaultSkin>default</defaultSkin>
+			<scale>(2, 2)</scale>
+			<offset>(0, -0.2)</offset>
+			<rotation>(0, 0, 0)</rotation>
+			<cameraDistance>0</cameraDistance>
+		</skeleton>
+		<hideVanillaPawn>true</hideVanillaPawn>
 		<binding>
 			<pawnKinds>
-				<li>Bear_Polar</li>
+				<li>Originium_Slug</li>
 			</pawnKinds>
 			<factions></factions>
 			<colonistOnly>false</colonistOnly>
@@ -31,6 +31,7 @@
 				<trackIndex>0</trackIndex>
 				<useQueue>true</useQueue>
 				<delay>0</delay>
+				<mixDuration>0</mixDuration>
 				<clearMixDuration>0.2</clearMixDuration>
 				<forceRestart>false</forceRestart>
 				<isFallback>true</isFallback>
@@ -59,12 +60,14 @@
 				<stateId>attack</stateId>
 				<animationName>Attack</animationName>
 				<loop>false</loop>
+				<verbEventName>OnAttack</verbEventName>
 				<trackIndex>1</trackIndex>
-				<useQueue>true</useQueue>
+				<useQueue>false</useQueue>
 				<delay>0</delay>
+				<mixDuration>0</mixDuration>
 				<clearTrack>true</clearTrack>
 				<clearMixDuration>0.2</clearMixDuration>
-				<forceRestart>true</forceRestart>
+				<forceRestart>false</forceRestart>
 				<isFallback>false</isFallback>
 				<priority>3</priority>
 				<triggers>
@@ -83,9 +86,9 @@
 				<useQueue>false</useQueue>
 				<clearTrack>true</clearTrack>
 				<clearMixDuration>0.2</clearMixDuration>
-				<forceRestart>true</forceRestart>
+				<forceRestart>false</forceRestart>
 				<isFallback>false</isFallback>
-				<priority>100</priority>
+				<priority>4</priority>
 				<triggers>
 					<li>
 						<source>LifeState</source>
@@ -93,19 +96,11 @@
 					</li>
 				</triggers>
 			</li>
-			<!-- When the pawn is resurrected, add a LifeState trigger with isDead=false to your idle/move states
-				 so they automatically resume once the hold pose is cleared, e.g.:
-				 <triggers>
-						 <li>
-								 <source>LifeState</source>
-								 <isDead>false</isDead>
-						 </li>
-				 </triggers> -->
 			<!--
 			<li>
-					<stateId></stateId>
-					<animationName></animationName>
-					<loop></loop>
+				<stateId></stateId>
+				<animationName></animationName>
+				<loop></loop>
 				<useQueue></useQueue>
 				<trackIndex></trackIndex>
 				<mixDuration></mixDuration>
