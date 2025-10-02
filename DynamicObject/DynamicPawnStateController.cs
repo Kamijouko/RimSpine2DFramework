@@ -51,6 +51,8 @@ namespace RimSpine2DFramework
         private bool disposed;
         private string currentSkin;
         private bool deathNotified;
+        private bool suppressDisposeForDeath;
+        private bool currentStateIsDeathState;
 
         public DynamicPawnStateController(DynamicObjectInstance instance, Pawn pawn, DynamicPawnStateMachineDef definition)
         {
@@ -78,6 +80,7 @@ namespace RimSpine2DFramework
                 return;
             }
 
+            ClearDeathStateFlags();
             disposed = true;
             instance.DetachPawn(this.Pawn);
             instance.DetachStateController(this);
@@ -98,15 +101,35 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            if (pawn == null || pawn.DestroyedOrNull())
+            if (pawn == null)
             {
-                if (ShouldDelayDispose())
+                ClearDeathStateFlags();
+                Dispose();
+                return;
+            }
+
+            bool pawnDestroyed = pawn.DestroyedOrNull();
+
+            if (pawnDestroyed)
+            {
+                if (!deathNotified)
                 {
+                    if (ShouldDelayDispose(pawnDestroyed))
+                    {
+                        return;
+                    }
+
+                    ClearDeathStateFlags();
+                    Dispose();
                     return;
                 }
 
-                Dispose();
-                return;
+                if (!ShouldDelayDispose(pawnDestroyed))
+                {
+                    ClearDeathStateFlags();
+                    Dispose();
+                    return;
+                }
             }
 
             CheckVerbEventTimeout();
@@ -1251,6 +1274,19 @@ namespace RimSpine2DFramework
 
             currentStateFromVerb = newStateFromVerb;
 
+            currentStateIsDeathState = StateIndicatesDeath(state);
+            if (currentStateIsDeathState)
+            {
+                if (deathNotified)
+                {
+                    suppressDisposeForDeath = true;
+                }
+            }
+            else if (suppressDisposeForDeath)
+            {
+                suppressDisposeForDeath = false;
+            }
+
             bool shouldWait = ShouldWaitForCompletion(state);
             currentTrackEntry = entry;
             waitingForAnimationCompletion = shouldWait;
@@ -1304,6 +1340,18 @@ namespace RimSpine2DFramework
             return state.triggers.Any(trigger => trigger != null && trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.Verb);
         }
 
+        private static bool StateIndicatesDeath(DynamicPawnStateMachineDef.PawnAnimationState state)
+        {
+            if (state?.triggers == null)
+            {
+                return false;
+            }
+
+            return state.triggers.Any(trigger => trigger != null
+                && trigger.source == DynamicPawnStateMachineDef.PawnStateTriggerSource.LifeState
+                && trigger.isDead == true);
+        }
+
         private void OnTrackEntryComplete(ISpineTrackEntryAdapter entry)
         {
             if (entry == null || !ReferenceEquals(entry, currentTrackEntry))
@@ -1322,7 +1370,16 @@ namespace RimSpine2DFramework
             if (currentStateHoldPose)
             {
                 holdPoseActive = true;
+                if (currentStateIsDeathState && deathNotified)
+                {
+                    suppressDisposeForDeath = false;
+                }
                 return;
+            }
+
+            if (currentStateIsDeathState && deathNotified)
+            {
+                suppressDisposeForDeath = false;
             }
 
             RequestRefresh();
@@ -1411,6 +1468,7 @@ namespace RimSpine2DFramework
             if (!deathNotified)
             {
                 deathNotified = true;
+                suppressDisposeForDeath = true;
                 RequestRefresh();
             }
         }
@@ -1423,10 +1481,7 @@ namespace RimSpine2DFramework
             }
 
             deathNotified = false;
-            if (holdPoseActive)
-            {
-                holdPoseActive = false;
-            }
+            ClearDeathStateFlags();
 
             RequestRefresh();
         }
@@ -1528,19 +1583,39 @@ namespace RimSpine2DFramework
             return true;
         }
 
-        private bool ShouldDelayDispose()
+        private bool ShouldDelayDispose(bool pawnDestroyedOrNull)
         {
             if (waitingForAnimationCompletion)
             {
                 return true;
             }
 
-            if (holdPoseActive && deathNotified)
+            if (deathNotified)
             {
-                return true;
+                if (suppressDisposeForDeath)
+                {
+                    return true;
+                }
+
+                if (holdPoseActive)
+                {
+                    return true;
+                }
             }
 
             return false;
+        }
+
+        private void ClearDeathStateFlags()
+        {
+            suppressDisposeForDeath = false;
+            if (holdPoseActive)
+            {
+                holdPoseActive = false;
+            }
+
+            currentStateHoldPose = false;
+            currentStateIsDeathState = false;
         }
 
         private static string ResolveVerbSource(Verb verb, out string abilityDef)
