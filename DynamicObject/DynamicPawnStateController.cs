@@ -73,6 +73,23 @@ namespace RimSpine2DFramework
 
         public bool HideVanillaPawn => definition?.hideVanillaPawn == true;
 
+        public bool ShouldRenderWhilePawnDestroyed
+        {
+            get
+            {
+                if (!deathNotified)
+                {
+                    return false;
+                }
+
+                bool playingDeathAnimation = currentStateIsDeathState
+                    && (currentTrackEntry != null || waitingForAnimationCompletion);
+                bool holdingDeathPose = currentStateIsDeathState && holdPoseActive;
+
+                return playingDeathAnimation || holdingDeathPose;
+            }
+        }
+
         public void Dispose()
         {
             if (disposed)

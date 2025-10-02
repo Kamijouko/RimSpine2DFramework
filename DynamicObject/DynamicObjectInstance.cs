@@ -238,6 +238,7 @@ namespace RimSpine2DFramework
         public void Update()
         {
             bool shouldRender = RefreshMapVisibility();
+            bool allowPawnRenderingWhileDestroyed = pawnStateController != null && pawnStateController.ShouldRenderWhilePawnDestroyed;
             bool isPaused = Find.TickManager?.Paused ?? false;
 
             if (pawnStateController != null || curPawn != null)
@@ -247,7 +248,7 @@ namespace RimSpine2DFramework
 
             if (pawnStateController != null)
             {
-                if (shouldRender)
+                if (shouldRender || allowPawnRenderingWhileDestroyed)
                 {
                     SyncWithPawnPosition();
                 }
@@ -298,6 +299,11 @@ namespace RimSpine2DFramework
 
             if (curPawn.DestroyedOrNull())
             {
+                if (pawnStateController != null && pawnStateController.ShouldRenderWhilePawnDestroyed)
+                {
+                    return true;
+                }
+
                 return false;
             }
 
