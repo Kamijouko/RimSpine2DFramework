@@ -212,19 +212,6 @@ namespace RimSpine2DFramework
 
         public void Update()
         {
-            TickManager tickManager = Find.TickManager;
-            bool isPaused = tickManager?.Paused ?? false;
-            float tickRateMultiplier = tickManager?.TickRateMultiplier ?? 1f;
-
-            if (isPaused || tickRateMultiplier <= 0f)
-            {
-                ApplySkeletonTimeScale(0f);
-            }
-            else
-            {
-                ApplySkeletonTimeScale(tickRateMultiplier);
-            }
-
             bool shouldRender = RefreshMapVisibility();
 
             if (pawnStateController != null)
@@ -234,10 +221,7 @@ namespace RimSpine2DFramework
                     SyncWithPawnPosition();
                 }
 
-                if (!isPaused && tickRateMultiplier > 0f)
-                {
-                    pawnStateController.Tick();
-                }
+                pawnStateController.Tick();
                 return;
             }
 
@@ -272,29 +256,6 @@ namespace RimSpine2DFramework
             ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
             AttachReenableInteraction(state.AddAnimation(0, def.specialAnimationName, false, 0f));
             AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
-        }
-
-        private void ApplySkeletonTimeScale(float scale)
-        {
-            if (spine35skeleton != null)
-            {
-                spine35skeleton.timeScale = scale;
-            }
-
-            if (spine38skeleton != null)
-            {
-                spine38skeleton.timeScale = scale;
-            }
-
-            if (spine40skeleton != null)
-            {
-                spine40skeleton.timeScale = scale;
-            }
-
-            if (spine41skeleton != null)
-            {
-                spine41skeleton.timeScale = scale;
-            }
         }
 
         private bool ShouldRenderOnCurrentMap()
