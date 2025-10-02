@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
@@ -210,10 +211,21 @@ namespace RimSpine2DFramework
 
         public void Update()
         {
+            bool shouldRender = RefreshMapVisibility();
+
             if (pawnStateController != null)
             {
-                SyncWithPawnPosition();
+                if (shouldRender)
+                {
+                    SyncWithPawnPosition();
+                }
+
                 pawnStateController.Tick();
+                return;
+            }
+
+            if (!shouldRender)
+            {
                 return;
             }
 
@@ -243,6 +255,63 @@ namespace RimSpine2DFramework
             ISpineAnimationStateAdapter state = adapter.GetAnimationState(this);
             AttachReenableInteraction(state.AddAnimation(0, def.specialAnimationName, false, 0f));
             AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
+        }
+
+        private bool ShouldRenderOnCurrentMap()
+        {
+            if (curPawn == null)
+            {
+                return true;
+            }
+
+            if (curPawn.DestroyedOrNull())
+            {
+                return false;
+            }
+
+            if (WorldRendererUtility.WorldRenderedNow)
+            {
+                return false;
+            }
+
+            Map pawnMap = curPawn.MapHeld;
+            Map currentMap = Find.CurrentMap;
+
+            if (pawnMap == null || currentMap == null)
+            {
+                return true;
+            }
+
+            return pawnMap == currentMap;
+        }
+
+        private void UpdateSkeletonVisibility(bool visible)
+        {
+            void SetActiveIfNeeded(Behaviour skeleton)
+            {
+                if (skeleton == null)
+                {
+                    return;
+                }
+
+                GameObject skeletonObject = skeleton.gameObject;
+                if (skeletonObject != null && skeletonObject.activeSelf != visible)
+                {
+                    skeletonObject.SetActive(visible);
+                }
+            }
+
+            SetActiveIfNeeded(spine35skeleton);
+            SetActiveIfNeeded(spine38skeleton);
+            SetActiveIfNeeded(spine40skeleton);
+            SetActiveIfNeeded(spine41skeleton);
+        }
+
+        internal bool RefreshMapVisibility()
+        {
+            bool shouldRender = ShouldRenderOnCurrentMap();
+            UpdateSkeletonVisibility(shouldRender);
+            return shouldRender;
         }
 
         public void CreateSpineAnimation()

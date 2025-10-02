@@ -186,6 +186,7 @@ namespace RimSpine2DFramework
                     bool bound = instance.TryBindPawn(pawn);
                     if (bound)
                     {
+                        instance.RefreshMapVisibility();
                         instance.SyncWithPawnPosition();
                         dObject.transform.position = instance.transform.position;
                     }
