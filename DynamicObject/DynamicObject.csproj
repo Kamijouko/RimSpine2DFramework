@@ -764,6 +764,8 @@
     <Compile Include="Spine4.1\Spine\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineAnimationEnd.cs" />
     <Compile Include="Spine4.1\Spine\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineEvent.cs" />
     <Compile Include="Spine4.1\Spine\Runtime\spine-unity\Utility\YieldInstructions\WaitForSpineTrackEntryEnd.cs" />
+    <Compile Include="DynamicPawnComp.cs" />
+    <Compile Include="DynamicPawnComp_Properties.cs" />
     <Compile Include="SpineAdapters\ISpineRuntimeAdapter.cs" />
     <Compile Include="SpineAdapters\Spine35RuntimeAdapter.cs" />
     <Compile Include="SpineAdapters\Spine38RuntimeAdapter.cs" />

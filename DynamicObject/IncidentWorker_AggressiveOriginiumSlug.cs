@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 using RimWorld;
+using UnityEngine;
 
 namespace RimSpine2DFramework
 {
@@ -34,7 +35,7 @@ namespace RimSpine2DFramework
                 pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.ManhunterPermanent, null, false, false, false, null, false, false, false);
                 pawn.mindState.exitMapAfterTick = Find.TickManager.TicksGame + Rand.Range(60000, 120000);
 
-                DynamicPawnStateRegistry.TryCreateAndBindInstancesForPawn(pawnKind, pawn);
+                //DynamicPawnStateRegistry.TryCreateAndBindInstancesForPawn(pawnKind, pawn, out GameObject obj);
             }
             if (ModsConfig.AnomalyActive)
             {

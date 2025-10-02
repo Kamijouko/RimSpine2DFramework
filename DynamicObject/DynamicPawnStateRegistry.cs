@@ -170,14 +170,15 @@ namespace RimSpine2DFramework
             }
         }
 
-        public static void TryCreateAndBindInstancesForPawn(PawnKindDef kind, Pawn pawn)
+        public static void TryCreateAndBindInstancesForPawn(PawnKindDef kind, Pawn pawn, out GameObject dObject)
         {
+            dObject = null;
             if (DynamicObjectByKind.TryGetValue(kind.defName, out List<DynamicObjectDef> list))
             {
-                GameObject obj = new GameObject(kind.defName);
+                dObject = new GameObject(kind.defName);
                 foreach (DynamicObjectDef def in list)
                 { 
-                    DynamicObjectInstance instance = obj.AddComponent<DynamicObjectInstance>();
+                    DynamicObjectInstance instance = dObject.AddComponent<DynamicObjectInstance>();
                     instance.position = Vector3.zero;
                     instance.transform.position = pawn.DrawPos;
                     ResolveInstanceVer(def, instance);
@@ -186,12 +187,12 @@ namespace RimSpine2DFramework
                     if (bound)
                     {
                         instance.SyncWithPawnPosition();
-                        obj.transform.position = instance.transform.position;
+                        dObject.transform.position = instance.transform.position;
                     }
-                    Log.Warning("spawned.");
+                    //Log.Warning("spawned.");
                 }
-                UnityEngine.Object.DontDestroyOnLoad(obj);
-                obj.SetActive(true);
+                UnityEngine.Object.DontDestroyOnLoad(dObject);
+                dObject.SetActive(true);
                 //ModDynamicObjectManager.DynamicPawnDatabase[pawn.Name.ToStringFull] = obj;
             }
         }
