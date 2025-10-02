@@ -437,16 +437,16 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(HealthUtility), nameof(HealthUtility.TryResurrect))]
-        private static class HealthUtility_TryResurrect_Patch
+        [HarmonyPatch(typeof(ResurrectionUtility), nameof(ResurrectionUtility.TryResurrect))]
+        private static class ResurrectionUtility_TryResurrect_Patch
         {
-            private static void Postfix(Pawn pawn, bool __result)
+            private static void Postfix(bool __result, Pawn pawn, ResurrectionParams parms = null)
             {
                 if (!__result || pawn == null)
                 {
                     return;
                 }
-
+                Log.Warning("patched");
                 DynamicPawnStateRegistry.NotifyPawnResurrected(pawn);
             }
         }

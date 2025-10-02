@@ -55,11 +55,11 @@
 					</li>
 				</triggers>
 			</li>
-                        <li>
-                                <stateId>attack</stateId>
-                                <animationName>Attack</animationName>
-                                <loop>false</loop>
-                                <trackIndex>1</trackIndex>
+			<li>
+				<stateId>attack</stateId>
+				<animationName>Attack</animationName>
+				<loop>false</loop>
+				<trackIndex>1</trackIndex>
 				<useQueue>true</useQueue>
 				<delay>0</delay>
 				<clearTrack>true</clearTrack>
@@ -67,45 +67,45 @@
 				<forceRestart>true</forceRestart>
 				<isFallback>false</isFallback>
 				<priority>3</priority>
-                                <triggers>
-                                        <li>
-                                                <source>Verb</source>
-                                                <defName>Verb_MeleeAttackDamage</defName>
-                                        </li>
-                                </triggers>
-                        </li>
-                        <li>
-                                <stateId>death</stateId>
-                                <animationName>Death</animationName>
-                                <loop>false</loop>
-                                <holdPoseOnComplete>true</holdPoseOnComplete>
-                                <trackIndex>0</trackIndex>
-                                <useQueue>false</useQueue>
-                                <clearTrack>true</clearTrack>
-                                <clearMixDuration>0.2</clearMixDuration>
-                                <forceRestart>true</forceRestart>
-                                <isFallback>false</isFallback>
-                                <priority>100</priority>
-                                <triggers>
-                                        <li>
-                                                <source>LifeState</source>
-                                                <isDead>true</isDead>
-                                        </li>
-                                </triggers>
-                        </li>
-                        <!-- When the pawn is resurrected, add a LifeState trigger with isDead=false to your idle/move states
-                             so they automatically resume once the hold pose is cleared, e.g.:
-                             <triggers>
-                                     <li>
-                                             <source>LifeState</source>
-                                             <isDead>false</isDead>
-                                     </li>
-                             </triggers> -->
-                        <!--
-                        <li>
-                                <stateId></stateId>
-                                <animationName></animationName>
-                                <loop></loop>
+				<triggers>
+					<li>
+						<source>Verb</source>
+						<defName>Verb_MeleeAttackDamage</defName>
+					</li>
+				</triggers>
+			</li>
+			<li>
+				<stateId>death</stateId>
+				<animationName>Die</animationName>
+				<loop>false</loop>
+				<holdPoseOnComplete>true</holdPoseOnComplete>
+				<trackIndex>0</trackIndex>
+				<useQueue>false</useQueue>
+				<clearTrack>true</clearTrack>
+				<clearMixDuration>0.2</clearMixDuration>
+				<forceRestart>true</forceRestart>
+				<isFallback>false</isFallback>
+				<priority>100</priority>
+				<triggers>
+					<li>
+						<source>LifeState</source>
+						<isDead>true</isDead>
+					</li>
+				</triggers>
+			</li>
+			<!-- When the pawn is resurrected, add a LifeState trigger with isDead=false to your idle/move states
+				 so they automatically resume once the hold pose is cleared, e.g.:
+				 <triggers>
+						 <li>
+								 <source>LifeState</source>
+								 <isDead>false</isDead>
+						 </li>
+				 </triggers> -->
+			<!--
+			<li>
+					<stateId></stateId>
+					<animationName></animationName>
+					<loop></loop>
 				<useQueue></useQueue>
 				<trackIndex></trackIndex>
 				<mixDuration></mixDuration>

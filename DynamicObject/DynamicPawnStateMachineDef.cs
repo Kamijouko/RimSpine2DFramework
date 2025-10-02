@@ -100,7 +100,7 @@ namespace RimSpine2DFramework
 
             public bool loop = true;
 
-            public bool holdPoseOnComplete;
+            public bool holdPoseOnComplete = false;
 
             public string verbEventName;
 
