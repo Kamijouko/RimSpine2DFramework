@@ -100,6 +100,8 @@ namespace RimSpine2DFramework
 
             public bool loop = true;
 
+            public bool holdPoseOnComplete;
+
             public string verbEventName;
 
             public bool useQueue;
@@ -137,6 +139,10 @@ namespace RimSpine2DFramework
 
             public bool? isMoving;
 
+            public bool? isDead;
+
+            public bool? isDowned;
+
             public float threshold = float.NaN;
 
             public bool thresholdGreaterOrEqual = true;
@@ -157,7 +163,8 @@ namespace RimSpine2DFramework
             Thought,
             Duty,
             MentalState,
-            Movement
+            Movement,
+            LifeState
         }
 
         public class PawnSkeletonSettings

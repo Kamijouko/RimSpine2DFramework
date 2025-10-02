@@ -165,6 +165,16 @@ namespace RimSpine2DFramework
 
                             break;
                         }
+
+                        case DynamicPawnStateMachineDef.PawnStateTriggerSource.LifeState:
+                        {
+                            if (!trigger.isDead.HasValue && !trigger.isDowned.HasValue)
+                            {
+                                Log.Warning($"[RimSpine2D] DynamicPawnStateMachineDef '{def.defName}' state '{state.stateId}' uses a LifeState trigger without specifying isDead or isDowned.");
+                            }
+
+                            break;
+                        }
                     }
                 }
             }
@@ -452,6 +462,18 @@ namespace RimSpine2DFramework
         {
             DynamicPawnStateController controller = GetController(pawn);
             controller?.NotifyThoughtsChanged();
+        }
+
+        public static void NotifyPawnDied(Pawn pawn)
+        {
+            DynamicPawnStateController controller = GetController(pawn);
+            controller?.NotifyPawnDied();
+        }
+
+        public static void NotifyPawnResurrected(Pawn pawn)
+        {
+            DynamicPawnStateController controller = GetController(pawn);
+            controller?.NotifyPawnResurrected();
         }
     }
 }
