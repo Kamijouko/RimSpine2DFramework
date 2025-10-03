@@ -25,6 +25,10 @@ namespace RimSpine2DFramework
 
         public bool hideVanillaPawn = false;
 
+        public bool visibleWhileCarried = false;
+
+        public bool visibleWhileStored = false;
+
         public class PawnBinding
         {
             public List<PawnKindDef> pawnKinds;
