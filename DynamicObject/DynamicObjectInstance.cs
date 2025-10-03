@@ -429,12 +429,19 @@ namespace RimSpine2DFramework
                 return true;
             }
 
-            if (thing.ParentHolder is Pawn_CarryTracker)
+            IThingHolder holder = GetEffectiveRenderHolder(thing);
+
+            if (holder == null)
+            {
+                return false;
+            }
+
+            if (holder is Pawn_CarryTracker)
             {
                 return !VisibleWhileCarried;
             }
 
-            if (IsStoredInHolder(thing.ParentHolder))
+            if (IsStoredInHolder(holder))
             {
                 return !VisibleWhileStored;
             }
@@ -452,7 +459,7 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            IThingHolder holder = thing.ParentHolder;
+            IThingHolder holder = GetEffectiveRenderHolder(thing);
 
             if (holder == null)
             {
@@ -487,6 +494,13 @@ namespace RimSpine2DFramework
                 return holderMap != null;
             }
 
+            if (holder is Map mapHolder)
+            {
+                holderMap = mapHolder;
+                holderPosition = GetHeldThingFallbackPosition(thing);
+                return true;
+            }
+
             if (!VisibleWhileStored)
             {
                 return false;
@@ -514,6 +528,56 @@ namespace RimSpine2DFramework
 
             holderPosition = GetHeldThingFallbackPosition(thing);
             return true;
+        }
+
+        private IThingHolder GetEffectiveRenderHolder(Thing thing)
+        {
+            if (thing == null)
+            {
+                return null;
+            }
+
+            IThingHolder holder = thing.ParentHolder;
+
+            if (thing is Pawn && holder is Corpse corpse)
+            {
+                return GetCorpseRenderHolder(corpse);
+            }
+
+            return ResolveRenderHolder(holder);
+        }
+
+        private static IThingHolder GetCorpseRenderHolder(Corpse corpse)
+        {
+            if (corpse == null)
+            {
+                return null;
+            }
+
+            return ResolveRenderHolder(corpse.ParentHolder);
+        }
+
+        private static IThingHolder ResolveRenderHolder(IThingHolder holder)
+        {
+            while (holder != null)
+            {
+                switch (holder)
+                {
+                    case Map _:
+                        return holder;
+                    case Pawn_CarryTracker _:
+                        return holder;
+                    case Thing thingHolder when thingHolder is Corpse:
+                        holder = holder.ParentHolder;
+                        continue;
+                    case Thing _:
+                        return holder;
+                }
+
+                holder = holder.ParentHolder;
+            }
+
+            return null;
         }
 
         private static Map GetThingHolderMap(IThingHolder holder)
