@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -619,7 +620,7 @@ namespace RimSpine2DFramework
                 return thing.DrawPos;
             }
 
-            return thing.TrueCenter();
+            return GenThing.TrueCenter(thing);
         }
 
         private static bool IsStoredInHolder(IThingHolder holder)
