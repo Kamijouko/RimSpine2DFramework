@@ -188,9 +188,47 @@ namespace RimSpine2DFramework
             return false;
         }
 
+        internal bool TryGetCurrentDrawPosition(out Vector3 drawPosition)
+        {
+            drawPosition = default;
+
+            if (curPawn == null)
+            {
+                return false;
+            }
+
+            if (!curPawn.DestroyedOrNull())
+            {
+                drawPosition = curPawn.DrawPos;
+                return true;
+            }
+
+            Corpse corpse = curPawn.Corpse;
+
+            if (corpse == null || !corpse.Spawned)
+            {
+                return false;
+            }
+
+            Map currentMap = Find.CurrentMap;
+
+            if (currentMap == null || corpse.Map != currentMap)
+            {
+                return false;
+            }
+
+            if (corpse.ParentHolder != null && corpse.ParentHolder != currentMap)
+            {
+                return false;
+            }
+
+            drawPosition = corpse.DrawPos;
+            return true;
+        }
+
         internal void SyncWithPawnPosition()
         {
-            if (curPawn == null || curPawn.DestroyedOrNull())
+            if (!TryGetCurrentDrawPosition(out Vector3 drawPosition))
             {
                 return;
             }
@@ -201,13 +239,15 @@ namespace RimSpine2DFramework
                 pawnPositionOffsetInitialized = true;
             }
 
-            Vector3 pawnDrawPos = curPawn.DrawPos;
-            Vector3 targetPosition = pawnDrawPos + pawnPositionOffset;
+            Vector3 targetPosition = drawPosition + pawnPositionOffset;
             transform.position = targetPosition;
             position = targetPosition;
 
-            if (curPawn.Rotation == Rot4.East) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.6f);
-            if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
+            if (curPawn != null && !curPawn.DestroyedOrNull())
+            {
+                if (curPawn.Rotation == Rot4.East) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.6f);
+                if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
+            }
         }
 
         private void UpdateAnimationTimeScale(bool isPaused)
@@ -292,18 +332,8 @@ namespace RimSpine2DFramework
 
         private bool ShouldRenderOnCurrentMap()
         {
-            if (curPawn == null)
+            if (WorldRendererUtility.WorldRenderedNow)
             {
-                return true;
-            }
-
-            if (curPawn.DestroyedOrNull())
-            {
-                if (pawnStateController != null && pawnStateController.ShouldRenderWhilePawnDestroyed)
-                {
-                    return true;
-                }
-
                 return false;
             }
 
@@ -312,8 +342,36 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            Map pawnMap = curPawn.MapHeld;
+            if (curPawn == null)
+            {
+                return true;
+            }
+
             Map currentMap = Find.CurrentMap;
+
+            if (curPawn.DestroyedOrNull())
+            {
+                Corpse corpse = curPawn.Corpse;
+
+                if (corpse == null || !corpse.Spawned)
+                {
+                    return false;
+                }
+
+                if (currentMap == null || corpse.Map != currentMap)
+                {
+                    return false;
+                }
+
+                if (corpse.ParentHolder != null && corpse.ParentHolder != currentMap)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            Map pawnMap = curPawn.MapHeld;
 
             if (pawnMap == null || currentMap == null)
             {
