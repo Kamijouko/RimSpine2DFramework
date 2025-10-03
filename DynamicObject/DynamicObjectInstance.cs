@@ -504,6 +504,10 @@ namespace RimSpine2DFramework
 
             if (!VisibleWhileStored)
             {
+                // WorldObject holders (transport pods, shuttles, caravans, etc.) are treated as stored.
+                // Returning false here prevents drawing when ResolveRenderHolder resolves to a
+                // WorldObject, ensuring we respect visibility while stored for corpses and pawns
+                // travelling inside those containers.
                 return false;
             }
 
@@ -568,6 +572,11 @@ namespace RimSpine2DFramework
                         return holder;
                     case Pawn_CarryTracker _:
                         return holder;
+                    case WorldObject _:
+                        return holder;
+                    case WorldObjectComp worldObjectComp:
+                        holder = worldObjectComp.ParentHolder;
+                        continue;
                     case Thing thingHolder when thingHolder is Corpse:
                         holder = holder.ParentHolder;
                         continue;
