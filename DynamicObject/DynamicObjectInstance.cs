@@ -332,10 +332,10 @@ namespace RimSpine2DFramework
 
         private bool ShouldRenderOnCurrentMap()
         {
-            if (WorldRendererUtility.WorldRenderedNow)
+            /*if (WorldRendererUtility.WorldSelected)
             {
                 return false;
-            }
+            }*/
 
             if (!WorldRendererUtility.DrawingMap)
             {
