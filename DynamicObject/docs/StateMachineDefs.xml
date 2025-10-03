@@ -5,14 +5,17 @@
 		<targetDynamicObject>Originium_Slug</targetDynamicObject>
 		<defaultStateId>idle</defaultStateId>
 		<priority>0</priority>
-		<skeleton>
-			<defaultSkin>default</defaultSkin>
-			<scale>(2, 2)</scale>
-			<offset>(0, -0.2)</offset>
-			<rotation>(0, 0, 0)</rotation>
-			<cameraDistance>0</cameraDistance>
-		</skeleton>
-		<hideVanillaPawn>true</hideVanillaPawn>
+                <skeleton>
+                        <defaultSkin>default</defaultSkin>
+                        <scale>(2, 2)</scale>
+                        <offset>(0, -0.2)</offset>
+                        <rotation>(0, 0, 0)</rotation>
+                        <cameraDistance>0</cameraDistance>
+                </skeleton>
+                <hideVanillaPawn>true</hideVanillaPawn>
+                <!-- 控制对象在被搬运或收纳时是否仍然渲染，缺省为 false -->
+                <visibleWhileCarried>false</visibleWhileCarried>
+                <visibleWhileStored>false</visibleWhileStored>
 		<binding>
 			<pawnKinds>
 				<li>Originium_Slug</li>

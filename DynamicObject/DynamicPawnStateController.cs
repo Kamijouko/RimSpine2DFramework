@@ -73,6 +73,10 @@ namespace RimSpine2DFramework
 
         public bool HideVanillaPawn => definition?.hideVanillaPawn == true;
 
+        public bool VisibleWhileCarried => definition?.visibleWhileCarried ?? false;
+
+        public bool VisibleWhileStored => definition?.visibleWhileStored ?? false;
+
         public bool ShouldRenderWhilePawnDestroyed
         {
             get
