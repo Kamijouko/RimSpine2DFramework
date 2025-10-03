@@ -214,7 +214,7 @@ namespace RimSpine2DFramework
 
             Corpse corpse = curPawn.Corpse;
 
-            if (corpse == null || !corpse.Spawned)
+            if (corpse == null)
             {
                 return false;
             }
@@ -226,17 +226,28 @@ namespace RimSpine2DFramework
 
             Map currentMap = Find.CurrentMap;
 
-            if (currentMap == null || corpse.Map != currentMap)
+            if (corpse.Spawned)
+            {
+                if (currentMap == null || corpse.Map != currentMap)
+                {
+                    return false;
+                }
+
+                drawPosition = corpse.DrawPos;
+                return true;
+            }
+
+            if (!TryGetHeldThingDrawInfo(corpse, out Vector3 holderPosition, out Map holderMap))
             {
                 return false;
             }
 
-            if (corpse.ParentHolder != null && corpse.ParentHolder != currentMap)
+            if (currentMap == null || holderMap != currentMap)
             {
                 return false;
             }
 
-            drawPosition = corpse.DrawPos;
+            drawPosition = holderPosition;
             return true;
         }
 
@@ -372,7 +383,7 @@ namespace RimSpine2DFramework
             {
                 Corpse corpse = curPawn.Corpse;
 
-                if (corpse == null || !corpse.Spawned)
+                if (corpse == null)
                 {
                     return false;
                 }
@@ -382,17 +393,23 @@ namespace RimSpine2DFramework
                     return false;
                 }
 
-                if (currentMap == null || corpse.Map != currentMap)
+                Map corpseMap;
+
+                if (corpse.Spawned)
+                {
+                    corpseMap = corpse.Map;
+                }
+                else if (!TryGetHeldThingDrawInfo(corpse, out _, out corpseMap))
                 {
                     return false;
                 }
 
-                if (corpse.ParentHolder != null && corpse.ParentHolder != currentMap)
+                if (currentMap == null || corpseMap == null)
                 {
                     return false;
                 }
 
-                return true;
+                return corpseMap == currentMap;
             }
 
             Map pawnMap = curPawn.MapHeld;
@@ -423,6 +440,122 @@ namespace RimSpine2DFramework
             }
 
             return false;
+        }
+
+        private bool TryGetHeldThingDrawInfo(Thing thing, out Vector3 holderPosition, out Map holderMap)
+        {
+            holderPosition = default;
+            holderMap = null;
+
+            if (thing == null)
+            {
+                return false;
+            }
+
+            IThingHolder holder = thing.ParentHolder;
+
+            if (holder == null)
+            {
+                return false;
+            }
+
+            if (holder is Pawn_CarryTracker carryTracker)
+            {
+                if (!VisibleWhileCarried)
+                {
+                    return false;
+                }
+
+                Pawn carrier = carryTracker.pawn;
+
+                if (carrier != null)
+                {
+                    holderMap = carrier.MapHeld;
+                    holderPosition = carrier.Spawned ? carrier.DrawPos : GetHeldThingFallbackPosition(thing);
+                }
+                else
+                {
+                    holderMap = GetThingHolderMap(holder);
+                    holderPosition = GetHeldThingFallbackPosition(thing);
+                }
+
+                if (holderMap == null)
+                {
+                    holderMap = GetThingHolderMap(holder);
+                }
+
+                return holderMap != null;
+            }
+
+            if (!VisibleWhileStored)
+            {
+                return false;
+            }
+
+            if (holder is Thing holderThing)
+            {
+                holderMap = holderThing.MapHeld;
+                holderPosition = holderThing.Spawned ? holderThing.DrawPos : GetHeldThingFallbackPosition(holderThing);
+
+                if (holderMap == null)
+                {
+                    holderMap = GetThingHolderMap(holder);
+                }
+
+                return holderMap != null;
+            }
+
+            holderMap = GetThingHolderMap(holder);
+
+            if (holderMap == null)
+            {
+                return false;
+            }
+
+            holderPosition = GetHeldThingFallbackPosition(thing);
+            return true;
+        }
+
+        private static Map GetThingHolderMap(IThingHolder holder)
+        {
+            if (holder == null)
+            {
+                return null;
+            }
+
+            if (holder is Map mapHolder)
+            {
+                return mapHolder;
+            }
+
+            if (holder is Thing holderThing)
+            {
+                return holderThing.MapHeld ?? ThingOwnerUtility.GetRootMap(holder);
+            }
+
+            return ThingOwnerUtility.GetRootMap(holder);
+        }
+
+        private static Vector3 GetHeldThingFallbackPosition(Thing thing)
+        {
+            if (thing == null)
+            {
+                return Vector3.zero;
+            }
+
+            IntVec3 positionHeld = thing.PositionHeld;
+
+            if (positionHeld.IsValid)
+            {
+                return positionHeld.ToVector3Shifted();
+            }
+
+            if (thing.Spawned)
+            {
+                return thing.DrawPos;
+            }
+
+            return thing.TrueCenter();
         }
 
         private static bool IsStoredInHolder(IThingHolder holder)
