@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace RimSpine2DFramework
 {
@@ -35,6 +36,9 @@ namespace RimSpine2DFramework
         private SkeletonConfiguration? pawnSkeletonConfiguration;
         private Vector3 pawnPositionOffset;
         private bool pawnPositionOffsetInitialized;
+
+        private bool VisibleWhileCarried => pawnStateController?.VisibleWhileCarried ?? true;
+        private bool VisibleWhileStored => pawnStateController?.VisibleWhileStored ?? true;
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
@@ -197,6 +201,11 @@ namespace RimSpine2DFramework
                 return false;
             }
 
+            if (ShouldSkipRenderingForThing(curPawn))
+            {
+                return false;
+            }
+
             if (!curPawn.DestroyedOrNull())
             {
                 drawPosition = curPawn.DrawPos;
@@ -206,6 +215,11 @@ namespace RimSpine2DFramework
             Corpse corpse = curPawn.Corpse;
 
             if (corpse == null || !corpse.Spawned)
+            {
+                return false;
+            }
+
+            if (ShouldSkipRenderingForThing(corpse))
             {
                 return false;
             }
@@ -349,11 +363,21 @@ namespace RimSpine2DFramework
 
             Map currentMap = Find.CurrentMap;
 
+            if (ShouldSkipRenderingForThing(curPawn))
+            {
+                return false;
+            }
+
             if (curPawn.DestroyedOrNull())
             {
                 Corpse corpse = curPawn.Corpse;
 
                 if (corpse == null || !corpse.Spawned)
+                {
+                    return false;
+                }
+
+                if (ShouldSkipRenderingForThing(corpse))
                 {
                     return false;
                 }
@@ -379,6 +403,41 @@ namespace RimSpine2DFramework
             }
 
             return pawnMap == currentMap;
+        }
+
+        private bool ShouldSkipRenderingForThing(Thing thing)
+        {
+            if (thing == null)
+            {
+                return true;
+            }
+
+            if (thing.ParentHolder is Pawn_CarryTracker)
+            {
+                return !VisibleWhileCarried;
+            }
+
+            if (IsStoredInHolder(thing.ParentHolder))
+            {
+                return !VisibleWhileStored;
+            }
+
+            return false;
+        }
+
+        private static bool IsStoredInHolder(IThingHolder holder)
+        {
+            if (holder == null)
+            {
+                return false;
+            }
+
+            if (holder is Pawn_CarryTracker)
+            {
+                return false;
+            }
+
+            return !(holder is Map);
         }
 
         private void UpdateSkeletonVisibility(bool visible)
