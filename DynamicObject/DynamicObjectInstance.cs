@@ -431,50 +431,9 @@ namespace RimSpine2DFramework
 
             Map pawnMap = curPawn.MapHeld;
 
-            if (currentMap == null)
+            if (pawnMap == null || currentMap == null)
             {
-                return def != null;
-            }
-
-            if (pawnMap == null)
-            {
-                if (def != null)
-                {
-                    return true;
-                }
-
-                Map holderMap;
-
-                if (TryGetHeldThingDrawInfo(curPawn, out _, out holderMap))
-                {
-                    return holderMap == currentMap;
-                }
-
-                IThingHolder holder = GetEffectiveRenderHolder(curPawn);
-
-                if (holder == null)
-                {
-                    return false;
-                }
-
-                if (holder is Pawn_CarryTracker && !VisibleWhileCarried)
-                {
-                    return false;
-                }
-
-                if (IsStoredInHolder(holder) && !VisibleWhileStored)
-                {
-                    return false;
-                }
-
-                holderMap = GetThingHolderMap(holder);
-
-                if (holderMap == null)
-                {
-                    return false;
-                }
-
-                return holderMap == currentMap;
+                return true;
             }
 
             return pawnMap == currentMap;
