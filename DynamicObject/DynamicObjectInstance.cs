@@ -612,7 +612,13 @@ namespace RimSpine2DFramework
                 case Pawn_CarryTracker _:
                     return false;
                 case CompTransporter transporter:
-                    storageHolder = (IThingHolder)transporter.parent;
+                    storageHolder = transporter;
+
+                    if (transporter.parent is IThingHolder parentHolder)
+                    {
+                        storageHolder = parentHolder;
+                    }
+
                     return true;
                 case ThingOwner thingOwner:
                 {
@@ -620,20 +626,37 @@ namespace RimSpine2DFramework
 
                     if (owner == null)
                     {
-                        storageHolder = (IThingHolder)thingOwner;
-                        return true;
+                        storageHolder = thingOwner as IThingHolder;
+
+                        if (storageHolder != null)
+                        {
+                            return true;
+                        }
+
+                        break;
                     }
 
                     if (owner is CompTransporter ownerTransporter)
                     {
-                        storageHolder = (IThingHolder)ownerTransporter.parent;
+                        storageHolder = ownerTransporter;
+
+                        if (ownerTransporter.parent is IThingHolder ownerParentHolder)
+                        {
+                            storageHolder = ownerParentHolder;
+                        }
+
                         return true;
                     }
 
                     if (owner is Thing ownerThing)
                     {
-                        storageHolder = (IThingHolder)ownerThing;
-                        return true;
+                        IThingHolder ownerThingHolder = ownerThing as IThingHolder;
+
+                        if (ownerThingHolder != null)
+                        {
+                            storageHolder = ownerThingHolder;
+                            return true;
+                        }
                     }
 
                     if (!(owner is Map) && !(owner is Pawn_CarryTracker))
@@ -650,8 +673,11 @@ namespace RimSpine2DFramework
             {
                 if (holder is ThingComp comp && comp.parent != null)
                 {
-                    storageHolder = (IThingHolder)comp.parent;
-                    return true;
+                    if (comp.parent is IThingHolder parentHolder)
+                    {
+                        storageHolder = parentHolder;
+                        return true;
+                    }
                 }
 
                 storageHolder = holder;
