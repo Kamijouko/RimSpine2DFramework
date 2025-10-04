@@ -197,7 +197,7 @@ namespace RimSpine2DFramework
                     if (bound)
                     {
                         instance.RefreshMapVisibility();
-                        instance.SyncWithPawnPosition(out _);
+                        instance.SyncWithPawnPosition();
                         dObject.transform.position = instance.transform.position;
                     }
                     //Log.Warning("spawned.");
@@ -377,7 +377,7 @@ namespace RimSpine2DFramework
             DynamicPawnStateController controller = new DynamicPawnStateController(instance, pawn, match);
             ControllersByPawn[pawn] = controller;
             ControllersByInstance[instance] = controller;
-            instance.SyncWithPawnPosition(out _);
+            instance.SyncWithPawnPosition();
             controller.RefreshNow();
             return true;
         }
