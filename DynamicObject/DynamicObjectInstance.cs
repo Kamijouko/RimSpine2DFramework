@@ -211,13 +211,8 @@ namespace RimSpine2DFramework
 
             if (!curPawn.DestroyedOrNull())
             {
-                if (curPawn.Spawned && curPawn.ParentHolder == null)
-                {
-                    drawPosition = curPawn.DrawPos;
-                    return true;
-                }
-
-                return TryGetDrawPositionForHeldThing(curPawn, out drawPosition);
+                drawPosition = curPawn.DrawPos;
+                return true;
             }
 
             Corpse corpse = curPawn.Corpse;
@@ -245,19 +240,10 @@ namespace RimSpine2DFramework
                 return true;
             }
 
-            return TryGetDrawPositionForHeldThing(corpse, out drawPosition);
-        }
-
-        private bool TryGetDrawPositionForHeldThing(Thing heldThing, out Vector3 drawPosition)
-        {
-            drawPosition = default;
-
-            if (!TryGetHeldThingDrawInfo(heldThing, out Vector3 holderPosition, out Map holderMap))
+            if (!TryGetHeldThingDrawInfo(corpse, out Vector3 holderPosition, out Map holderMap))
             {
                 return false;
             }
-
-            Map currentMap = Find.CurrentMap;
 
             if (currentMap == null || holderMap != currentMap)
             {
