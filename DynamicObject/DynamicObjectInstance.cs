@@ -612,7 +612,7 @@ namespace RimSpine2DFramework
                 case Pawn_CarryTracker _:
                     return false;
                 case CompTransporter transporter:
-                    storageHolder = transporter.parent ?? transporter;
+                    storageHolder = (IThingHolder)transporter.parent;
                     return true;
                 case ThingOwner thingOwner:
                 {
@@ -620,19 +620,19 @@ namespace RimSpine2DFramework
 
                     if (owner == null)
                     {
-                        storageHolder = thingOwner;
+                        storageHolder = (IThingHolder)thingOwner;
                         return true;
                     }
 
                     if (owner is CompTransporter ownerTransporter)
                     {
-                        storageHolder = ownerTransporter.parent ?? ownerTransporter;
+                        storageHolder = (IThingHolder)ownerTransporter.parent;
                         return true;
                     }
 
                     if (owner is Thing ownerThing)
                     {
-                        storageHolder = ownerThing;
+                        storageHolder = (IThingHolder)ownerThing;
                         return true;
                     }
 
@@ -650,7 +650,7 @@ namespace RimSpine2DFramework
             {
                 if (holder is ThingComp comp && comp.parent != null)
                 {
-                    storageHolder = comp.parent;
+                    storageHolder = (IThingHolder)comp.parent;
                     return true;
                 }
 
