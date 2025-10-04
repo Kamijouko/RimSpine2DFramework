@@ -319,92 +319,41 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(CompTransporter), nameof(CompTransporter.TryLoadPawn))]
-        private static class CompTransporter_TryLoadPawn_Patch
+        private static void NotifyTransporterPawnStorageChanged(Thing thing)
         {
-            private static void Postfix(bool __result, Pawn pawn)
+            Pawn pawn = GetPawn(thing);
+            if (pawn == null)
             {
-                if (!__result || pawn == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                DynamicPawnStateRegistry.NotifyPawnStorageChanged(pawn);
+            DynamicPawnStateRegistry.NotifyPawnStorageChanged(pawn);
+        }
+
+        [HarmonyPatch(typeof(CompTransporter), nameof(CompTransporter.Notify_ThingAdded))]
+        private static class CompTransporter_NotifyThingAdded_Patch
+        {
+            private static void Postfix(Thing t)
+            {
+                NotifyTransporterPawnStorageChanged(t);
             }
         }
 
-        [HarmonyPatch(typeof(ThingOwner), nameof(ThingOwner.TryAdd), new[] { typeof(Thing), typeof(int), typeof(bool) })]
-        private static class ThingOwner_TryAdd_Patch
+        [HarmonyPatch(typeof(CompTransporter), nameof(CompTransporter.Notify_ThingRemoved))]
+        private static class CompTransporter_NotifyThingRemoved_Patch
         {
-            private static void Postfix(ThingOwner __instance, bool __result, Thing thing)
+            private static void Postfix(Thing t)
             {
-                if (!__result || thing == null)
-                {
-                    return;
-                }
-
-                if (!(__instance.Owner is CompTransporter))
-                {
-                    return;
-                }
-
-                Pawn pawn = GetPawn(thing);
-                if (pawn == null)
-                {
-                    return;
-                }
-
-                DynamicPawnStateRegistry.NotifyPawnStorageChanged(pawn);
+                NotifyTransporterPawnStorageChanged(t);
             }
         }
 
-        [HarmonyPatch(typeof(ThingOwner), nameof(ThingOwner.TryDrop), new[] { typeof(Thing), typeof(ThingPlaceMode), typeof(Thing).MakeByRefType(), typeof(Action<Thing, int>) })]
-        private static class ThingOwner_TryDrop_Patch
+        [HarmonyPatch(typeof(CompTransporter), nameof(CompTransporter.Notify_ThingAddedAndMergedWith))]
+        private static class CompTransporter_NotifyThingAddedAndMergedWith_Patch
         {
-            private static void Postfix(ThingOwner __instance, bool __result, Thing thing, ref Thing resultingThing)
+            private static void Postfix(Thing t)
             {
-                if (!__result)
-                {
-                    return;
-                }
-
-                if (!(__instance.Owner is CompTransporter))
-                {
-                    return;
-                }
-
-                Pawn pawn = GetPawn(resultingThing ?? thing);
-                if (pawn == null)
-                {
-                    return;
-                }
-
-                DynamicPawnStateRegistry.NotifyPawnStorageChanged(pawn);
-            }
-        }
-
-        [HarmonyPatch(typeof(ThingOwner), nameof(ThingOwner.TryDrop), new[] { typeof(Thing), typeof(IntVec3), typeof(Map), typeof(ThingPlaceMode), typeof(Thing).MakeByRefType(), typeof(Action<Thing, int>) })]
-        private static class ThingOwner_TryDrop_WithLocation_Patch
-        {
-            private static void Postfix(ThingOwner __instance, bool __result, Thing thing, ref Thing resultingThing)
-            {
-                if (!__result)
-                {
-                    return;
-                }
-
-                if (!(__instance.Owner is CompTransporter))
-                {
-                    return;
-                }
-
-                Pawn pawn = GetPawn(resultingThing ?? thing);
-                if (pawn == null)
-                {
-                    return;
-                }
-
-                DynamicPawnStateRegistry.NotifyPawnStorageChanged(pawn);
+                NotifyTransporterPawnStorageChanged(t);
             }
         }
 
