@@ -278,17 +278,17 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(Pawn_CarryTracker), nameof(Pawn_CarryTracker.TryStartCarry))]
+        [HarmonyPatch(typeof(Pawn_CarryTracker), nameof(Pawn_CarryTracker.TryStartCarry), new[] { typeof(Thing) })]
         private static class PawnCarryTracker_TryStartCarry_Patch
         {
-            private static void Postfix(bool __result, Thing thing)
+            private static void Postfix(bool __result, Thing item)
             {
                 if (!__result)
                 {
                     return;
                 }
 
-                Pawn pawn = GetPawn(thing);
+                Pawn pawn = GetPawn(item);
                 if (pawn == null)
                 {
                     return;
@@ -298,10 +298,26 @@ namespace RimSpine2DFramework
             }
         }
 
-        [HarmonyPatch(typeof(Pawn_CarryTracker), nameof(Pawn_CarryTracker.TryDropCarriedThing))]
+        [HarmonyPatch]
         private static class PawnCarryTracker_TryDropCarriedThing_Patch
         {
-            private static void Postfix(Pawn_CarryTracker __instance, bool __result, ref Thing resultingThing)
+            static MethodBase TargetMethod()
+            {
+                return AccessTools.Method(
+                    typeof(Pawn_CarryTracker),
+                    nameof(Pawn_CarryTracker.TryDropCarriedThing),
+                    new Type[]
+                    {
+                typeof(IntVec3),
+                typeof(ThingPlaceMode),
+                typeof(Thing).MakeByRefType(),      // out Thing -> ref
+                typeof(Action<Thing, int>)
+                    }
+                );
+            }
+
+            [HarmonyPostfix]
+            private static void Postfix(IntVec3 dropLoc, ThingPlaceMode mode, ref Thing resultingThing, Action<Thing, int> placedAction, Pawn_CarryTracker __instance, bool __result)
             {
                 if (!__result)
                 {
