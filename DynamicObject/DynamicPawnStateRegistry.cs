@@ -475,5 +475,21 @@ namespace RimSpine2DFramework
             DynamicPawnStateController controller = GetController(pawn);
             controller?.NotifyPawnResurrected();
         }
+
+        public static void NotifyPawnStorageChanged(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return;
+            }
+
+            DynamicPawnStateController controller = GetController(pawn);
+            if (controller?.Instance == null)
+            {
+                return;
+            }
+
+            controller.Instance.RefreshMapVisibility();
+        }
     }
 }
