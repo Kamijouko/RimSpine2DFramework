@@ -195,16 +195,12 @@ namespace RimSpine2DFramework
             return false;
         }
 
-        internal bool TryGetCurrentDrawPosition(out Vector3 drawPosition)
+        internal bool TryGetCurrentDrawPosition(out Vector3 drawPosition, out bool shouldRender)
         {
             drawPosition = default;
+            shouldRender = false;
 
             if (curPawn == null)
-            {
-                return false;
-            }
-
-            if (ShouldSkipRenderingForThing(curPawn))
             {
                 return false;
             }
@@ -216,6 +212,8 @@ namespace RimSpine2DFramework
 
             if (!curPawn.DestroyedOrNull())
             {
+                shouldRender = !ShouldSkipRenderingForThing(curPawn);
+
                 if (!curPawn.Spawned || curPawn.ParentHolder != null)
                 {
                     if (!TryGetHeldThingDrawInfo(curPawn, out holderPosition, out holderMap))
@@ -243,10 +241,7 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            if (ShouldSkipRenderingForThing(corpse))
-            {
-                return false;
-            }
+            shouldRender = !ShouldSkipRenderingForThing(corpse);
 
             if (corpse.Spawned)
             {
@@ -273,11 +268,13 @@ namespace RimSpine2DFramework
             return true;
         }
 
-        internal void SyncWithPawnPosition()
+        internal bool SyncWithPawnPosition(out bool shouldRender)
         {
-            if (!TryGetCurrentDrawPosition(out Vector3 drawPosition))
+            shouldRender = false;
+
+            if (!TryGetCurrentDrawPosition(out Vector3 drawPosition, out bool allowRendering))
             {
-                return;
+                return false;
             }
 
             if (!pawnPositionOffsetInitialized)
@@ -290,11 +287,15 @@ namespace RimSpine2DFramework
             transform.position = targetPosition;
             position = targetPosition;
 
+            shouldRender = allowRendering;
+
             if (curPawn != null && !curPawn.DestroyedOrNull())
             {
                 if (curPawn.Rotation == Rot4.East) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.6f);
                 if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
             }
+
+            return true;
         }
 
         private void UpdateAnimationTimeScale(bool isPaused)
@@ -325,21 +326,28 @@ namespace RimSpine2DFramework
         public void Update()
         {
             bool shouldRender = RefreshMapVisibility();
-            bool allowPawnRenderingWhileDestroyed = pawnStateController != null && pawnStateController.ShouldRenderWhilePawnDestroyed;
             bool isPaused = Find.TickManager?.Paused ?? false;
+            bool hasPawnOrController = pawnStateController != null || curPawn != null;
+            bool positionSynced = false;
+            bool positionShouldRender = false;
 
-            if (pawnStateController != null || curPawn != null)
+            if (hasPawnOrController)
+            {
+                positionSynced = SyncWithPawnPosition(out positionShouldRender);
+            }
+
+            if (positionSynced && !positionShouldRender)
+            {
+                shouldRender = false;
+            }
+
+            if (hasPawnOrController)
             {
                 UpdateAnimationTimeScale(isPaused);
             }
 
             if (pawnStateController != null)
             {
-                if (shouldRender || allowPawnRenderingWhileDestroyed)
-                {
-                    SyncWithPawnPosition();
-                }
-
                 pawnStateController.Tick();
                 return;
             }
@@ -351,7 +359,10 @@ namespace RimSpine2DFramework
 
             if (curPawn != null && !curPawn.DestroyedOrNull())
             {
-                SyncWithPawnPosition();
+                if (!positionSynced)
+                {
+                    SyncWithPawnPosition(out _);
+                }
             }
 
             if (!canInteract || def == null)
