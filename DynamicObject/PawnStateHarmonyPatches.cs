@@ -408,20 +408,18 @@ namespace RimSpine2DFramework
                     ParameterInfo parameter = parameters[i];
                     object argument = args[i];
 
-                    if (argument is not Thing argumentThing)
+                    if (argument is Thing argumentThing)
                     {
-                        continue;
-                    }
+                        if (parameter.ParameterType == typeof(Thing) && inputThing == null)
+                        {
+                            inputThing = argumentThing;
+                            continue;
+                        }
 
-                    if (parameter.ParameterType == typeof(Thing) && inputThing == null)
-                    {
-                        inputThing = argumentThing;
-                        continue;
-                    }
-
-                    if (parameter.ParameterType.IsByRef && parameter.ParameterType.GetElementType() == typeof(Thing))
-                    {
-                        resultingThing = argumentThing;
+                        if (parameter.ParameterType.IsByRef && parameter.ParameterType.GetElementType() == typeof(Thing))
+                        {
+                            resultingThing = argumentThing;
+                        }
                     }
                 }
 
