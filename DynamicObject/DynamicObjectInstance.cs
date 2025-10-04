@@ -38,8 +38,34 @@ namespace RimSpine2DFramework
         private Vector3 pawnPositionOffset;
         private bool pawnPositionOffsetInitialized;
 
-        private bool VisibleWhileCarried => pawnStateController?.VisibleWhileCarried ?? true;
-        private bool VisibleWhileStored => pawnStateController?.VisibleWhileStored ?? true;
+        private bool visibleWhileCarriedCached;
+        private bool visibleWhileStoredCached;
+
+        private bool VisibleWhileCarried
+        {
+            get
+            {
+                if (pawnStateController != null)
+                {
+                    visibleWhileCarriedCached = pawnStateController.VisibleWhileCarried;
+                }
+
+                return visibleWhileCarriedCached;
+            }
+        }
+
+        private bool VisibleWhileStored
+        {
+            get
+            {
+                if (pawnStateController != null)
+                {
+                    visibleWhileStoredCached = pawnStateController.VisibleWhileStored;
+                }
+
+                return visibleWhileStoredCached;
+            }
+        }
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
