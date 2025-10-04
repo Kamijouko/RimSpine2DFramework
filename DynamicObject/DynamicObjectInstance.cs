@@ -209,8 +209,26 @@ namespace RimSpine2DFramework
                 return false;
             }
 
+            Map currentMap = Find.CurrentMap;
+
             if (!curPawn.DestroyedOrNull())
             {
+                if (!curPawn.Spawned || curPawn.ParentHolder != null)
+                {
+                    if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holderPosition, out Map holderMap))
+                    {
+                        return false;
+                    }
+
+                    if (currentMap == null || holderMap != currentMap)
+                    {
+                        return false;
+                    }
+
+                    drawPosition = holderPosition;
+                    return true;
+                }
+
                 drawPosition = curPawn.DrawPos;
                 return true;
             }
@@ -226,8 +244,6 @@ namespace RimSpine2DFramework
             {
                 return false;
             }
-
-            Map currentMap = Find.CurrentMap;
 
             if (corpse.Spawned)
             {
