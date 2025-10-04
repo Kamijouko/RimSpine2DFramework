@@ -504,7 +504,7 @@ namespace RimSpine2DFramework
                 return true;
             }
 
-            if (!VisibleWhileStored)
+            if (IsStoredInHolder(holder) && !VisibleWhileStored)
             {
                 // WorldObject holders (transport pods, shuttles, caravans, etc.) are treated as stored.
                 // Returning false here prevents drawing when ResolveRenderHolder resolves to a
@@ -568,6 +568,11 @@ namespace RimSpine2DFramework
         {
             while (holder != null)
             {
+                if (TryResolveStoredCargoHolder(holder, out IThingHolder storageHolder))
+                {
+                    return storageHolder;
+                }
+
                 switch (holder)
                 {
                     case Map _:
@@ -590,6 +595,70 @@ namespace RimSpine2DFramework
             }
 
             return null;
+        }
+
+        private static bool TryResolveStoredCargoHolder(IThingHolder holder, out IThingHolder storageHolder)
+        {
+            storageHolder = null;
+
+            if (holder == null)
+            {
+                return false;
+            }
+
+            switch (holder)
+            {
+                case Map _:
+                case Pawn_CarryTracker _:
+                    return false;
+                case CompTransporter transporter:
+                    storageHolder = transporter.parent ?? transporter;
+                    return true;
+                case ThingOwner thingOwner:
+                {
+                    IThingHolder owner = thingOwner.Owner;
+
+                    if (owner == null)
+                    {
+                        storageHolder = thingOwner;
+                        return true;
+                    }
+
+                    if (owner is CompTransporter ownerTransporter)
+                    {
+                        storageHolder = ownerTransporter.parent ?? ownerTransporter;
+                        return true;
+                    }
+
+                    if (owner is Thing ownerThing)
+                    {
+                        storageHolder = ownerThing;
+                        return true;
+                    }
+
+                    if (!(owner is Map) && !(owner is Pawn_CarryTracker))
+                    {
+                        storageHolder = owner;
+                        return true;
+                    }
+
+                    break;
+                }
+            }
+
+            if (!(holder is Map) && !(holder is Pawn_CarryTracker) && !(holder is WorldObjectComp) && !(holder is ThingOwner))
+            {
+                if (holder is ThingComp comp && comp.parent != null)
+                {
+                    storageHolder = comp.parent;
+                    return true;
+                }
+
+                storageHolder = holder;
+                return true;
+            }
+
+            return false;
         }
 
         private static Map GetThingHolderMap(IThingHolder holder)
