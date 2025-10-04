@@ -335,6 +335,100 @@ namespace RimSpine2DFramework
             }
         }
 
+        [HarmonyPatch]
+        private static class ThingOwner_TryDrop_Patch
+        {
+            private static MethodBase[] targetMethods;
+
+            private static bool Prepare()
+            {
+                targetMethods = AccessTools.GetDeclaredMethods(typeof(ThingOwner))
+                    .Where(method => method.Name == nameof(ThingOwner.TryDrop))
+                    .Where(method =>
+                    {
+                        ParameterInfo[] parameters = method.GetParameters();
+                        if (parameters.Length == 0)
+                        {
+                            return false;
+                        }
+
+                        if (parameters[0].ParameterType != typeof(Thing))
+                        {
+                            return false;
+                        }
+
+                        return parameters.Any(parameter => parameter.ParameterType.IsByRef
+                            && parameter.ParameterType.GetElementType() == typeof(Thing));
+                    })
+                    .Cast<MethodBase>()
+                    .ToArray();
+
+                return targetMethods.Length > 0;
+            }
+
+            private static IEnumerable<MethodBase> TargetMethods()
+            {
+                return targetMethods;
+            }
+
+            private static void Postfix(ThingOwner __instance, bool __result, MethodBase __originalMethod, object[] __args)
+            {
+                if (!__result)
+                {
+                    return;
+                }
+
+                if (!(__instance?.Owner is CompTransporter))
+                {
+                    return;
+                }
+
+                Thing droppedThing = GetDroppedThing(__originalMethod, __args);
+                if (droppedThing == null)
+                {
+                    return;
+                }
+
+                NotifyTransporterPawnStorageChanged(droppedThing);
+            }
+
+            private static Thing GetDroppedThing(MethodBase originalMethod, IReadOnlyList<object> args)
+            {
+                if (originalMethod == null || args == null)
+                {
+                    return null;
+                }
+
+                ParameterInfo[] parameters = originalMethod.GetParameters();
+                Thing inputThing = null;
+                Thing resultingThing = null;
+
+                for (int i = 0; i < parameters.Length && i < args.Count; i++)
+                {
+                    ParameterInfo parameter = parameters[i];
+                    object argument = args[i];
+
+                    if (argument is not Thing argumentThing)
+                    {
+                        continue;
+                    }
+
+                    if (parameter.ParameterType == typeof(Thing) && inputThing == null)
+                    {
+                        inputThing = argumentThing;
+                        continue;
+                    }
+
+                    if (parameter.ParameterType.IsByRef && parameter.ParameterType.GetElementType() == typeof(Thing))
+                    {
+                        resultingThing = argumentThing;
+                    }
+                }
+
+                return resultingThing ?? inputThing;
+            }
+        }
+
         private static void NotifyTransporterPawnStorageChanged(Thing thing)
         {
             Pawn pawn = GetPawn(thing);
