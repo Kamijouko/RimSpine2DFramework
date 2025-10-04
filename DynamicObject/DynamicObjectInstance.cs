@@ -38,34 +38,9 @@ namespace RimSpine2DFramework
         private Vector3 pawnPositionOffset;
         private bool pawnPositionOffsetInitialized;
 
-        private bool visibleWhileCarriedCached;
-        private bool visibleWhileStoredCached;
+        private bool VisibleWhileCarried => pawnStateController?.VisibleWhileCarried ?? false;
 
-        private bool VisibleWhileCarried
-        {
-            get
-            {
-                if (pawnStateController != null)
-                {
-                    visibleWhileCarriedCached = pawnStateController.VisibleWhileCarried;
-                }
-
-                return visibleWhileCarriedCached;
-            }
-        }
-
-        private bool VisibleWhileStored
-        {
-            get
-            {
-                if (pawnStateController != null)
-                {
-                    visibleWhileStoredCached = pawnStateController.VisibleWhileStored;
-                }
-
-                return visibleWhileStoredCached;
-            }
-        }
+        private bool VisibleWhileStored => pawnStateController?.VisibleWhileStored ?? false;
 
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
@@ -131,6 +106,7 @@ namespace RimSpine2DFramework
                 }
                 curPawn = null;
                 pawnPositionOffsetInitialized = false;
+                UpdateSkeletonVisibility(false);
             }
         }
 
@@ -396,7 +372,7 @@ namespace RimSpine2DFramework
 
             if (curPawn == null)
             {
-                return true;
+                return def != null;
             }
 
             Map currentMap = Find.CurrentMap;
