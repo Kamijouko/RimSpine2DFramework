@@ -195,41 +195,36 @@ namespace RimSpine2DFramework
             return false;
         }
 
-        internal bool TryGetCurrentDrawPosition(out Vector3 drawPosition)
+        internal bool TryGetCurrentDrawPosition(out Vector3 drawPosition, out Map drawMap, out bool shouldRender)
         {
             drawPosition = default;
+            drawMap = null;
+            shouldRender = false;
 
             if (curPawn == null)
             {
                 return false;
             }
 
-            if (ShouldSkipRenderingForThing(curPawn))
-            {
-                return false;
-            }
-
-            Map currentMap = Find.CurrentMap;
-
             if (!curPawn.DestroyedOrNull())
             {
                 if (!curPawn.Spawned || curPawn.ParentHolder != null)
                 {
-                    if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holder_Position, out Map holder_Map))
+                    if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holderPosition, out Map holderMap))
                     {
                         return false;
                     }
 
-                    if (currentMap == null || holder_Map != currentMap)
-                    {
-                        return false;
-                    }
-
-                    drawPosition = holder_Position;
-                    return true;
+                    drawPosition = holderPosition;
+                    drawMap = holderMap;
+                }
+                else
+                {
+                    drawPosition = curPawn.DrawPos;
+                    drawMap = curPawn.Map;
                 }
 
-                drawPosition = curPawn.DrawPos;
+                shouldRender = !ShouldSkipRenderingForThing(curPawn);
                 return true;
             }
 
@@ -240,43 +235,38 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            if (ShouldSkipRenderingForThing(corpse))
-            {
-                return false;
-            }
-
             if (corpse.Spawned)
             {
-                if (currentMap == null || corpse.Map != currentMap)
+                drawPosition = corpse.DrawPos;
+                drawMap = corpse.Map;
+            }
+            else
+            {
+                if (!TryGetHeldThingDrawInfo(corpse, out Vector3 holderPosition, out Map holderMap))
                 {
                     return false;
                 }
 
-                drawPosition = corpse.DrawPos;
-                return true;
+                drawPosition = holderPosition;
+                drawMap = holderMap;
             }
 
-            if (!TryGetHeldThingDrawInfo(corpse, out Vector3 holderPosition, out Map holderMap))
-            {
-                return false;
-            }
-
-            if (currentMap == null || holderMap != currentMap)
-            {
-                return false;
-            }
-
-            drawPosition = holderPosition;
+            shouldRender = !ShouldSkipRenderingForThing(corpse);
             return true;
         }
 
         internal void SyncWithPawnPosition()
         {
-            if (!TryGetCurrentDrawPosition(out Vector3 drawPosition))
+            if (!TryGetCurrentDrawPosition(out Vector3 drawPosition, out _, out _))
             {
                 return;
             }
 
+            ApplyDrawPosition(drawPosition);
+        }
+
+        private void ApplyDrawPosition(Vector3 drawPosition)
+        {
             if (!pawnPositionOffsetInitialized)
             {
                 pawnPositionOffset = position;
@@ -289,8 +279,15 @@ namespace RimSpine2DFramework
 
             if (curPawn != null && !curPawn.DestroyedOrNull())
             {
-                if (curPawn.Rotation == Rot4.East) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.6f);
-                if (curPawn.Rotation == Rot4.West) transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
+                if (curPawn.Rotation == Rot4.East)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.up), 0.6f);
+                }
+
+                if (curPawn.Rotation == Rot4.West)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(Vector3.forward, Vector3.down), 0.6f);
+                }
             }
         }
 
@@ -374,7 +371,7 @@ namespace RimSpine2DFramework
             AttachIdleCompletion(state.AddAnimation(0, def.idleAnimationName, def.loop, 0f));
         }
 
-        private bool ShouldRenderOnCurrentMap()
+        private bool ShouldRenderOnCurrentMap(bool hasDrawPosition, bool shouldRenderForThing, Map thingMap)
         {
             /*if (WorldRendererUtility.WorldSelected)
             {
@@ -391,54 +388,29 @@ namespace RimSpine2DFramework
                 return def != null;
             }
 
-            Map currentMap = Find.CurrentMap;
-
-            if (ShouldSkipRenderingForThing(curPawn))
+            if (!hasDrawPosition || !shouldRenderForThing)
             {
                 return false;
             }
 
+            Map currentMap = Find.CurrentMap;
+
             if (curPawn.DestroyedOrNull())
             {
-                Corpse corpse = curPawn.Corpse;
-
-                if (corpse == null)
+                if (thingMap == null || currentMap == null)
                 {
                     return false;
                 }
 
-                if (ShouldSkipRenderingForThing(corpse))
-                {
-                    return false;
-                }
-
-                Map corpseMap;
-
-                if (corpse.Spawned)
-                {
-                    corpseMap = corpse.Map;
-                }
-                else if (!TryGetHeldThingDrawInfo(corpse, out _, out corpseMap))
-                {
-                    return false;
-                }
-
-                if (currentMap == null || corpseMap == null)
-                {
-                    return false;
-                }
-
-                return corpseMap == currentMap;
+                return thingMap == currentMap;
             }
 
-            Map pawnMap = curPawn.MapHeld;
-
-            if (pawnMap == null || currentMap == null)
+            if (currentMap == null || thingMap == null)
             {
                 return true;
             }
 
-            return pawnMap == currentMap;
+            return thingMap == currentMap;
         }
 
         private bool ShouldSkipRenderingForThing(Thing thing)
@@ -487,11 +459,6 @@ namespace RimSpine2DFramework
 
             if (holder is Pawn_CarryTracker carryTracker)
             {
-                if (!VisibleWhileCarried)
-                {
-                    return false;
-                }
-
                 Pawn carrier = carryTracker.pawn;
 
                 if (carrier != null)
@@ -518,15 +485,6 @@ namespace RimSpine2DFramework
                 holderMap = mapHolder;
                 holderPosition = GetHeldThingFallbackPosition(thing);
                 return true;
-            }
-
-            if (IsStoredInHolder(holder) && !VisibleWhileStored)
-            {
-                // WorldObject holders (transport pods, shuttles, caravans, etc.) are treated as stored.
-                // Returning false here prevents drawing when ResolveRenderHolder resolves to a
-                // WorldObject, ensuring we respect visibility while stored for corpses and pawns
-                // travelling inside those containers.
-                return false;
             }
 
             if (holder is Thing holderThing)
@@ -784,7 +742,14 @@ namespace RimSpine2DFramework
 
         internal bool RefreshMapVisibility()
         {
-            bool shouldRender = ShouldRenderOnCurrentMap();
+            bool hasDrawPosition = TryGetCurrentDrawPosition(out Vector3 drawPosition, out Map drawMap, out bool shouldRenderForThing);
+
+            if (hasDrawPosition)
+            {
+                ApplyDrawPosition(drawPosition);
+            }
+
+            bool shouldRender = ShouldRenderOnCurrentMap(hasDrawPosition, shouldRenderForThing, drawMap);
             UpdateSkeletonVisibility(shouldRender);
             return shouldRender;
         }
