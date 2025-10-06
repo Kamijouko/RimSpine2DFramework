@@ -208,7 +208,9 @@ namespace RimSpine2DFramework
 
             if (!curPawn.DestroyedOrNull())
             {
-                if (!curPawn.Spawned || curPawn.ParentHolder != null)
+                bool shouldUseHeldThingDrawInfo = !curPawn.Spawned || IsHeldByNonMapParentHolder(curPawn);
+
+                if (shouldUseHeldThingDrawInfo)
                 {
                     if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holderPosition, out Map holderMap))
                     {
@@ -438,6 +440,23 @@ namespace RimSpine2DFramework
             }
 
             return false;
+        }
+
+        private static bool IsHeldByNonMapParentHolder(Thing thing)
+        {
+            if (thing == null)
+            {
+                return false;
+            }
+
+            IThingHolder parentHolder = thing.ParentHolder;
+
+            if (parentHolder == null)
+            {
+                return false;
+            }
+
+            return parentHolder is not Map;
         }
 
         private bool TryGetHeldThingDrawInfo(Thing thing, out Vector3 holderPosition, out Map holderMap)
