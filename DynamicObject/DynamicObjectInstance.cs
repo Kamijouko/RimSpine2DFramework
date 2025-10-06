@@ -215,17 +215,17 @@ namespace RimSpine2DFramework
             {
                 if (!curPawn.Spawned || curPawn.ParentHolder != null)
                 {
-                    if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holderPosition, out Map holderMap))
+                    if (!TryGetHeldThingDrawInfo(curPawn, out Vector3 holder_Position, out Map holder_Map))
                     {
                         return false;
                     }
 
-                    if (currentMap == null || holderMap != currentMap)
+                    if (currentMap == null || holder_Map != currentMap)
                     {
                         return false;
                     }
 
-                    drawPosition = holderPosition;
+                    drawPosition = holder_Position;
                     return true;
                 }
 
