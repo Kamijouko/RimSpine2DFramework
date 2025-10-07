@@ -59,6 +59,7 @@ namespace RimSpine2DFramework
             {
                 LoadAndResolveAllDynamicDefs();
                 ResolveAllStoryTellerCameras();
+                HumanlikeThinkTreeLibrary.PopulateHumanlikeThinkTrees();
                 ModStaticMethod.message = "loaded";
                 ModStaticMethod.AllLevelsLoaded = true;
                 //Log.Warning(ModStaticMethod.message);
