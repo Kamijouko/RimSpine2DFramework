@@ -28,6 +28,7 @@ namespace RimSpine2DFramework
 
         public static Dictionary<string, GameObject> DynamicPawnDatabase = new Dictionary<string, GameObject>();
 
+        public static Dictionary<string, ThinkTreeDef> tmpThinkTreeDatabase = new Dictionary<string, ThinkTreeDef>();
         public static Dictionary<string, ThingDef> tmpRaceDatabase = new Dictionary<string, ThingDef>();
         public static Dictionary<string, PawnKindDef> tmpPawnKindDatabase = new Dictionary<string, PawnKindDef>();
     }
