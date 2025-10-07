@@ -456,7 +456,7 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            return parentHolder is not Map;
+            return !(parentHolder is Map);
         }
 
         private bool TryGetHeldThingDrawInfo(Thing thing, out Vector3 holderPosition, out Map holderMap)

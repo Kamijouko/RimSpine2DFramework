@@ -27,5 +27,8 @@ namespace RimSpine2DFramework
         public static string lastChosenStoryTeller = null;
 
         public static Dictionary<string, GameObject> DynamicPawnDatabase = new Dictionary<string, GameObject>();
+
+        public static Dictionary<string, ThingDef> tmpRaceDatabase = new Dictionary<string, ThingDef>();
+        public static Dictionary<string, PawnKindDef> tmpPawnKindDatabase = new Dictionary<string, PawnKindDef>();
     }
 }
