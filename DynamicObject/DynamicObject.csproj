@@ -377,7 +377,6 @@
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
     <Compile Include="DynamicObjectPlanDef.cs" />
-    <Compile Include="EmbeddedDefDatabase.cs" />
     <Compile Include="DynamicPawnStateController.cs" />
     <Compile Include="DynamicPawnStateMachineDef.cs" />
     <Compile Include="DynamicPawnStateRegistry.cs" />
