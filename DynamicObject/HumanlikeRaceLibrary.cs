@@ -13,13 +13,13 @@ namespace RimSpine2DFramework
         private const string EmbeddedRaceXml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <Defs>
 
-  <ThingDef ParentName=""BasePawn"" Name=""SpecialAMYThingBase"" Abstract=""True"">
+  <ThingDef ParentName=""BasePawn"" Name=""SpecialAMYThingBasea"" Abstract=""True"">
     <statBases>
       <LeatherAmount>0</LeatherAmount>
       <ToxicResistance>1</ToxicResistance>
     </statBases>
     <race>
-      <thinkTreeMain>TerraHumanlike</thinkTreeMain>
+      <thinkTreeMain>Humanlike</thinkTreeMain>
       <thinkTreeConstant>AnimalConstant</thinkTreeConstant>
       <hasGenders>false</hasGenders>
       <nameGenerator>NamerAnimalGenericMale</nameGenerator>
@@ -66,7 +66,7 @@ namespace RimSpine2DFramework
     </comps>
   </ThingDef>
 
-  <ThingDef Abstract=""True"" ParentName=""SpecialAMYThingBase"" Name=""BaseAMY"">
+  <ThingDef Abstract=""True"" ParentName=""SpecialAMYThingBasea"" Name=""BaseAMYa"">
     <devNote>squirrel-1</devNote>
     <statBases>
       <MoveSpeed>3.0</MoveSpeed>
@@ -157,8 +157,8 @@ namespace RimSpine2DFramework
     </race>
   </ThingDef>
 
-  <ThingDef ParentName=""BaseAMY"">
-    <defName>AmiyaFurnacesFinale_Race</defName>
+  <ThingDef ParentName=""BaseAMYa"">
+    <defName>AmiyaFurnacesFinale_Racea</defName>
     <label>“阿米娅”，炉芯终曲</label>
     <description>存在于每个故事尽头，带走每位角色，封闭每种可能，停止每段讲述。它是对终结的想象，亦是所有想象的终结，它是一切，唯独不是你熟悉的人。</description>
     <uiIconScale>1.5</uiIconScale>
