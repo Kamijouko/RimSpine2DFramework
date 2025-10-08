@@ -136,6 +136,12 @@ namespace RimSpine2DFramework
 
         private static readonly HashSet<string> RegisteredInheritanceAssets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        private static readonly Dictionary<string, string> KnownParentFilePaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            // Vanilla RimWorld abstract pawn base definition.
+            { "BasePawn", Path.Combine("Defs", "ThingDefs_Races", "Races_Humanlike.xml") }
+        };
+
         private static bool shortHashWarned;
 
         public EmbeddedDefLoader(EmbeddedDefDatabase database)
@@ -281,6 +287,40 @@ namespace RimSpine2DFramework
                     if (parentPack == null)
                     {
                         parentPack = locatedAsset?.Pack;
+                    }
+                }
+
+                if ((fullPath.NullOrEmpty() || !File.Exists(fullPath)) && KnownParentFilePaths.TryGetValue(parentName, out string knownRelativePath))
+                {
+                    ModContentPack candidatePack = parentPack;
+                    if (candidatePack == null)
+                    {
+                        foreach (ModContentPack pack in LoadedModManager.RunningModsListForReading)
+                        {
+                            if (pack == null || pack.RootDir.NullOrEmpty())
+                            {
+                                continue;
+                            }
+
+                            string prospective = Path.Combine(pack.RootDir, knownRelativePath);
+                            if (!File.Exists(prospective))
+                            {
+                                continue;
+                            }
+
+                            candidatePack = pack;
+                            break;
+                        }
+                    }
+
+                    if (candidatePack != null)
+                    {
+                        string candidatePath = Path.Combine(candidatePack.RootDir, knownRelativePath);
+                        if (File.Exists(candidatePath))
+                        {
+                            fullPath = candidatePath;
+                            parentPack = candidatePack;
+                        }
                     }
                 }
 
