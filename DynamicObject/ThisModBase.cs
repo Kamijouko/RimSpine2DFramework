@@ -57,12 +57,9 @@ namespace RimSpine2DFramework
         {
             if (!ModStaticMethod.AllLevelsLoaded)
             {
-                var embeddedDatabase = new EmbeddedDefDatabase();
-                var embeddedLoader = new EmbeddedDefLoader(embeddedDatabase);
-
                 LoadAndResolveAllDynamicDefs();
                 ResolveAllStoryTellerCameras();
-                HumanlikeThinkTreeLibrary.PopulateTerraHumanlikeThinkTrees(embeddedLoader, embeddedDatabase);
+                HumanlikeThinkTreeLibrary.PopulateTerraHumanlikeThinkTrees();
                 ModStaticMethod.message = "loaded";
                 ModStaticMethod.AllLevelsLoaded = true;
                 //Log.Warning(ModStaticMethod.message);
