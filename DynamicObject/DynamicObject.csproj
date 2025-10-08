@@ -382,6 +382,7 @@
     <Compile Include="DynamicPawnStateRegistry.cs" />
     <Compile Include="DynamicStoryTellerDef.cs" />
     <Compile Include="HarmonyMain.cs" />
+    <Compile Include="HumanlikeRaceLibrary.cs" />
     <Compile Include="HumanlikeThinkTreeLibrary.cs" />
     <Compile Include="IncidentWorker_AggressiveOriginiumSlug.cs" />
     <Compile Include="PawnStateHarmonyPatches.cs" />

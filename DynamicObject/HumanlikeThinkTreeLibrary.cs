@@ -478,7 +478,7 @@ namespace RimSpine2DFramework
 
 </Defs>";
 
-        public static void PopulateHumanlikeThinkTrees()
+        public static void PopulateTerraHumanlikeThinkTrees()
         {
             var document = new XmlDocument();
             document.LoadXml(EmbeddedThinkTreesXml);
@@ -581,7 +581,8 @@ namespace RimSpine2DFramework
             int index = 0;
             foreach (XmlNode child in xmlSubNodes.ChildNodes)
             {
-                if (child is not XmlElement childElement || childElement.Name != "li")
+                XmlElement childElement = child as XmlElement;
+                if (childElement == null || childElement.Name != "li")
                 {
                     continue;
                 }
