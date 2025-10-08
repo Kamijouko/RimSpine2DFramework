@@ -135,10 +135,6 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            var loadableAsset = new LoadableXmlAsset(assetName ?? "Embedded", root.OuterXml);
-
-            TryRegisterInheritance(loadableAsset, modContentPack);
-
             foreach (XmlNode node in root.ChildNodes)
             {
                 if (!(node is XmlElement element))
@@ -146,7 +142,8 @@ namespace RimSpine2DFramework
                     continue;
                 }
 
-                Def def = DirectXmlLoader.DefFromNode(element, loadableAsset);
+                LoadableXmlAsset asset = new LoadableXmlAsset(assetName ?? "Embedded", element.OuterXml);
+                Def def = DirectXmlLoader.DefFromNode(element, asset);
                 if (def == null)
                 {
                     continue;
@@ -164,24 +161,6 @@ namespace RimSpine2DFramework
                         defsPushedToGlobal.Add(def);
                     }
                 }
-            }
-        }
-
-        private static void TryRegisterInheritance(LoadableXmlAsset asset, ModContentPack modContentPack)
-        {
-            if (asset == null)
-            {
-                return;
-            }
-
-            try
-            {
-                XmlInheritance.TryRegisterAllFrom(asset, modContentPack);
-                XmlInheritance.Resolve();
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"[RimSpine2DFramework] Failed to register XML inheritance for '{asset.name}': {ex}");
             }
         }
 
