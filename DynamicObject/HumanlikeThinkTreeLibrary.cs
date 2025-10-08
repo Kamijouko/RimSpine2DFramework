@@ -491,12 +491,15 @@ namespace RimSpine2DFramework
 
             foreach (XmlNode node in root.ChildNodes)
             {
-                XmlElement element = node as XmlElement;
-                if (node == null || element.Name != "ThinkTreeDef")
-                    if (element == null || element.Name != "ThinkTreeDef")
-                    {
-                        continue;
-                    }
+                if (node == null)
+                {
+                    continue;
+                }
+
+                if (!(node is XmlElement element) || element.Name != "ThinkTreeDef")
+                {
+                    continue;
+                }
                 try
                 {
                     LoadableXmlAsset asset = new LoadableXmlAsset("EmbeddedHumanlikeThinkTrees", node.OuterXml);
@@ -578,8 +581,7 @@ namespace RimSpine2DFramework
             int index = 0;
             foreach (XmlNode child in xmlSubNodes.ChildNodes)
             {
-                XmlElement childElement = child as XmlElement;
-                if (child == null || childElement.Name != "li")
+                if (child is not XmlElement childElement || childElement.Name != "li")
                 {
                     continue;
                 }
