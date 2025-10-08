@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Xml;
 using HarmonyLib;
@@ -107,9 +108,19 @@ namespace RimSpine2DFramework
 
         private static readonly FieldInfo ShortHashField = AccessTools.Field(typeof(Def), "shortHash");
 
+        private static readonly MethodInfo GetDefSilentFailMethod = AccessTools.Method(typeof(GenDefDatabase), "GetDefSilentFail", new[]
+        {
+            typeof(Type),
+            typeof(string),
+            typeof(bool)
+        });
+
         private static readonly ConcurrentDictionary<Type, HashSet<ushort>> ReservedShortHashes = new ConcurrentDictionary<Type, HashSet<ushort>>();
         private static readonly ConcurrentDictionary<Type, byte> ShortHashSnapshotFailures = new ConcurrentDictionary<Type, byte>();
         private static readonly ConcurrentDictionary<string, byte> GlobalDatabaseInvocationFailures = new ConcurrentDictionary<string, byte>();
+        private static readonly ConcurrentDictionary<string, byte> InheritanceRegistrationFailures = new ConcurrentDictionary<string, byte>();
+
+        private static readonly HashSet<string> RegisteredInheritanceAssets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private static bool shortHashWarned;
 
@@ -135,6 +146,10 @@ namespace RimSpine2DFramework
                 return;
             }
 
+            var loadableAsset = new LoadableXmlAsset(assetName ?? "Embedded", root.OuterXml);
+
+            TryRegisterInheritance(loadableAsset, root, modContentPack);
+
             foreach (XmlNode node in root.ChildNodes)
             {
                 if (!(node is XmlElement element))
@@ -142,8 +157,7 @@ namespace RimSpine2DFramework
                     continue;
                 }
 
-                LoadableXmlAsset asset = new LoadableXmlAsset(assetName ?? "Embedded", element.OuterXml);
-                Def def = DirectXmlLoader.DefFromNode(element, asset);
+                Def def = DirectXmlLoader.DefFromNode(element, loadableAsset);
                 if (def == null)
                 {
                     continue;
@@ -160,6 +174,127 @@ namespace RimSpine2DFramework
                     {
                         defsPushedToGlobal.Add(def);
                     }
+                }
+            }
+        }
+
+        private static void TryRegisterInheritance(LoadableXmlAsset asset, XmlElement rootElement, ModContentPack modContentPack)
+        {
+            if (asset == null || rootElement == null)
+            {
+                return;
+            }
+
+            try
+            {
+                EnsureExternalInheritance(rootElement);
+                XmlInheritance.TryRegisterAllFrom(asset, modContentPack);
+                XmlInheritance.Resolve();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[RimSpine2DFramework] Failed to register XML inheritance for '{asset.name}': {ex}");
+            }
+        }
+
+        private static void EnsureExternalInheritance(XmlElement rootElement)
+        {
+            foreach (XmlNode node in rootElement.ChildNodes)
+            {
+                if (node is XmlElement element)
+                {
+                    string parentName = element.GetAttribute("ParentName");
+                    if (!parentName.NullOrEmpty())
+                    {
+                        Type defType = GenTypes.GetTypeInAnyAssembly(element.Name, null);
+                        if (defType != null && typeof(Def).IsAssignableFrom(defType))
+                        {
+                            TryRegisterParentAsset(defType, parentName);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void TryRegisterParentAsset(Type defType, string parentName)
+        {
+            if (GetDefSilentFailMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                ParameterInfo[] parameters = GetDefSilentFailMethod.GetParameters();
+                object[] args;
+                if (parameters.Length == 2)
+                {
+                    args = new object[] { defType, parentName };
+                }
+                else
+                {
+                    args = new object[] { defType, parentName, false };
+                }
+
+                object parentObj = GetDefSilentFailMethod.Invoke(null, args);
+                if (!(parentObj is Def parentDef))
+                {
+                    return;
+                }
+
+                ModContentPack parentPack = parentDef.modContentPack;
+                string parentFile = parentDef.fileName;
+                if (parentPack == null || parentFile.NullOrEmpty())
+                {
+                    return;
+                }
+
+                string fullPath = Path.Combine(parentPack.RootDir, parentFile);
+                string normalizedPath;
+                try
+                {
+                    normalizedPath = Path.GetFullPath(fullPath);
+                }
+                catch (Exception)
+                {
+                    normalizedPath = fullPath;
+                }
+
+                lock (RegisteredInheritanceAssets)
+                {
+                    if (!RegisteredInheritanceAssets.Add(normalizedPath))
+                    {
+                        return;
+                    }
+                }
+
+                if (!File.Exists(normalizedPath))
+                {
+                    if (InheritanceRegistrationFailures.TryAdd(normalizedPath, 0))
+                    {
+                        Log.Warning($"[RimSpine2DFramework] Unable to locate XML file '{normalizedPath}' for parent def '{parentName}'.");
+                    }
+                    return;
+                }
+
+                var parentDocument = new XmlDocument();
+                parentDocument.Load(normalizedPath);
+                XmlElement parentRoot = parentDocument.DocumentElement;
+                if (parentRoot == null)
+                {
+                    return;
+                }
+
+                EnsureExternalInheritance(parentRoot);
+
+                var parentAsset = new LoadableXmlAsset(parentFile, parentRoot.OuterXml);
+                XmlInheritance.TryRegisterAllFrom(parentAsset, parentPack);
+            }
+            catch (Exception ex)
+            {
+                if (InheritanceRegistrationFailures.TryAdd($"{defType.FullName}:{parentName}", 0))
+                {
+                    Log.Warning($"[RimSpine2DFramework] Failed to register inheritance parent '{parentName}' of type '{defType.FullName}': {ex.Message}");
                 }
             }
         }
