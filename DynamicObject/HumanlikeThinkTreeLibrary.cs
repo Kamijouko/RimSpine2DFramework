@@ -581,8 +581,7 @@ namespace RimSpine2DFramework
             int index = 0;
             foreach (XmlNode child in xmlSubNodes.ChildNodes)
             {
-                XmlElement childElement = child as XmlElement;
-                if (child == null || childElement.Name != "li")
+                if (child is not XmlElement childElement || childElement.Name != "li")
                 {
                     continue;
                 }
