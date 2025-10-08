@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Xml;
 using RimWorld;
 using Verse;
@@ -489,133 +488,33 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            foreach (XmlNode node in root.ChildNodes)
+            var database = new EmbeddedDefDatabase();
+            var loader = new EmbeddedDefLoader(database);
+
+            try
             {
-                if (node == null)
-                {
-                    continue;
-                }
+                loader.LoadFromXmlDocument(document, "EmbeddedHumanlikeThinkTrees", ModStaticMethod.ThisMod?.Content, true);
+                loader.FinalizeLoading();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[RimSpine2DFramework] Failed to load embedded humanlike think trees: {ex}");
+            }
+            finally
+            {
+                loader.RevertGlobalRegistrations();
+            }
 
-                if (!(node is XmlElement element) || element.Name != "ThinkTreeDef")
+            foreach (var def in database.AllDefs())
+            {
+                if (def is ThinkTreeDef thinkTreeDef)
                 {
-                    continue;
-                }
-                try
-                {
-                    LoadableXmlAsset asset = new LoadableXmlAsset("EmbeddedHumanlikeThinkTrees", node.OuterXml);
-
-                    ThinkTreeDef def = (ThinkTreeDef)DirectXmlLoader.DefFromNode(element, asset);
-                    def.fileName = "EmbeddedHumanlikeThinkTrees";
-                    def.modContentPack = ModStaticMethod.ThisMod?.Content;
-                    def.PostLoad();
-                    ManualResolveSubtrees(def.thinkRoot, element["thinkRoot"], def.defName);
-                    def.ResolveReferences();
-
-                    ModDynamicObjectManager.tmpThinkTreeDatabase[def.defName] = def;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning($"{ex}");
+                    ModDynamicObjectManager.tmpThinkTreeDatabase[thinkTreeDef.defName] = thinkTreeDef;
                 }
             }
         }
 
         public static bool TryGetHumanlikeThinkTree(string defName, out ThinkTreeDef def) =>
             ModDynamicObjectManager.tmpThinkTreeDatabase.TryGetValue(defName, out def);
-
-        private static readonly Action<ThinkNode_Subtree, ThinkTreeDef> TreeDefAssigner = CreateTreeDefAssigner();
-        private static bool treeDefAssignerWarned;
-
-        private static void ManualResolveSubtrees(ThinkNode node, XmlElement xmlElement, string owningDefName)
-        {
-            if (node == null || xmlElement == null)
-            {
-                return;
-            }
-
-            if (node is ThinkNode_Subtree subtree)
-            {
-                var treeDefElement = xmlElement["treeDef"];
-                if (treeDefElement != null)
-                {
-                    var referencedName = treeDefElement.InnerText.Trim();
-                    if (!referencedName.NullOrEmpty())
-                    {
-                        var referencedDef = DefDatabase<ThinkTreeDef>.GetNamedSilentFail(referencedName);
-                        if (referencedDef == null)
-                        {
-                            ModDynamicObjectManager.tmpThinkTreeDatabase.TryGetValue(referencedName, out referencedDef);
-                        }
-
-                        if (referencedDef != null)
-                        {
-                            if (TreeDefAssigner != null)
-                            {
-                                TreeDefAssigner(subtree, referencedDef);
-                            }
-                            else if (!treeDefAssignerWarned)
-                            {
-                                treeDefAssignerWarned = true;
-                                Log.Warning($"[RimSpine2DFramework] Unable to assign treeDef for ThinkNode_Subtree when building '{owningDefName}'.");
-                            }
-                        }
-                        else
-                        {
-                            Log.Warning($"[RimSpine2DFramework] Failed to resolve ThinkTreeDef '{referencedName}' for embedded think tree '{owningDefName}'.");
-                        }
-                    }
-                }
-            }
-
-            if (node.subNodes == null || node.subNodes.Count == 0)
-            {
-                return;
-            }
-
-            var xmlSubNodes = xmlElement["subNodes"];
-            if (xmlSubNodes == null)
-            {
-                return;
-            }
-
-            int index = 0;
-            foreach (XmlNode child in xmlSubNodes.ChildNodes)
-            {
-                XmlElement childElement = child as XmlElement;
-                if (childElement == null || childElement.Name != "li")
-                {
-                    continue;
-                }
-
-                if (index >= node.subNodes.Count)
-                {
-                    break;
-                }
-
-                ManualResolveSubtrees(node.subNodes[index], childElement, owningDefName);
-                index++;
-            }
-        }
-
-        private static Action<ThinkNode_Subtree, ThinkTreeDef> CreateTreeDefAssigner()
-        {
-            var subtreeType = typeof(ThinkNode_Subtree);
-
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-            var property = subtreeType.GetProperty("treeDef", flags);
-            if (property?.GetSetMethod(true) is MethodInfo setter)
-            {
-                return (subtree, def) => setter.Invoke(subtree, new object[] { def });
-            }
-
-            var field = subtreeType.GetField("treeDef", flags) ?? subtreeType.GetField("treeDefInt", flags);
-            if (field != null)
-            {
-                return (subtree, def) => field.SetValue(subtree, def);
-            }
-
-            return null;
-        }
     }
 }
