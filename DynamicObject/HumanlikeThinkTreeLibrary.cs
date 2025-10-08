@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System;
+using System.Security.Cryptography;
+using System.Xml;
 using RimWorld;
 using Verse;
 
@@ -473,60 +475,6 @@ namespace RimSpine2DFramework
     </thinkRoot>
   </ThinkTreeDef>
 
-  <ThinkTreeDef>
-    <defName>HumanlikeConstant</defName>
-    <thinkRoot Class=""ThinkNode_Priority"">
-      <subNodes>
-        <!-- Despawned -->
-        <li Class=""ThinkNode_Subtree"">
-          <treeDef>Despawned</treeDef>
-        </li>
-
-        <li Class=""ThinkNode_ConditionalCanDoConstantThinkTreeJobNow"">
-          <subNodes>
-            <!-- Flee explosion -->
-            <li Class=""JobGiver_FleePotentialExplosion"" />
-
-            <!-- Avoid vacuums -->
-            <li Class=""JobGiver_FindOxygen"" />
-
-            <!-- Board/leave gravship -->
-            <li Class=""JobGiver_BoardOrLeaveGravship"" />
-
-            <!-- Join auto joinable caravan -->
-            <li Class=""ThinkNode_Subtree"">
-              <treeDef>JoinAutoJoinableCaravan</treeDef>
-            </li>
-
-            <!-- Hostility response -->
-            <li Class=""JobGiver_ConfigurableHostilityResponse"" />
-
-            <!-- Stop crawling -->
-            <li Class=""ThinkNode_ConditionalIsCrawling"">
-              <subNodes>
-                <li Class=""ThinkNode_ConditionalCanCrawl"">
-                  <invert>true</invert>
-                  <subNodes>
-                    <li Class=""JobGiver_IdleForever""/>
-                  </subNodes>
-                </li>
-              </subNodes>
-            </li>
-          </subNodes>
-        </li>
-
-        <li Class=""ThinkNode_ConditionalCanDoLordJobNow"">
-          <subNodes>
-            <!-- Lord directives -->
-            <li Class=""ThinkNode_Subtree"">
-              <treeDef>LordDutyConstant</treeDef>
-            </li>
-          </subNodes>
-        </li>
-      </subNodes>
-    </thinkRoot>
-  </ThinkTreeDef>
-
 </Defs>";
 
         public static void PopulateHumanlikeThinkTrees()
@@ -547,15 +495,22 @@ namespace RimSpine2DFramework
                 {
                     continue;
                 }
-                LoadableXmlAsset asset = new LoadableXmlAsset("EmbeddedHumanlikeThinkTrees", element.InnerText);
+                try
+                {
+                    LoadableXmlAsset asset = new LoadableXmlAsset("EmbeddedHumanlikeThinkTrees", node.OuterXml);
 
-                ThinkTreeDef def = (ThinkTreeDef)DirectXmlLoader.DefFromNode(element, asset);
-                def.fileName = "EmbeddedHumanlikeThinkTrees";
-                def.modContentPack = ModStaticMethod.ThisMod?.Content;
-                def.PostLoad();
-                def.ResolveReferences();
+                    ThinkTreeDef def = (ThinkTreeDef)DirectXmlLoader.DefFromNode(element, asset);
+                    def.fileName = "EmbeddedHumanlikeThinkTrees";
+                    def.modContentPack = ModStaticMethod.ThisMod?.Content;
+                    def.PostLoad();
+                    def.ResolveReferences();
 
-                ModDynamicObjectManager.tmpThinkTreeDatabase[def.defName] = def;
+                    ModDynamicObjectManager.tmpThinkTreeDatabase[def.defName] = def;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning($"{ex}");
+                }
             }
         }
 
