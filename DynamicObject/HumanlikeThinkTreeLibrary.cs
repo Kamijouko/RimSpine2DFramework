@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Security.Cryptography;
 using System.Xml;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace RimSpine2DFramework
 {
@@ -503,6 +503,7 @@ namespace RimSpine2DFramework
                     def.fileName = "EmbeddedHumanlikeThinkTrees";
                     def.modContentPack = ModStaticMethod.ThisMod?.Content;
                     def.PostLoad();
+                    ManualResolveSubtrees(def.thinkRoot, element["thinkRoot"], def.defName);
                     def.ResolveReferences();
 
                     ModDynamicObjectManager.tmpThinkTreeDatabase[def.defName] = def;
@@ -516,5 +517,67 @@ namespace RimSpine2DFramework
 
         public static bool TryGetHumanlikeThinkTree(string defName, out ThinkTreeDef def) =>
             ModDynamicObjectManager.tmpThinkTreeDatabase.TryGetValue(defName, out def);
+
+        private static void ManualResolveSubtrees(ThinkNode node, XmlElement xmlElement, string owningDefName)
+        {
+            if (node == null || xmlElement == null)
+            {
+                return;
+            }
+
+            if (node is ThinkNode_Subtree subtree)
+            {
+                var treeDefElement = xmlElement["treeDef"];
+                if (treeDefElement != null)
+                {
+                    var referencedName = treeDefElement.InnerText.Trim();
+                    if (!referencedName.NullOrEmpty())
+                    {
+                        var referencedDef = DefDatabase<ThinkTreeDef>.GetNamedSilentFail(referencedName);
+                        if (referencedDef == null)
+                        {
+                            ModDynamicObjectManager.tmpThinkTreeDatabase.TryGetValue(referencedName, out referencedDef);
+                        }
+
+                        if (referencedDef != null)
+                        {
+                            subtree.treeDef = referencedDef;
+                        }
+                        else
+                        {
+                            Log.Warning($"[RimSpine2DFramework] Failed to resolve ThinkTreeDef '{referencedName}' for embedded think tree '{owningDefName}'.");
+                        }
+                    }
+                }
+            }
+
+            if (node.subNodes == null || node.subNodes.Count == 0)
+            {
+                return;
+            }
+
+            var xmlSubNodes = xmlElement["subNodes"];
+            if (xmlSubNodes == null)
+            {
+                return;
+            }
+
+            int index = 0;
+            foreach (XmlNode child in xmlSubNodes.ChildNodes)
+            {
+                if (child is not XmlElement childElement || childElement.Name != "li")
+                {
+                    continue;
+                }
+
+                if (index >= node.subNodes.Count)
+                {
+                    break;
+                }
+
+                ManualResolveSubtrees(node.subNodes[index], childElement, owningDefName);
+                index++;
+            }
+        }
     }
 }
