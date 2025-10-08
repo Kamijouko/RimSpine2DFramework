@@ -371,17 +371,28 @@ namespace RimSpine2DFramework
             string cacheKey = $"{defType.FullName ?? defType.Name}:{parentName}";
             if (LocatedParentAssets.TryGetValue(cacheKey, out ParentAssetLocation cachedLocation))
             {
-                if (!cachedLocation?.Path.NullOrEmpty() && File.Exists(cachedLocation.Path))
+                if (cachedLocation != null)
                 {
-                    location = cachedLocation;
-                    return true;
+                    string cachedPath = cachedLocation.Path;
+                    if (!cachedPath.NullOrEmpty() && File.Exists(cachedPath))
+                    {
+                        location = cachedLocation;
+                        return true;
+                    }
                 }
+
                 return false;
             }
 
-            IEnumerable<ModContentPack> packsToScan = parentPack != null
-                ? new[] { parentPack }
-                : LoadedModManager.RunningModsListForReading;
+            IEnumerable<ModContentPack> packsToScan;
+            if (parentPack != null)
+            {
+                packsToScan = new[] { parentPack };
+            }
+            else
+            {
+                packsToScan = LoadedModManager.RunningModsListForReading;
+            }
 
             foreach (ModContentPack pack in packsToScan)
             {
