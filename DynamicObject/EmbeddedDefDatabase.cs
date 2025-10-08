@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Xml;
 using HarmonyLib;
@@ -107,9 +108,33 @@ namespace RimSpine2DFramework
 
         private static readonly FieldInfo ShortHashField = AccessTools.Field(typeof(Def), "shortHash");
 
+        private static readonly MethodInfo GetDefSilentFailMethod = AccessTools.Method(typeof(GenDefDatabase), "GetDefSilentFail", new[]
+        {
+            typeof(Type),
+            typeof(string),
+            typeof(bool)
+        });
+
         private static readonly ConcurrentDictionary<Type, HashSet<ushort>> ReservedShortHashes = new ConcurrentDictionary<Type, HashSet<ushort>>();
         private static readonly ConcurrentDictionary<Type, byte> ShortHashSnapshotFailures = new ConcurrentDictionary<Type, byte>();
         private static readonly ConcurrentDictionary<string, byte> GlobalDatabaseInvocationFailures = new ConcurrentDictionary<string, byte>();
+        private static readonly ConcurrentDictionary<string, byte> InheritanceRegistrationFailures = new ConcurrentDictionary<string, byte>();
+
+        private sealed class ParentAssetLocation
+        {
+            public string Path { get; }
+            public ModContentPack Pack { get; }
+
+            public ParentAssetLocation(string path, ModContentPack pack)
+            {
+                Path = path;
+                Pack = pack;
+            }
+        }
+
+        private static readonly ConcurrentDictionary<string, ParentAssetLocation> LocatedParentAssets = new ConcurrentDictionary<string, ParentAssetLocation>(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly HashSet<string> RegisteredInheritanceAssets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private static bool shortHashWarned;
 
@@ -135,6 +160,10 @@ namespace RimSpine2DFramework
                 return;
             }
 
+            var loadableAsset = new LoadableXmlAsset(assetName ?? "Embedded", root.OuterXml);
+
+            TryRegisterInheritance(loadableAsset, root, modContentPack);
+
             foreach (XmlNode node in root.ChildNodes)
             {
                 if (!(node is XmlElement element))
@@ -142,8 +171,7 @@ namespace RimSpine2DFramework
                     continue;
                 }
 
-                LoadableXmlAsset asset = new LoadableXmlAsset(assetName ?? "Embedded", element.OuterXml);
-                Def def = DirectXmlLoader.DefFromNode(element, asset);
+                Def def = DirectXmlLoader.DefFromNode(element, loadableAsset);
                 if (def == null)
                 {
                     continue;
@@ -162,6 +190,338 @@ namespace RimSpine2DFramework
                     }
                 }
             }
+        }
+
+        private static void TryRegisterInheritance(LoadableXmlAsset asset, XmlElement rootElement, ModContentPack modContentPack)
+        {
+            if (asset == null || rootElement == null)
+            {
+                return;
+            }
+
+            try
+            {
+                EnsureExternalInheritance(rootElement);
+                XmlInheritance.TryRegisterAllFrom(asset, modContentPack);
+                XmlInheritance.Resolve();
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[RimSpine2DFramework] Failed to register XML inheritance for '{asset.name}': {ex}");
+            }
+        }
+
+        private static void EnsureExternalInheritance(XmlElement rootElement)
+        {
+            foreach (XmlNode node in rootElement.ChildNodes)
+            {
+                if (node is XmlElement element)
+                {
+                    string parentName = element.GetAttribute("ParentName");
+                    if (!parentName.NullOrEmpty())
+                    {
+                        Type defType = GenTypes.GetTypeInAnyAssembly(element.Name, null);
+                        if (defType != null && typeof(Def).IsAssignableFrom(defType))
+                        {
+                            TryRegisterParentAsset(defType, parentName);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void TryRegisterParentAsset(Type defType, string parentName)
+        {
+            if (GetDefSilentFailMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                ParameterInfo[] parameters = GetDefSilentFailMethod.GetParameters();
+                object[] args;
+                if (parameters.Length == 2)
+                {
+                    args = new object[] { defType, parentName };
+                }
+                else
+                {
+                    args = new object[] { defType, parentName, false };
+                }
+
+                object parentObj = GetDefSilentFailMethod.Invoke(null, args);
+                if (!(parentObj is Def parentDef))
+                {
+                    return;
+                }
+
+                ModContentPack parentPack = parentDef.modContentPack;
+                string parentFile = parentDef.fileName;
+                string fullPath = null;
+
+                if (parentPack != null && !parentFile.NullOrEmpty())
+                {
+                    fullPath = Path.Combine(parentPack.RootDir, parentFile);
+                }
+
+                ParentAssetLocation locatedAsset = null;
+                if (fullPath.NullOrEmpty() || !File.Exists(fullPath))
+                {
+                    if (!TryLocateParentAsset(defType, parentName, parentPack, out locatedAsset))
+                    {
+                        if (InheritanceRegistrationFailures.TryAdd($"{defType.FullName}:{parentName}:Locate", 0))
+                        {
+                            Log.Warning($"[RimSpine2DFramework] Unable to locate XML source for parent '{parentName}' of type '{defType.FullName}'.");
+                        }
+                        return;
+                    }
+
+                    fullPath = locatedAsset?.Path;
+                    if (parentPack == null)
+                    {
+                        parentPack = locatedAsset?.Pack;
+                    }
+                }
+
+                if (fullPath.NullOrEmpty())
+                {
+                    if (InheritanceRegistrationFailures.TryAdd($"{defType.FullName}:{parentName}:Path", 0))
+                    {
+                        Log.Warning($"[RimSpine2DFramework] Parent '{parentName}' of type '{defType.FullName}' does not reference a readable XML file.");
+                    }
+                    return;
+                }
+
+                if (!File.Exists(fullPath))
+                {
+                    if (InheritanceRegistrationFailures.TryAdd($"{defType.FullName}:{parentName}:MissingFile", 0))
+                    {
+                        Log.Warning($"[RimSpine2DFramework] XML file '{fullPath}' for parent '{parentName}' of type '{defType.FullName}' cannot be read.");
+                    }
+                    return;
+                }
+
+                if (parentFile.NullOrEmpty())
+                {
+                    parentFile = Path.GetFileName(fullPath);
+                }
+
+                string normalizedPath;
+                try
+                {
+                    normalizedPath = Path.GetFullPath(fullPath);
+                }
+                catch (Exception)
+                {
+                    normalizedPath = fullPath;
+                }
+
+                lock (RegisteredInheritanceAssets)
+                {
+                    if (!RegisteredInheritanceAssets.Add(normalizedPath))
+                    {
+                        return;
+                    }
+                }
+
+                string cacheKey = $"{defType.FullName ?? defType.Name}:{parentName}";
+                LocatedParentAssets.TryAdd(cacheKey, new ParentAssetLocation(normalizedPath, parentPack));
+
+                var parentDocument = new XmlDocument();
+                parentDocument.Load(normalizedPath);
+                XmlElement parentRoot = parentDocument.DocumentElement;
+                if (parentRoot == null)
+                {
+                    return;
+                }
+
+                EnsureExternalInheritance(parentRoot);
+
+                string assetName = parentFile;
+                if (assetName.NullOrEmpty())
+                {
+                    assetName = Path.GetFileName(normalizedPath);
+                }
+                if (assetName.NullOrEmpty())
+                {
+                    assetName = "EmbeddedParent";
+                }
+
+                var parentAsset = new LoadableXmlAsset(assetName, parentRoot.OuterXml);
+                XmlInheritance.TryRegisterAllFrom(parentAsset, parentPack);
+            }
+            catch (Exception ex)
+            {
+                if (InheritanceRegistrationFailures.TryAdd($"{defType.FullName}:{parentName}", 0))
+                {
+                    Log.Warning($"[RimSpine2DFramework] Failed to register inheritance parent '{parentName}' of type '{defType.FullName}': {ex.Message}");
+                }
+            }
+        }
+
+        private static bool TryLocateParentAsset(Type defType, string parentName, ModContentPack parentPack, out ParentAssetLocation location)
+        {
+            location = null;
+            if (parentName.NullOrEmpty())
+            {
+                return false;
+            }
+
+            string cacheKey = $"{defType.FullName ?? defType.Name}:{parentName}";
+            if (LocatedParentAssets.TryGetValue(cacheKey, out ParentAssetLocation cachedLocation))
+            {
+                if (!cachedLocation?.Path.NullOrEmpty() && File.Exists(cachedLocation.Path))
+                {
+                    location = cachedLocation;
+                    return true;
+                }
+                return false;
+            }
+
+            IEnumerable<ModContentPack> packsToScan = parentPack != null
+                ? new[] { parentPack }
+                : LoadedModManager.RunningModsListForReading;
+
+            foreach (ModContentPack pack in packsToScan)
+            {
+                if (pack == null || pack.RootDir.NullOrEmpty())
+                {
+                    continue;
+                }
+
+                foreach (string file in SafeEnumerateXmlFiles(pack.RootDir))
+                {
+                    try
+                    {
+                        if (!TryRegisterParentFromFile(file, defType, parentName))
+                        {
+                            continue;
+                        }
+
+                        location = new ParentAssetLocation(file, pack);
+                        LocatedParentAssets[cacheKey] = location;
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (InheritanceRegistrationFailures.TryAdd(file, 0))
+                        {
+                            Log.Warning($"[RimSpine2DFramework] Failed scanning '{file}' for parent '{parentName}': {ex.Message}");
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<string> SafeEnumerateXmlFiles(string rootDir)
+        {
+            if (rootDir.NullOrEmpty())
+            {
+                yield break;
+            }
+
+            IEnumerator<string> enumerator;
+            try
+            {
+                enumerator = Directory.EnumerateFiles(rootDir, "*.xml", SearchOption.AllDirectories).GetEnumerator();
+            }
+            catch (Exception)
+            {
+                yield break;
+            }
+
+            using (enumerator)
+            {
+                while (true)
+                {
+                    bool movedNext;
+                    try
+                    {
+                        movedNext = enumerator.MoveNext();
+                    }
+                    catch (Exception)
+                    {
+                        yield break;
+                    }
+
+                    if (!movedNext)
+                    {
+                        yield break;
+                    }
+
+                    string current = enumerator.Current;
+                    if (!current.NullOrEmpty())
+                    {
+                        yield return current;
+                    }
+                }
+            }
+        }
+
+        private static bool TryRegisterParentFromFile(string filePath, Type defType, string parentName)
+        {
+            if (filePath.NullOrEmpty())
+            {
+                return false;
+            }
+
+            var document = new XmlDocument();
+            document.Load(filePath);
+
+            XmlElement root = document.DocumentElement;
+            if (root == null)
+            {
+                return false;
+            }
+
+            bool matches = false;
+
+            foreach (XmlNode node in root.ChildNodes)
+            {
+                if (node is XmlElement element && NodeMatchesInheritance(element, defType, parentName))
+                {
+                    matches = true;
+                    break;
+                }
+            }
+
+            if (!matches)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool NodeMatchesInheritance(XmlElement element, Type defType, string parentName)
+        {
+            if (!string.Equals(element.Name, defType.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string nameAttribute = element.GetAttribute("Name");
+            if (!nameAttribute.NullOrEmpty() && string.Equals(nameAttribute, parentName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            foreach (XmlNode child in element.ChildNodes)
+            {
+                if (child is XmlElement childElement && string.Equals(childElement.Name, "defName", StringComparison.OrdinalIgnoreCase))
+                {
+                    string innerText = childElement.InnerText.Trim();
+                    if (string.Equals(innerText, parentName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
