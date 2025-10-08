@@ -169,8 +169,18 @@ namespace RimSpine2DFramework
   </ThingDef>
 </Defs>";
 
-        public static void PopulateTerraHumanlikeRaces()
+        public static void PopulateTerraHumanlikeRaces(EmbeddedDefLoader loader, EmbeddedDefDatabase database)
         {
+            if (loader == null)
+            {
+                throw new ArgumentNullException(nameof(loader));
+            }
+
+            if (database == null)
+            {
+                throw new ArgumentNullException(nameof(database));
+            }
+
             var document = new XmlDocument();
             document.LoadXml(EmbeddedRaceXml);
 
@@ -180,34 +190,31 @@ namespace RimSpine2DFramework
                 return;
             }
 
-            foreach (XmlNode node in root.ChildNodes)
+            try
             {
-                if (node == null)
-                {
-                    continue;
-                }
+                loader.LoadFromXmlDocument(document, "EmbeddedHumanlikeRaces", ModStaticMethod.ThisMod?.Content, true);
+                loader.FinalizeLoading();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[RimSpine2DFramework] Failed to load embedded humanlike races: {ex}");
+            }
+            finally
+            {
+                loader.RevertGlobalRegistrations();
+            }
 
-                if (!(node is XmlElement element) || element.Name != "ThingDef")
+            foreach (var def in database.AllDefs())
+            {
+                if (def is ThingDef thingDef)
                 {
-                    continue;
-                }
-                try
-                {
-                    LoadableXmlAsset asset = new LoadableXmlAsset("EmbeddedRace", node.OuterXml);
-
-                    ThingDef def = (ThingDef)DirectXmlLoader.DefFromNode(element, asset);
-                    def.fileName = "EmbeddedRace";
-                    def.modContentPack = ModStaticMethod.ThisMod?.Content;
-                    def.PostLoad();
-                    def.ResolveReferences();
-
-                    ModDynamicObjectManager.tmpRaceDatabase[def.defName] = def;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning($"{ex}");
+                    ModDynamicObjectManager.tmpRaceDatabase[thingDef.defName] = thingDef;
+                    Log.Warning($"tmpRace: {def.defName}");
                 }
             }
         }
+
+        public static bool TryGetHumanlikeRace(string defName, out ThingDef def) =>
+            ModDynamicObjectManager.tmpRaceDatabase.TryGetValue(defName, out def);
     }
 }

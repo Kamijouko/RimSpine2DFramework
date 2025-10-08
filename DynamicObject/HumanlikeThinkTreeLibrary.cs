@@ -517,6 +517,7 @@ namespace RimSpine2DFramework
                 if (def is ThinkTreeDef thinkTreeDef)
                 {
                     ModDynamicObjectManager.tmpThinkTreeDatabase[thinkTreeDef.defName] = thinkTreeDef;
+                    Log.Warning($"tmpThinkTree: {def.defName}");
                 }
             }
         }

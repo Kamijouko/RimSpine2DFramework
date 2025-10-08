@@ -254,6 +254,7 @@ namespace RimSpine2DFramework
                         }
                     }
                 }
+                return false;
             }
             catch (Exception ex)
             {
