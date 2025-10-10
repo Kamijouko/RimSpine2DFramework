@@ -63,6 +63,10 @@ namespace RimSpine2DFramework
             instance.AttachPawn(pawn);
             instance.AttachStateController(this);
             instance.ApplyPawnSkeletonSettings(definition?.skeleton);
+            if (BlockMouseTargeting)
+            {
+                DynamicPawnSelectionWrapper.Wrap(pawn).BlockMouseTargeting = true;
+            }
         }
 
         public DynamicObjectInstance Instance => instance;
@@ -76,6 +80,8 @@ namespace RimSpine2DFramework
         public bool VisibleWhileCarried => definition?.visibleWhileCarried ?? false;
 
         public bool VisibleWhileStored => definition?.visibleWhileStored ?? false;
+
+        public bool BlockMouseTargeting => definition?.blockMouseTargeting == true;
 
         public bool ShouldRenderWhilePawnDestroyed
         {
@@ -106,6 +112,7 @@ namespace RimSpine2DFramework
             instance.DetachPawn(this.Pawn);
             instance.DetachStateController(this);
             instance.ClearPawnSkeletonSettings();
+            DynamicPawnSelectionWrapper.Clear(this.Pawn);
             DynamicPawnStateRegistry.NotifyControllerDisposed(this);
         }
 

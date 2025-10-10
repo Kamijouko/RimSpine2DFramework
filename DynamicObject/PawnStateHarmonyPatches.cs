@@ -646,8 +646,64 @@ namespace RimSpine2DFramework
                 {
                     return;
                 }
-                Log.Warning("patched");
                 DynamicPawnStateRegistry.NotifyPawnResurrected(pawn);
+            }
+        }
+
+        [HarmonyPatch]
+        private static class TargetingParameters_CanTarget_Patch
+        {
+            private static IEnumerable<MethodBase> TargetMethods()
+            {
+                Type type = typeof(TargetingParameters);
+                string methodName = nameof(TargetingParameters.CanTarget);
+
+                Type[][] signatures =
+                {
+                    new[] { typeof(Thing) },
+                    new[] { typeof(LocalTargetInfo) },
+                    new[] { typeof(GlobalTargetInfo) }
+                };
+
+                foreach (Type[] signature in signatures)
+                {
+                    MethodInfo method = AccessTools.Method(type, methodName, signature);
+                    if (method != null)
+                    {
+                        yield return method;
+                    }
+                }
+            }
+
+            private static bool Prefix(object __0, ref bool __result)
+            {
+                Pawn pawn = null;
+
+                switch (__0)
+                {
+                    case Thing thing:
+                        pawn = GetPawn(thing);
+                        break;
+                    case LocalTargetInfo localTarget:
+                        pawn = GetPawn(localTarget.Thing);
+                        break;
+                    case GlobalTargetInfo globalTarget:
+                        pawn = GetPawn(globalTarget.Thing);
+                        break;
+                }
+
+                if (pawn == null)
+                {
+                    return true;
+                }
+
+                if (!DynamicPawnSelectionWrapper.ShouldBlock(pawn))
+                {
+                    return true;
+                }
+
+                __result = false;
+                return false;
             }
         }
     }
