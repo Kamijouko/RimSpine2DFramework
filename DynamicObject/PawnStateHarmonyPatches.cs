@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 using Verse.AI;
 
@@ -661,6 +662,7 @@ namespace RimSpine2DFramework
                 Type[][] signatures =
                 {
                     new[] { typeof(Thing) },
+                    new[] { typeof(TargetInfo) },
                     new[] { typeof(LocalTargetInfo) },
                     new[] { typeof(GlobalTargetInfo) }
                 };
