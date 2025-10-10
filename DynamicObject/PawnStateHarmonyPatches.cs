@@ -659,22 +659,42 @@ namespace RimSpine2DFramework
                 Type type = typeof(TargetingParameters);
                 string methodName = nameof(TargetingParameters.CanTarget);
 
-                Type[][] signatures =
+                Type[] supportedFirstParameterTypes =
                 {
-                    new[] { typeof(Thing) },
-                    new[] { typeof(TargetInfo) },
-                    new[] { typeof(LocalTargetInfo) },
-                    new[] { typeof(GlobalTargetInfo) }
+                    typeof(Thing),
+                    typeof(TargetInfo),
+                    typeof(LocalTargetInfo),
+                    typeof(GlobalTargetInfo)
                 };
 
-                foreach (Type[] signature in signatures)
-                {
-                    MethodInfo method = AccessTools.Method(type, methodName, signature);
-                    if (method != null)
+                List<MethodBase> methods = AccessTools
+                    .GetDeclaredMethods(type)
+                    .Where(method => method.Name == methodName)
+                    .Where(method => method.ReturnType == typeof(bool))
+                    .Where(method =>
                     {
-                        yield return method;
-                    }
+                        ParameterInfo[] parameters = method.GetParameters();
+                        if (parameters.Length == 0)
+                        {
+                            return false;
+                        }
+
+                        Type firstParameterType = parameters[0].ParameterType;
+                        if (firstParameterType.IsByRef)
+                        {
+                            firstParameterType = firstParameterType.GetElementType();
+                        }
+                        return supportedFirstParameterTypes.Any(supportedType => supportedType.IsAssignableFrom(firstParameterType));
+                    })
+                    .Cast<MethodBase>()
+                    .ToList();
+
+                if (methods.Count == 0)
+                {
+                    Log.Warning("[RimSpine2DFramework] Failed to find TargetingParameters.CanTarget overloads to patch. Some dynamic pawn selection features may not work as expected.");
                 }
+
+                return methods;
             }
 
             private static bool Prefix(object __0, ref bool __result)
