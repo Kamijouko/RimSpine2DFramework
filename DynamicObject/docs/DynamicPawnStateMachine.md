@@ -48,7 +48,7 @@ skeleton：PawnSkeletonSettings 默认骨架参数，在控制器构造时应用
 
 hideVanillaPawn：布尔开关，默认为 `false`。当设置为 `true` 时，状态机控制器会阻止原版 `PawnRenderer` 绘制该 Pawn，仅保留 Spine 动态模型，适用于完全替换原模型的场景。
 
-blockMouseTargeting：布尔开关，默认为 `false`。当设置为 `true` 时，会给对应的 Pawn 注册一个“鼠标选取拦截器”，阻止 RimWorld 的目标选取系统在鼠标拾取目标时把该 Pawn 当作合法的 `Thing` 目标，从而避免被动弹窗、技能指向等鼠标参数选择操作选中它。设计细节与使用建议参见《DynamicPawnSelectionWrapper 设计说明》文档。
+blockMouseTargeting：布尔开关，默认为 `false`。当设置为 `true` 时，会给对应的 Pawn 注册一个“鼠标选取拦截器”，阻止 RimWorld 的目标选取系统在鼠标拾取目标时把该 Pawn 当作合法的目标（覆盖 `TargetingParameters.CanTarget` 的多个常见重载），从而避免被动弹窗、技能指向等鼠标参数选择操作选中它。设计细节与使用建议参见《DynamicPawnSelectionWrapper 设计说明》文档。
 
 PawnBinding 字段
 pawnKinds / factions：限制绑定到特定 PawnKind 或阵营；如果列表为空则不限制，对应条件不满足时 Matches 会返回 false。

@@ -13,8 +13,8 @@
    - 采用 `ConditionalWeakTable<Pawn, DynamicPawnSelectionWrapper>` 保存包装器，以避免显式管理生命周期。只要 Pawn 被 GC 清理或我们手动 `Clear`，记录就会自动消失。
 
 3. **补丁切入点**：
-   - RimWorld 内部在执行各种鼠标指向/参数选择操作时都会调用 `TargetingParameters.CanTarget(Thing)`。
-   - 我们使用 Harmony 在该方法前插入逻辑：当目标是 Pawn 或者包含 Pawn 的 `Thing`（如 `Corpse`）时，查询包装器的 `ShouldBlock`。
+   - RimWorld 内部在执行各种鼠标指向/参数选择操作时都会调用 `TargetingParameters.CanTarget`，不同版本或调用场景可能传入 `Thing`、`LocalTargetInfo` 或 `GlobalTargetInfo`。
+   - 我们使用 Harmony 在这些重载方法前插入逻辑：当目标是 Pawn 或者包含 Pawn 的 `Thing`（如 `Corpse`）时，查询包装器的 `ShouldBlock`。
    - 如果包装器标记为拦截，则直接把方法返回值设为 `false` 并跳过原始逻辑，从而阻断所有通过鼠标进行的参数选择。
 
 4. **行为范围**：
