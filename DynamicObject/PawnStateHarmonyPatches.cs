@@ -646,28 +646,8 @@ namespace RimSpine2DFramework
                 {
                     return;
                 }
+                Log.Warning("patched");
                 DynamicPawnStateRegistry.NotifyPawnResurrected(pawn);
-            }
-        }
-
-        [HarmonyPatch(typeof(TargetingParameters), nameof(TargetingParameters.CanTarget), typeof(Thing))]
-        private static class TargetingParameters_CanTarget_Patch
-        {
-            private static bool Prefix(Thing t, ref bool __result)
-            {
-                Pawn pawn = GetPawn(t);
-                if (pawn == null)
-                {
-                    return true;
-                }
-
-                if (!DynamicPawnSelectionWrapper.ShouldBlock(pawn))
-                {
-                    return true;
-                }
-
-                __result = false;
-                return false;
             }
         }
     }

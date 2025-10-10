@@ -380,7 +380,6 @@
     <Compile Include="DynamicPawnStateController.cs" />
     <Compile Include="DynamicPawnStateMachineDef.cs" />
     <Compile Include="DynamicPawnStateRegistry.cs" />
-    <Compile Include="DynamicPawnSelectionWrapper.cs" />
     <Compile Include="DynamicStoryTellerDef.cs" />
     <Compile Include="HarmonyMain.cs" />
     <Compile Include="IncidentWorker_AggressiveOriginiumSlug.cs" />
