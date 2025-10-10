@@ -62,8 +62,8 @@ namespace RimSpine2DFramework
 
                 LoadAndResolveAllDynamicDefs();
                 ResolveAllStoryTellerCameras();
-                HumanlikeThinkTreeLibrary.PopulateTerraHumanlikeThinkTrees(embeddedLoader, embeddedDatabase);
-                HumanlikeRaceLibrary.PopulateTerraHumanlikeRaces(embeddedLoader, embeddedDatabase);
+                //HumanlikeThinkTreeLibrary.PopulateTerraHumanlikeThinkTrees(embeddedLoader, embeddedDatabase);
+                //HumanlikeRaceLibrary.PopulateTerraHumanlikeRaces(embeddedLoader, embeddedDatabase);
                 ModStaticMethod.message = "loaded";
                 ModStaticMethod.AllLevelsLoaded = true;
                 //Log.Warning(ModStaticMethod.message);
