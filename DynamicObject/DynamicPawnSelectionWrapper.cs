@@ -10,7 +10,7 @@ namespace RimSpine2DFramework
     /// </summary>
     internal sealed class DynamicPawnSelectionWrapper
     {
-        private static readonly ConditionalWeakTable<Pawn, DynamicPawnSelectionWrapper> Wrappers = new();
+        private static readonly ConditionalWeakTable<Pawn, DynamicPawnSelectionWrapper> Wrappers = new ConditionalWeakTable<Pawn, DynamicPawnSelectionWrapper>();
 
         private Pawn pawn;
         private bool blockMouseTargeting;

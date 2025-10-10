@@ -29,7 +29,7 @@ namespace RimSpine2DFramework
 
         public bool visibleWhileStored = false;
 
-        [DefaultValue(false)]
+        [Verse.DefaultValue(false)]
         public bool blockMouseTargeting = false;
 
         public class PawnBinding
