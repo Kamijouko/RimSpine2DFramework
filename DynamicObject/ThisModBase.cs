@@ -57,8 +57,8 @@ namespace RimSpine2DFramework
         {
             if (!ModStaticMethod.AllLevelsLoaded)
             {
-                var embeddedDatabase = new EmbeddedDefDatabase();
-                var embeddedLoader = new EmbeddedDefLoader(embeddedDatabase);
+                //var embeddedDatabase = new EmbeddedDefDatabase();
+                //var embeddedLoader = new EmbeddedDefLoader(embeddedDatabase);
 
                 LoadAndResolveAllDynamicDefs();
                 ResolveAllStoryTellerCameras();
