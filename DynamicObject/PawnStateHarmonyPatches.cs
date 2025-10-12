@@ -654,6 +654,7 @@ namespace RimSpine2DFramework
         [HarmonyPatch]
         private static class TargetingParameters_CanTarget_Patch
         {
+            [HarmonyTargetMethods]
             private static IEnumerable<MethodBase> TargetMethods()
             {
                 Type type = typeof(TargetingParameters);

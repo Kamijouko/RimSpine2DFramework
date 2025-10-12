@@ -374,6 +374,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chibi_PawnRenderNode_Body.cs" />
     <Compile Include="DynamicObjectDef.cs" />
     <Compile Include="DynamicObjectInstance.cs" />
     <Compile Include="DynamicObjectPlanDef.cs" />
