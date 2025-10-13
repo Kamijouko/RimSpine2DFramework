@@ -25,6 +25,8 @@ namespace RimSpine2DFramework
 
         public bool hideVanillaPawn = false;
 
+        public bool renderVanillaShadow = false;
+
         public bool visibleWhileCarried = false;
 
         public bool visibleWhileStored = false;

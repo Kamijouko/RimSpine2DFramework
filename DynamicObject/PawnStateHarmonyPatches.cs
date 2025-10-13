@@ -5,6 +5,7 @@ using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -136,6 +137,28 @@ namespace RimSpine2DFramework
 
             DynamicPawnStateController controller = DynamicPawnStateRegistry.GetController(pawn);
             return controller?.HideVanillaPawn == true;
+        }
+
+        private static bool ShouldRenderVanillaShadow(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            DynamicPawnStateController controller = DynamicPawnStateRegistry.GetController(pawn);
+            return controller?.RenderVanillaShadow == true;
+        }
+
+        private static void TryRenderVanillaShadow(Pawn pawn, Vector3? drawLoc = null)
+        {
+            if (!ShouldRenderVanillaShadow(pawn))
+            {
+                return;
+            }
+
+            Vector3 shadowLoc = drawLoc ?? pawn.DrawPos;
+            pawn.DrawShadowAt(shadowLoc);
         }
 
         private static Job GetCurrentJob(Pawn_JobTracker tracker)
@@ -499,7 +522,7 @@ namespace RimSpine2DFramework
         [HarmonyPatch(typeof(PawnRenderer), "RenderPawnAt")]
         private static class PawnRenderer_RenderPawnAt_Patch
         {
-            private static bool Prefix(PawnRenderer __instance)
+            private static bool Prefix(PawnRenderer __instance, Vector3 drawLoc)
             {
                 Pawn pawn = GetPawn(__instance);
                 if (pawn == null)
@@ -507,7 +530,13 @@ namespace RimSpine2DFramework
                     return true;
                 }
 
-                return !ShouldHideVanillaPawn(pawn);
+                if (!ShouldHideVanillaPawn(pawn))
+                {
+                    return true;
+                }
+
+                TryRenderVanillaShadow(pawn, drawLoc);
+                return false;
             }
         }
 
@@ -540,7 +569,13 @@ namespace RimSpine2DFramework
                     return true;
                 }
 
-                return !ShouldHideVanillaPawn(pawn);
+                if (!ShouldHideVanillaPawn(pawn))
+                {
+                    return true;
+                }
+
+                TryRenderVanillaShadow(pawn);
+                return false;
             }
         }
 
