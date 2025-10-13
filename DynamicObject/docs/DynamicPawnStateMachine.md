@@ -48,6 +48,8 @@ skeleton：PawnSkeletonSettings 默认骨架参数，在控制器构造时应用
 
 hideVanillaPawn：布尔开关，默认为 `false`。当设置为 `true` 时，状态机控制器会阻止原版 `PawnRenderer` 绘制该 Pawn，仅保留 Spine 动态模型，适用于完全替换原模型的场景。
 
+renderVanillaShadow：布尔开关，默认为 `false`。仅当 `hideVanillaPawn` 为 `true` 时才会生效，用于继续调用原版阴影绘制逻辑。启用后，Harmony 前缀会在拦截 PawnRenderer 渲染主体之前手动执行 `pawn.DrawShadowAt`，这样可以让隐藏了贴图的 Pawn 仍然保留随风向、姿态变化的原版阴影。
+
 blockMouseTargeting：布尔开关，默认为 `false`。当设置为 `true` 时，会给对应的 Pawn 注册一个“鼠标选取拦截器”，阻止 RimWorld 的目标选取系统在鼠标拾取目标时把该 Pawn 当作合法的目标（覆盖 `TargetingParameters.CanTarget` 的多个常见重载），从而避免被动弹窗、技能指向等鼠标参数选择操作选中它。设计细节与使用建议参见《DynamicPawnSelectionWrapper 设计说明》文档。
 
 PawnBinding 字段

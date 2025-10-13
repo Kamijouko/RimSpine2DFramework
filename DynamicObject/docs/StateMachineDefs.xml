@@ -13,6 +13,7 @@
                         <cameraDistance>0</cameraDistance>
                 </skeleton>
                 <hideVanillaPawn>true</hideVanillaPawn>
+                <renderVanillaShadow>true</renderVanillaShadow>
                 <!-- 控制对象在被搬运或收纳时是否仍然渲染，缺省为 false -->
                 <visibleWhileCarried>false</visibleWhileCarried>
                 <visibleWhileStored>false</visibleWhileStored>

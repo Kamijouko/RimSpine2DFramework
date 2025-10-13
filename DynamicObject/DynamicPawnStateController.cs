@@ -77,6 +77,8 @@ namespace RimSpine2DFramework
 
         public bool HideVanillaPawn => definition?.hideVanillaPawn == true;
 
+        public bool RenderVanillaShadow => definition?.renderVanillaShadow == true;
+
         public bool VisibleWhileCarried => definition?.visibleWhileCarried ?? false;
 
         public bool VisibleWhileStored => definition?.visibleWhileStored ?? false;
