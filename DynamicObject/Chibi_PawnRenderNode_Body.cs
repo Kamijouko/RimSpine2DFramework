@@ -18,26 +18,23 @@ namespace RimSpine2DFramework
 
         public override Graphic GraphicFor(Pawn pawn)
         {
+            if (props.texPath.NullOrEmpty())
+            {
+                return null;
+            }
             Shader shader = base.ShaderFor(pawn);
             if (shader == null)
             {
                 return null;
             }
+            return GraphicDatabase.Get<Graphic_Single>(props.texPath, shader, Vector2.one, this.ColorFor(pawn));
+            /*if (pawn.story.bodyType == BodyTypeDefOf.Thin)
+            {
+                pawn.story.bodyType = pawn.story.Childhood.bodyTypeFemale;
+            }
             if (pawn.Drawer.renderer.CurRotDrawMode == RotDrawMode.Dessicated)
             {
                 return GraphicDatabase.Get<Graphic_Single>(pawn.story.bodyType.bodyDessicatedGraphicPath, shader);
-            }
-            if (pawn.IsMutant && !pawn.mutant.Def.bodyTypeGraphicPaths.NullOrEmpty<BodyTypeGraphicData>())
-            {
-                string bodyGraphicPath = pawn.mutant.Def.GetBodyGraphicPath(pawn);
-                if (bodyGraphicPath != null)
-                {
-                    return GraphicDatabase.Get<Graphic_Single>(bodyGraphicPath, shader, Vector2.one, this.ColorFor(pawn));
-                }
-            }
-            if (ModsConfig.AnomalyActive && pawn.IsCreepJoiner && pawn.story.bodyType != null && !pawn.creepjoiner.form.bodyTypeGraphicPaths.NullOrEmpty<BodyTypeGraphicData>())
-            {
-                return GraphicDatabase.Get<Graphic_Single>(pawn.creepjoiner.form.GetBodyGraphicPath(pawn), shader, Vector2.one, this.ColorFor(pawn));
             }
             Pawn_StoryTracker story = pawn.story;
             bool flag;
@@ -54,7 +51,7 @@ namespace RimSpine2DFramework
             {
                 return null;
             }
-            return GraphicDatabase.Get<Graphic_Single>(pawn.story.bodyType.bodyNakedGraphicPath, shader, Vector2.one, this.ColorFor(pawn));
+            return GraphicDatabase.Get<Graphic_Single>(pawn.story.bodyType.bodyNakedGraphicPath, shader, Vector2.one, this.ColorFor(pawn));*/
         }
     }
 }
