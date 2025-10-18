@@ -223,6 +223,11 @@ namespace RimSpine2DFramework
                 else
                 {
                     drawPosition = curPawn.DrawPos;
+                    if (pawnStateController?.ShouldSuppressAttackDash == true)
+                    {
+                        Vector3 basePosition = curPawn.Position.ToVector3ShiftedWithAltitude(AltitudeLayer.Pawn);
+                        drawPosition = new Vector3(basePosition.x, drawPosition.y, basePosition.z);
+                    }
                     drawMap = curPawn.Map;
                 }
 

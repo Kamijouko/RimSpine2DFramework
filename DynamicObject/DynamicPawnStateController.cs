@@ -85,6 +85,8 @@ namespace RimSpine2DFramework
 
         public bool BlockMouseTargeting => definition?.blockMouseTargeting == true;
 
+        public bool DisableAttackDash => definition?.disableAttackDash == true;
+
         public bool ShouldRenderWhilePawnDestroyed
         {
             get
@@ -99,6 +101,29 @@ namespace RimSpine2DFramework
                 bool holdingDeathPose = currentStateIsDeathState && holdPoseActive;
 
                 return playingDeathAnimation || holdingDeathPose;
+            }
+        }
+
+        internal bool ShouldSuppressAttackDash
+        {
+            get
+            {
+                if (!DisableAttackDash)
+                {
+                    return false;
+                }
+
+                if (!currentStateFromVerb)
+                {
+                    return false;
+                }
+
+                if (pawn?.pather?.Moving == true)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 
