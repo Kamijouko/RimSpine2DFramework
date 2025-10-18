@@ -31,6 +31,8 @@ namespace RimSpine2DFramework
 
         public bool visibleWhileStored = false;
 
+        public bool disableAttackDash = false;
+
         [Verse.DefaultValue(false)]
         public bool blockMouseTargeting = false;
 
