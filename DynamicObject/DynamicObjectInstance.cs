@@ -42,6 +42,8 @@ namespace RimSpine2DFramework
 
         private bool VisibleWhileStored => pawnStateController?.VisibleWhileStored ?? false;
 
+        private IReadOnlyList<string> VisibleWhileStoredHolderFilters => pawnStateController?.VisibleWhileStoredHolderFilters;
+
         private const int InteractionTrackIndex = 1;
         private const float InteractionFadeInMixDuration = 0.2f;
         private const float InteractionFadeOutMixDuration = 0.4f;
@@ -434,6 +436,11 @@ namespace RimSpine2DFramework
                 return false;
             }
 
+            if (ShouldForceVisibilityForHolder(holder))
+            {
+                return false;
+            }
+
             if (holder is Pawn_CarryTracker)
             {
                 return !VisibleWhileCarried;
@@ -442,6 +449,66 @@ namespace RimSpine2DFramework
             if (IsStoredInHolder(holder))
             {
                 return !VisibleWhileStored;
+            }
+
+            return false;
+        }
+
+        private bool ShouldForceVisibilityForHolder(IThingHolder holder)
+        {
+            IReadOnlyList<string> filters = VisibleWhileStoredHolderFilters;
+
+            if (filters == null || filters.Count == 0 || holder == null)
+            {
+                return false;
+            }
+
+            Thing holderThing = holder as Thing;
+            Type holderType = holder.GetType();
+
+            foreach (string filter in filters)
+            {
+                if (string.IsNullOrEmpty(filter))
+                {
+                    continue;
+                }
+
+                if (MatchesHolderFilter(filter, holderType, holderThing))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool MatchesHolderFilter(string filter, Type holderType, Thing holderThing)
+        {
+            if (holderType != null)
+            {
+                Type currentType = holderType;
+
+                while (currentType != null)
+                {
+                    if (string.Equals(currentType.FullName, filter, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(currentType.Name, filter, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+
+                    currentType = currentType.BaseType;
+                }
+            }
+
+            if (holderThing?.def != null)
+            {
+                string defName = holderThing.def.defName;
+
+                if (!string.IsNullOrEmpty(defName)
+                    && string.Equals(defName, filter, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
             }
 
             return false;

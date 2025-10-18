@@ -83,6 +83,8 @@ namespace RimSpine2DFramework
 
         public bool VisibleWhileStored => definition?.visibleWhileStored ?? false;
 
+        public IReadOnlyList<string> VisibleWhileStoredHolderFilters => definition?.visibleWhileStoredHolderFilters;
+
         public bool BlockMouseTargeting => definition?.blockMouseTargeting == true;
 
         public bool DisableAttackDash => definition?.disableAttackDash == true;

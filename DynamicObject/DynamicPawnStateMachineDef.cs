@@ -31,6 +31,8 @@ namespace RimSpine2DFramework
 
         public bool visibleWhileStored = false;
 
+        public List<string> visibleWhileStoredHolderFilters = new List<string>();
+
         public bool disableAttackDash = false;
 
         [Verse.DefaultValue(false)]
