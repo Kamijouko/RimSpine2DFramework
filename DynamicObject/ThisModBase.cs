@@ -41,6 +41,8 @@ namespace RimSpine2DFramework
         public Harmony harmonyInstance;
 
 
+        private static bool languageReloadScheduled;
+
         internal void LateInitialize()
         {
             try
@@ -51,6 +53,21 @@ namespace RimSpine2DFramework
             {
                 LogSimple.Message("An exception occurred during late initialization: " + e);
             }
+        }
+
+        internal static void QueueReloadForLanguageChange()
+        {
+            if (languageReloadScheduled)
+            {
+                return;
+            }
+
+            languageReloadScheduled = true;
+            LongEventHandler.ExecuteWhenFinished(() =>
+            {
+                languageReloadScheduled = false;
+                ForceReloadDynamicContent();
+            });
         }
 
         internal static void LoadInitialize()
@@ -67,6 +84,68 @@ namespace RimSpine2DFramework
                 ModStaticMethod.message = "loaded";
                 ModStaticMethod.AllLevelsLoaded = true;
                 //Log.Warning(ModStaticMethod.message);
+            }
+        }
+
+        private static void ForceReloadDynamicContent()
+        {
+            try
+            {
+                ModStaticMethod.AllLevelsLoaded = false;
+                ClearDynamicContentCaches();
+                LoadAndResolveAllDynamicDefs();
+                ResolveAllStoryTellerCameras();
+                ModStaticMethod.message = "loaded";
+            }
+            catch (Exception e)
+            {
+                LogSimple.Message("An exception occurred while reloading dynamic content: " + e);
+            }
+            finally
+            {
+                ModStaticMethod.AllLevelsLoaded = true;
+            }
+        }
+
+        private static void ClearDynamicContentCaches()
+        {
+            try
+            {
+                foreach (GameObject storytellerObject in ModDynamicObjectManager.DynamicStoryTellerDatabase.Values)
+                {
+                    if (storytellerObject == null)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        Camera camera = storytellerObject.GetComponent<Camera>();
+                        if (camera != null)
+                        {
+                            RenderTexture target = camera.targetTexture;
+                            camera.targetTexture = null;
+                            if (target != null)
+                            {
+                                target.Release();
+                                UnityEngine.Object.Destroy(target);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        UnityEngine.Object.Destroy(storytellerObject);
+                    }
+                }
+            }
+            finally
+            {
+                ModDynamicObjectManager.DynamicStoryTellerDatabase.Clear();
+                ModDynamicObjectManager.lastChosenStoryTeller = null;
+                ModDynamicObjectManager.spine35Database.Clear();
+                ModDynamicObjectManager.spine38Database.Clear();
+                ModDynamicObjectManager.spine40Database.Clear();
+                ModDynamicObjectManager.spine41Database.Clear();
             }
         }
 
