@@ -188,39 +188,9 @@ namespace RimSpine2DFramework
                                 else
                                 {
                                     Find.WindowStack.Add(new Dialog_AnomalySettings(difficultyValues));
-        }
-
-        [HarmonyPatch]
-        public static class LanguageReloadPatch
-        {
-            private static readonly string[] TargetMethodNames = new[]
-            {
-                "SelectLanguage",
-                "SetActiveLanguage",
-                "TrySetActiveLanguage",
-                "TrySelectActiveLanguage"
-            };
-
-            static IEnumerable<MethodBase> TargetMethods()
-            {
-                Type languageDatabaseType = typeof(LanguageDatabase);
-                foreach (string methodName in TargetMethodNames)
-                {
-                    MethodInfo method = AccessTools.Method(languageDatabaseType, methodName);
-                    if (method != null)
-                    {
-                        yield return method;
-                    }
-                }
-            }
-
-            static void Postfix()
-            {
-                ThisModBase.QueueReloadForLanguageChange();
-            }
-        }
-    }
-}
+                                }
+                            }
+                        }
                     }
 					num = rect3.y + infoListing.CurHeight;
 					infoListing.End();
@@ -554,6 +524,37 @@ namespace RimSpine2DFramework
 				DrawCustomSectionEnd(listing, listing_Standard, out sectionHeightAdaptation);
 			}
 		}
+
+
+        [HarmonyPatch]
+        public static class LanguageReloadPatch
+        {
+            private static readonly string[] TargetMethodNames = new[]
+            {
+                "SelectLanguage",
+                "SetActiveLanguage",
+                "TrySetActiveLanguage",
+                "TrySelectActiveLanguage"
+            };
+
+            static IEnumerable<MethodBase> TargetMethods()
+            {
+                Type languageDatabaseType = typeof(LanguageDatabase);
+                foreach (string methodName in TargetMethodNames)
+                {
+                    MethodInfo method = AccessTools.Method(languageDatabaseType, methodName);
+                    if (method != null)
+                    {
+                        yield return method;
+                    }
+                }
+            }
+
+            static void Postfix()
+            {
+                ThisModBase.QueueReloadForLanguageChange();
+            }
+        }
 
 		/*[HarmonyPatch(typeof(PawnGraphicSet))]
 		[HarmonyPatch("ResolveAllGraphics")]
