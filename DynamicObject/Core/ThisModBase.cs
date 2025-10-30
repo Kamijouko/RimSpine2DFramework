@@ -87,13 +87,31 @@ namespace RimSpine2DFramework
             }
         }
 
+        internal static void ReloadInitialize()
+        {
+            if (!ModStaticMethod.AllLevelsLoaded)
+            {
+                LoadAndResolveAllDynamicDefs();
+                ResolveAllStoryTellerCameras();
+                ModStaticMethod.message = "reloaded";
+                ModStaticMethod.AllLevelsLoaded = true;
+            }
+        }
+
         private static void ForceReloadDynamicContent()
         {
             try
             {
                 ModStaticMethod.AllLevelsLoaded = false;
                 ClearDynamicContentCaches();
-                Instance.LateInitialize();
+                try
+                {
+                    LongEventHandler.QueueLongEvent(ReloadInitialize, "resolving all dynamic defs", false, null);
+                }
+                catch (Exception e)
+                {
+                    LogSimple.Message("An exception occurred during reloading initialization: " + e);
+                }
             }
             catch (Exception e)
             {
@@ -143,7 +161,7 @@ namespace RimSpine2DFramework
             }
         }
 
-        public static void LoadAndResolveAllDynamicDefs()
+        public static void LoadAndResolveAllDynamicDefs(bool reloadDefinitions = true)
         {
             List<DynamicObjectDef> list = DefDatabase<DynamicObjectDef>.AllDefsListForReading;
             if (list.NullOrEmpty())
@@ -284,7 +302,8 @@ namespace RimSpine2DFramework
                     ModDynamicObjectManager.spine41Database.Add(def.defName, data);
                 }
             }
-            DynamicPawnStateRegistry.ReloadDefinitions();
+            if (reloadDefinitions)
+                DynamicPawnStateRegistry.ReloadDefinitions();
         }
 
         public static void ResolveAllStoryTellerCameras()
