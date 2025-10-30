@@ -93,17 +93,11 @@ namespace RimSpine2DFramework
             {
                 ModStaticMethod.AllLevelsLoaded = false;
                 ClearDynamicContentCaches();
-                LoadAndResolveAllDynamicDefs();
-                ResolveAllStoryTellerCameras();
-                ModStaticMethod.message = "loaded";
+                Instance.LateInitialize();
             }
             catch (Exception e)
             {
                 LogSimple.Message("An exception occurred while reloading dynamic content: " + e);
-            }
-            finally
-            {
-                ModStaticMethod.AllLevelsLoaded = true;
             }
         }
 
