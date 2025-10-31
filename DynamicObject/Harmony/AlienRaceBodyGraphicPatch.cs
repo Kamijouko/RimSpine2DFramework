@@ -14,7 +14,7 @@ namespace RimSpine2DFramework
 
         private static bool Prepare()
         {
-            return ModsConfig.ActiveModsInLoadOrder.Any(mod => mod?.PackageIdPlayerFacing != null && mod.PackageIdLowerCase == AlienRacePackageId);
+            return ModsConfig.ActiveModsInLoadOrder.Any(mod => mod?.PackageIdPlayerFacing != null && mod.packageIdLowerCase == AlienRacePackageId);
         }
 
         private static MethodBase TargetMethod()
