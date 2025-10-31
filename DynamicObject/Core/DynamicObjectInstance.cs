@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -64,6 +65,8 @@ namespace RimSpine2DFramework
             { Tuple.Create(ImportMode.File, Spine41Adapter.Version), Spine41Adapter },
             { Tuple.Create(ImportMode.AssetBundle, Spine41Adapter.Version), Spine41Adapter }
         };
+
+        private static readonly FieldInfo ThingMapIndexOrStateField = typeof(Thing).GetField("mapIndexOrState", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public bool IsNull
         {
@@ -210,7 +213,12 @@ namespace RimSpine2DFramework
 
             if (!curPawn.DestroyedOrNull())
             {
-                bool shouldUseHeldThingDrawInfo = !curPawn.Spawned || IsHeldByNonMapParentHolder(curPawn);
+                if (!TryGetSpawnedState(curPawn, out bool pawnSpawned))
+                {
+                    return false;
+                }
+
+                bool shouldUseHeldThingDrawInfo = !pawnSpawned || IsHeldByNonMapParentHolder(curPawn);
 
                 if (shouldUseHeldThingDrawInfo)
                 {
@@ -230,6 +238,7 @@ namespace RimSpine2DFramework
                         Vector3 basePosition = curPawn.Position.ToVector3ShiftedWithAltitude(AltitudeLayer.Pawn);
                         drawPosition = new Vector3(basePosition.x, drawPosition.y, basePosition.z);
                     }
+
                     drawMap = curPawn.Map;
                 }
 
@@ -244,7 +253,12 @@ namespace RimSpine2DFramework
                 return false;
             }
 
-            if (corpse.Spawned)
+            if (!TryGetSpawnedState(corpse, out bool corpseSpawned))
+            {
+                return false;
+            }
+
+            if (corpseSpawned)
             {
                 drawPosition = corpse.DrawPos;
                 drawMap = corpse.Map;
@@ -514,6 +528,44 @@ namespace RimSpine2DFramework
             return false;
         }
 
+        private static bool TryGetSpawnedState(Thing thing, out bool spawned)
+        {
+            spawned = false;
+
+            if (thing == null)
+            {
+                return false;
+            }
+
+            if (ThingMapIndexOrStateField != null)
+            {
+                object rawValue = ThingMapIndexOrStateField.GetValue(thing);
+
+                if (rawValue is int mapIndexOrState)
+                {
+                    if (mapIndexOrState >= 0)
+                    {
+                        List<Map> maps = Find.Maps;
+                        int mapCount = maps?.Count ?? 0;
+
+                        if (mapIndexOrState < mapCount)
+                        {
+                            spawned = true;
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    spawned = false;
+                    return true;
+                }
+            }
+
+            spawned = thing.Spawned;
+            return true;
+        }
+
         private static bool IsHeldByNonMapParentHolder(Thing thing)
         {
             if (thing == null)
@@ -554,8 +606,13 @@ namespace RimSpine2DFramework
 
                 if (carrier != null)
                 {
-                    holderMap = carrier.MapHeld;
-                    holderPosition = carrier.Spawned ? carrier.DrawPos : GetHeldThingFallbackPosition(thing);
+                    if (!TryGetSpawnedState(carrier, out bool carrierSpawned))
+                    {
+                        return false;
+                    }
+
+                    holderMap = carrierSpawned ? carrier.Map : GetThingHolderMap(holder);
+                    holderPosition = carrierSpawned ? carrier.DrawPos : GetHeldThingFallbackPosition(thing);
                 }
                 else
                 {
@@ -580,8 +637,13 @@ namespace RimSpine2DFramework
 
             if (holder is Thing holderThing)
             {
-                holderMap = holderThing.MapHeld;
-                holderPosition = holderThing.Spawned ? holderThing.DrawPos : GetHeldThingFallbackPosition(holderThing);
+                if (!TryGetSpawnedState(holderThing, out bool holderThingSpawned))
+                {
+                    return false;
+                }
+
+                holderMap = holderThingSpawned ? holderThing.Map : GetThingHolderMap(holder);
+                holderPosition = holderThingSpawned ? holderThing.DrawPos : GetHeldThingFallbackPosition(holderThing);
 
                 if (holderMap == null)
                 {
@@ -766,7 +828,17 @@ namespace RimSpine2DFramework
 
             if (holder is Thing holderThing)
             {
-                return holderThing.MapHeld ?? ThingOwnerUtility.GetRootMap(holder);
+                if (!TryGetSpawnedState(holderThing, out bool holderSpawned))
+                {
+                    return ThingOwnerUtility.GetRootMap(holder);
+                }
+
+                if (holderSpawned)
+                {
+                    return holderThing.Map;
+                }
+
+                return ThingOwnerUtility.GetRootMap(holder);
             }
 
             return ThingOwnerUtility.GetRootMap(holder);
@@ -786,7 +858,7 @@ namespace RimSpine2DFramework
                 return positionHeld.ToVector3Shifted();
             }
 
-            if (thing.Spawned)
+            if (TryGetSpawnedState(thing, out bool thingSpawned) && thingSpawned)
             {
                 return thing.DrawPos;
             }
