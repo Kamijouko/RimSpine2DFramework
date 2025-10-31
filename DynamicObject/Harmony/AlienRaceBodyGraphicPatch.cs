@@ -29,11 +29,12 @@ namespace RimSpine2DFramework
         }
 
         [HarmonyPriority(Priority.First)]
-        private static bool Prefix(object __instance, Pawn pawn, ref Graphic __result)
+        private static bool Prefix(PawnRenderNode_Body __instance, Pawn pawn, [HarmonyArgument(2)] ref Graphic bodyGraphic, ref bool __result)
         {
             if (__instance is Chibi_PawnRenderNode_Body chibiNode && chibiNode.TryResolveChibiGraphic(pawn, out Graphic graphic))
             {
-                __result = graphic;
+                bodyGraphic = graphic;
+                __result = false;
                 return false;
             }
 
