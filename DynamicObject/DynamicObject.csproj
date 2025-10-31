@@ -383,6 +383,7 @@
     <Compile Include="Pawn\StateMachine\DynamicPawnStateRegistry.cs" />
     <Compile Include="Pawn\StateMachine\DynamicPawnSelectionWrapper.cs" />
     <Compile Include="Definitions\DynamicStoryTellerDef.cs" />
+    <Compile Include="Harmony\AlienRaceBodyGraphicPatch.cs" />
     <Compile Include="Harmony\HarmonyMain.cs" />
     <Compile Include="Incidents\IncidentWorker_AggressiveOriginiumSlug.cs" />
     <Compile Include="Harmony\PawnStateHarmonyPatches.cs" />
