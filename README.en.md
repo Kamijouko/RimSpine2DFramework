@@ -7,7 +7,6 @@ RimSpine2DFramework adds Spine 2D animation support to **RimWorld** mods. It pro
 - **Spine 2D integration:** Bridges RimWorld's rendering pipeline with Spine skeletons and animations.
 - **Dynamic pawn animation state machines:** Maps in-game pawn behaviors to matching animation states so characters respond naturally.
 - **Extensible XML definitions:** Provides XML and C# helpers for adding new animated pawns, objects, and thought handlers.
-- **Documentation and examples:** Includes reference docs in `DynamicObject/docs/` to help mod authors adapt the framework.
 
 ## Repository layout
 
