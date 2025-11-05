@@ -13,20 +13,28 @@ RimSpine2DFramework 为 **RimWorld** 模组提供 Spine 2D 动画支持，帮助
 
 | 路径 | 说明 |
 | --- | --- |
-| `DynamicObject/` | 框架核心 C# 源码，包括动画处理与 Harmony 补丁。 |
-| `DynamicObject/docs/` | 支持文档（C# 参考、XML 示例、状态机定义等）。 |
-| `DynamicObject/Spine/` | Spine 动画数据相关的实用工具。 |
+| `DynamicObject/` | 框架核心 C# 项目，包含运行时逻辑与游戏集成代码。 |
+| `DynamicObject/Abandoned/` | 历史实验与未使用的原型，仅供参考。 |
+| `DynamicObject/Core/` | 模组入口类、对象管理器与通用运行时辅助功能。 |
+| `DynamicObject/Definitions/` | 用于暴露动态物体、计划、角色与讲述者的 XML `Def` 类。 |
+| `DynamicObject/Graphics/` | 负责加载 Spine 动画并绑定 RimWorld 贴图的结构。 |
+| `DynamicObject/Harmony/` | 向 RimWorld 引擎注入 Spine 行为的 Harmony 补丁。 |
+| `DynamicObject/Incidents/` | 自定义事件处理，例如带动画效果的源石虫事件。 |
+| `DynamicObject/Pawn/` | 驱动游戏内动画的角色组件、渲染器与状态机。 |
+| `DynamicObject/Properties/` | 模组程序集的元数据。 |
+| `DynamicObject/Spine/` | 不同 Spine 运行时版本的封装与适配工具。 |
+| `DynamicObject.sln` | 用于本地构建与调试的 Visual Studio 解决方案。 |
 
 ## 使用方法
 
-1. 前往 Steam 创意工坊订阅 [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)。
+1. 前往 Steam 创意工坊订阅 [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)。
 2. 在 RimWorld 启动器中启用该模组并开始游戏。
-3. 若你是模组作者，希望基于本框架拓展功能，请参考 [仓库 Wiki](https://github.com/0x7C13/RimSpine2DFramework/wiki) 以及 `DynamicObject/docs/` 中的资料。
+3. 若你是模组作者，希望基于本框架拓展功能，请参考 [仓库 Wiki](https://github.com/Kamijouko/RimSpine2DFramework/wiki) 以及 `DynamicObject/docs/` 中的资料。
 
 ## 相关链接
 
-- Steam 创意工坊：[RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)
-- 示例模组：[ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010113041)
+- Steam 创意工坊：[RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
+- 示例模组：[ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
 
 ## 许可说明
 
