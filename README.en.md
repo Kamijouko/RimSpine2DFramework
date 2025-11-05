@@ -13,20 +13,28 @@ RimSpine2DFramework adds Spine 2D animation support to **RimWorld** mods. It pro
 
 | Path | Description |
 | --- | --- |
-| `DynamicObject/` | Core C# source for the framework, including animation handlers and Harmony patches. |
-| `DynamicObject/docs/` | Supporting documentation (C# references, XML samples, and state machine definitions). |
-| `DynamicObject/Spine/` | Spine-related utilities for handling animation data. |
+| `DynamicObject/` | Core C# project containing the runtime logic and game integration code. |
+| `DynamicObject/Abandoned/` | Legacy experiments and unused prototypes kept for reference. |
+| `DynamicObject/Core/` | Mod bootstrap classes, object managers, and shared runtime helpers. |
+| `DynamicObject/Definitions/` | XML-backed `Def` classes that expose dynamic objects, plans, pawns, and storytellers. |
+| `DynamicObject/Graphics/` | Structures for loading Spine animations and binding RimWorld textures. |
+| `DynamicObject/Harmony/` | Harmony patches that inject Spine-driven behavior into the RimWorld engine. |
+| `DynamicObject/Incidents/` | Custom incident workers, such as animated Originium slug events. |
+| `DynamicObject/Pawn/` | Pawn components, renderers, and state machines that drive in-game animations. |
+| `DynamicObject/Properties/` | Assembly metadata for the compiled mod. |
+| `DynamicObject/Spine/` | Runtime wrappers for different Spine runtime versions plus adapter helpers. |
+| `DynamicObject.sln` | Visual Studio solution for building and debugging the mod locally. |
 
 ## How to use
 
-1. Subscribe to [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716) on the Steam Workshop.
+1. Subscribe to [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963) on the Steam Workshop.
 2. Enable the mod in RimWorld and launch the game.
 3. Mod authors who want to extend the framework can consult the [repository wiki](https://github.com/0x7C13/RimSpine2DFramework/wiki) and the docs in `DynamicObject/docs/`.
 
 ## Additional resources
 
-- Steam Workshop: [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)
-- Example mod: [ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010113041)
+- Steam Workshop: [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
+- Example mod: [ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
 
 ## License
 
