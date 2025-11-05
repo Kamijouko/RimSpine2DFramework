@@ -29,7 +29,7 @@ RimSpine2DFramework adds Spine 2D animation support to **RimWorld** mods. It pro
 
 1. Subscribe to [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963) on the Steam Workshop.
 2. Enable the mod in RimWorld and launch the game.
-3. Mod authors who want to extend the framework can consult the [repository wiki](https://github.com/0x7C13/RimSpine2DFramework/wiki) and the docs in `DynamicObject/docs/`.
+3. Mod authors who want to extend the framework can consult the [repository wiki](https://github.com/Kamijouko/RimSpine2DFramework/wiki) and the docs in `DynamicObject/docs/`.
 
 ## Additional resources
 
