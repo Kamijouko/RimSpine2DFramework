@@ -13,20 +13,28 @@ RimSpine2DFramework は **RimWorld** の mod 向けに Spine 2D アニメーシ�
 
 | パス | 内容 |
 | --- | --- |
-| `DynamicObject/` | フレームワークの中核となる C# ソース（アニメーション処理や Harmony パッチを含む）。 |
-| `DynamicObject/docs/` | 参考ドキュメント（C# リファレンス、XML サンプル、ステートマシン定義など）。 |
-| `DynamicObject/Spine/` | Spine アニメーションデータを扱うユーティリティ。 |
+| `DynamicObject/` | ランタイム処理とゲーム連携コードを含むコア C# プロジェクト。 |
+| `DynamicObject/Abandoned/` | 参考用に残している旧実験コードと未使用プロトタイプ。 |
+| `DynamicObject/Core/` | Mod 起動クラス、オブジェクトマネージャー、共通ランタイムヘルパー。 |
+| `DynamicObject/Definitions/` | 動的オブジェクトやプラン、ポーン、ストーリーテラーを定義する XML `Def` クラス。 |
+| `DynamicObject/Graphics/` | Spine アニメーションの読み込みと RimWorld テクスチャの紐付けを行う構造体。 |
+| `DynamicObject/Harmony/` | RimWorld エンジンに Spine 駆動の挙動を注入する Harmony パッチ。 |
+| `DynamicObject/Incidents/` | アニメ付きオリジニウムスラッグなどのカスタムインシデントワーカー。 |
+| `DynamicObject/Pawn/` | ゲーム内アニメーションを制御するポーンのコンポーネント、レンダラー、ステートマシン。 |
+| `DynamicObject/Properties/` | Mod アセンブリのメタデータ。 |
+| `DynamicObject/Spine/` | 各 Spine ランタイムバージョン向けのラッパーとアダプター。 |
+| `DynamicObject.sln` | ローカル開発用の Visual Studio ソリューション。 |
 
 ## 利用方法
 
-1. Steam ワークショップで [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716) を購読します。
+1. Steam ワークショップで [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963) を登録します。
 2. RimWorld のランチャーで mod を有効化し、ゲームを開始します。
 3. フレームワークを拡張したい mod 作者は、[リポジトリの Wiki](https://github.com/0x7C13/RimSpine2DFramework/wiki) と `DynamicObject/docs/` の資料を参照してください。
 
 ## 関連リンク
 
-- Steam ワークショップ: [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)
-- サンプル mod: [ArknightsStoryTellers 明日方舟動態語り部](https://steamcommunity.com/sharedfiles/filedetails/?id=3010113041)
+- Steam ワークショップ: [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
+- サンプル mod: [ArknightsStoryTellers 明日方舟動態語り部](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
 
 ## ライセンス
 
