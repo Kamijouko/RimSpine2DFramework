@@ -33,8 +33,8 @@ RimSpine2DFramework は **RimWorld** の mod 向けに Spine 2D アニメーシ�
 
 ## 関連リンク
 
-- Steam ワークショップ: [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
-- サンプル mod: [ArknightsStoryTellers 明日方舟動態語り部](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
+- Steam ワークショップ: [RimSpine2DFramework](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
+- サンプル mod: [ArknightsStoryTellers](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
 
 ## ライセンス
 
