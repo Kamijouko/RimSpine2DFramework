@@ -9,8 +9,8 @@ Welcome to the RimSpine2DFramework documentation hub. Choose your preferred lang
 | 日本語 | [README.ja.md](README.ja.md) |
 
 > Looking for the original Steam workshop entries?
-> * [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010067716)
-> * [ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010113041)
+> * [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)
+> * [ArknightsStoryTellers 明日方舟动态叙述者](https://steamcommunity.com/sharedfiles/filedetails/?id=3010189725)
 
 ## About the project
 
