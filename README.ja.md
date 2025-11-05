@@ -27,7 +27,7 @@ RimSpine2DFramework は **RimWorld** の mod 向けに Spine 2D アニメーシ�
 
 ## 利用方法
 
-1. Steam ワークショップで [RimSpine2DFramework 動態フレームワーク](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963) を登録します。
+1. Steam ワークショップで [RimSpine2DFramework](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963) を登録します。
 2. RimWorld のランチャーで mod を有効化し、ゲームを開始します。
 3. フレームワークを拡張したい mod 作者は、[リポジトリの Wiki](https://github.com/0x7C13/RimSpine2DFramework/wiki) と `DynamicObject/docs/` の資料を参照してください。
 
