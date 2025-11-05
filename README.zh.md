@@ -29,7 +29,7 @@ RimSpine2DFramework 为 **RimWorld** 模组提供 Spine 2D 动画支持，帮助
 
 1. 前往 Steam 创意工坊订阅 [RimSpine2DFramework 动态框架](https://steamcommunity.com/sharedfiles/filedetails/?id=3010174963)。
 2. 在 RimWorld 启动器中启用该模组并开始游戏。
-3. 若你是模组作者，希望基于本框架拓展功能，请参考 [仓库 Wiki](https://github.com/Kamijouko/RimSpine2DFramework/wiki) 以及 `DynamicObject/docs/` 中的资料。
+3. 若你是模组作者，希望基于本框架拓展功能，请参考 [仓库 Wiki](https://github.com/Kamijouko/RimSpine2DFramework/wiki) 中的资料。
 
 ## 相关链接
 
