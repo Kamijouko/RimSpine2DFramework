@@ -1,6 +1,5 @@
 # 🧩 プロジェクトコードファイル出典リスト
-
-- `DynamicObject/docs` および `DynamicObject/Abandoned` ディレクトリは掲載していません。  
+ 
 - `Spine3.5`、`Spine3.8`、`Spine4.0`、`Spine4.1` ディレクトリは **Spine2D公式ランタイムコード** に由来し、内部ファイルは展開していません。
 
 ```text
